@@ -1,0 +1,9 @@
+.image {
+    display: inline-block;
+    vertical-align: top;
+    text-align: justify;
+}
+
+.label {
+    text-align: justify;
+}
