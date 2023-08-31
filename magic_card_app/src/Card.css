@@ -1,9 +1,28 @@
-.image {
-    display: inline-block;
-    vertical-align: top;
-    text-align: justify;
+.back {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    left: 93%;
+    background-color: rgb(52, 5, 80, 0.7);
+    font-size: x-large;
+    text-align: center;
+    color: white;
+    border-radius: 16px;
+    text-decoration: none;
 }
 
-.label {
-    text-align: justify;
+.image {
+    border-radius: 16px;
+}
+
+.buy-card {
+    position: absolute;
+    bottom: 10px;
+    left: 1%
+}
+
+.add-card {
+    position: absolute;
+    bottom: 10px;
+    left: 85%;
 }

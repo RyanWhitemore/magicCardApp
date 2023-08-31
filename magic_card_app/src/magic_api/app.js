@@ -1,5 +1,5 @@
 const express = require("express")
-const { addCardToDb, getCardsByUserId } = require("./routeFunctions")
+const { addCardToDb, getCardsByUserId, deleteCardFromDb } = require("./routeFunctions")
 const cors = require("cors")
 
 
@@ -19,6 +19,10 @@ app.get("/getCards", (req, res) => {
 
 app.put("/addCard", (req, res) => {
     addCardToDb(req, res)
+})
+
+app.delete("/deleteCard", (req, res) => {
+    deleteCardFromDb(req, res)
 })
 
 app.listen(port)

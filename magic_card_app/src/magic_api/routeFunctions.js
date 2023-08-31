@@ -53,7 +53,29 @@ const getCardsByUserId = async (req, res) => {
 } 
 
 
+const deleteCardFromDb = async (req, res) => {
+    const cardId = req.query.cardId
+    const cardUserID = req.query.userId
+
+    try {
+        
+        const collection = client.db("magicCards")
+        const magicCards = collection.collection("magicCards")
+
+        const query = {id: cardId, userId: 2}
+
+       await magicCards.deleteOne(query)
+ 
+
+        res.status(200)
+
+    } catch  (err) {
+        throw(err)
+    }
+}
+
 module.exports = {
     addCardToDb: addCardToDb,
-    getCardsByUserId: getCardsByUserId
+    getCardsByUserId: getCardsByUserId,
+    deleteCardFromDb: deleteCardFromDb
 }
