@@ -1,12 +1,14 @@
-import {React, useState} from "react";
+import {React, useEffect, useState} from "react";
 import axios from "axios";
 import Card from "./Card";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "./Home.css"
 
 
 
 const Home = () => {
+
+    const [ defaultCards, setDefaultCards ] = useState()
 
     const [search, setSearch] = useState("")
 
@@ -14,6 +16,21 @@ const Home = () => {
 
     const [ suggestions, setSuggestions ] = useState([])
 
+    const getDefaultCards = async () => {
+        const results = await axios.get("https://api.scryfall.com/sets/who")
+
+        const cardResults = await axios.get(results.data.search_uri)
+
+        setDefaultCards(cardResults.data.data)
+        
+    }
+    
+
+    useEffect(() => {
+    
+        getDefaultCards()
+
+    }, [setDefaultCards])
     
     const handleChange = async (e) => {
         e.preventDefault()
@@ -27,6 +44,7 @@ const Home = () => {
     
     const searchByName = async (e) => {
         try {
+            setDefaultCards(null)
             const results = await axios.get("https://api.scryfall.com/cards/search?q=" + search )
             setCards(results.data.data)
         } catch {
@@ -58,15 +76,26 @@ const Home = () => {
                     })}
                 </datalist>
         </form>
-        <div className="cards">
+        {cards && <div className="cards">
             {cards.map(card => {
                 return <>
                     <Card 
+                    cards={cards}
                     withButton={true} 
                     card={card}/>
                 </>
             })}
-        </div>
+        {defaultCards && <div className="cards">
+                {defaultCards.map(card => {
+                    return <>
+                        <Card 
+                        withButton={true}
+                        card={card}
+                        />
+                    </>
+                })}
+            </div>}
+        </div>}
     </div>
     </>
 }

@@ -1,23 +1,20 @@
 import "./Card.css"
 import axios from "axios"
-import { useState} from "react"
-import { Link } from "react-router-dom"
-import Popup from "reactjs-popup"
+import { Link, useNavigate } from "react-router-dom"
 
 const Card = ({
         card, 
-        withButton, 
-        withDeleteButton,
+        withButton,
         fromCardPage,
+        fromMyCards,
+        cards
     }) => {
 
     let button
     let deleteButton
     let cardImage
 
-    const [ open, setOpen ] = useState(false)
-
-    const closeModal = () => setOpen(false)
+    const navigate = useNavigate()
 
     const buyCard = () => {
         window.open(card.purchase_uris.tcgplayer, "_blank")
@@ -35,16 +32,24 @@ const Card = ({
         e.preventDefault()
         axios.delete("http://localhost:5000/deleteCard?cardId=" 
             + card.id + "&userId=" + 2)
+        navigate("/mycards")
     }
 
 
     if (withButton === true) {
-        button = <button className="add-card" type="submit">Add card</button>
+        button = <form onSubmit={handleSubmit}>
+                    <button className="add-card" type="submit">
+                        Add card
+                    </button>
+                </form>
     }
 
-    if (withDeleteButton === true) {
-        deleteButton = <button type="submit">Delete card</button> 
-    }
+    if (fromMyCards === true) {
+        deleteButton = <form onSubmit={handleDelete}>
+            <button type="submit">Delete card</button>
+        </form>
+                     
+    }       
     if (fromCardPage === true) {
         cardImage =  <>
             <img 
@@ -56,10 +61,11 @@ const Card = ({
                 onClick={buyCard}>
                 Buy Card ${card.prices.usd}
             </button>
-            <Link className="back" to="/">&times;</Link>
+            {deleteButton}
+            <Link className="back" to="/" state={{cards: cards, fromElswhere: true}}>&times;</Link>
         </>
     } else {
-        cardImage = <Link to="/CardPage" state={{card: card}}>
+        cardImage = <Link to="/CardPage" state={{card: card, fromMyCards: fromMyCards, cards: cards}}>
                 <img 
                     width="180px"
                     src={card.image_uris.border_crop} 
@@ -72,20 +78,6 @@ const Card = ({
             <div className="image">
                 {cardImage}
                 {button}
-                <Popup open={open}>
-                    
-                    <img
-                    onClose={closeModal}
-                    src={card.image_uris.border_crop}
-                    alt={card.name}></img>
-                    <form onSubmit={handleSubmit}>
-                    {button}
-                    </form>
-                        
-                    <form onSubmit={handleDelete}>
-                        {deleteButton}
-                    </form>
-                </Popup>
             </div>
     </>
     

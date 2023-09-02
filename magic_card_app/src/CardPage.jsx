@@ -5,7 +5,7 @@ import "./CardPage.css"
 const CardPage = () => {
     
     const location = useLocation()
-    const { card } = location.state
+    const { card, fromMyCards, cards } = location.state
 
     return <>
         <header className="header">
@@ -15,9 +15,11 @@ const CardPage = () => {
         </header>
         <div id="main">
             <Card
+                cards={cards}
                 fromCardPage={true} 
                 card={card}
                 withButton={true}
+                fromMyCards={fromMyCards}
             />
         </div>
         

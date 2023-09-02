@@ -2,6 +2,7 @@ import axios from "axios"
 import Card from "./Card"
 import { useState, useEffect} from "react"
 import { Link } from "react-router-dom"
+import "./MyCards.css"
 
 
 const MyCards = () => {
@@ -19,12 +20,17 @@ const MyCards = () => {
     }, [])
     
     return <>
-        <Link to="/">Back</Link>
+         <header className="header">
+            <div className="section">
+                <Link id="back" to="/">Back</Link>
+            </div>
+        </header>
         {mycards && <>{mycards.map((card) => {
             return <Card 
                 withButton={false} 
                 card={card}
-                withDeleteButton={true}/>
+                withDeleteButton={true}
+                fromMyCards={true}/>
         })}</>}
     </>
 }

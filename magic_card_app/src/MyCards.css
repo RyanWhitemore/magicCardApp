@@ -5,9 +5,8 @@
     top: 0;
 }
 
-
-#main {
-    margin: 0 auto;
+#back {
+    text-decoration: none;
+    color: white;
     text-align: center;
-    padding:10px
 }
