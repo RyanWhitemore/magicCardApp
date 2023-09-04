@@ -5,8 +5,23 @@
     top: 0;
 }
 
-#back {
+#Home {
     text-decoration: none;
     color: white;
     text-align: center;
+}
+
+#main {
+    background-color: rgb(37, 45, 63);
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.cards {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(5, auto);
+    column-gap: 0px;
+    grid-auto-flow: row;
 }

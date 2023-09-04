@@ -1,23 +1,31 @@
 import {React, useEffect, useState} from "react";
 import axios from "axios";
 import Card from "./Card";
-import { Link, useLocation } from "react-router-dom";
+import Header from "./Header";
+import { useLocation } from "react-router-dom";
+import Popup from "reactjs-popup";
 import "./Home.css"
 
 
 
-const Home = () => {
+const Home = ({ search, setSearch }) => {
+
+    const [ userID, setUserID ] = useState("guest")
+
+    const [ loginClicked, setLoginClicked ] = useState(false)
 
     const [ defaultCards, setDefaultCards ] = useState()
-
-    const [search, setSearch] = useState("")
 
     const [cards, setCards] = useState([])
 
     const [ suggestions, setSuggestions ] = useState([])
 
+    const [ username, setUsername ] = useState("")
+
+    const [ password, setPassword ] = useState("")
+
     const getDefaultCards = async () => {
-        const results = await axios.get("https://api.scryfall.com/sets/who")
+        const results = await axios.get("https://api.scryfall.com/sets/aer")
 
         const cardResults = await axios.get(results.data.search_uri)
 
@@ -25,13 +33,38 @@ const Home = () => {
         
     }
     
+    const location = useLocation()
+
+    const checkIfFromCard = () => {
+        if (location.state) {
+            if (location.state.cards) {
+                setCards(location.state.cards)
+            } else {
+                getDefaultCards()
+            }
+        } else {
+            getDefaultCards()
+        }
+    }
 
     useEffect(() => {
-    
-        getDefaultCards()
+
+        checkIfFromCard()
 
     }, [setDefaultCards])
     
+    const changePassword = (e) => {
+        e.preventDefault()
+
+        setPassword(e.target.value)
+    }
+
+    const changeUsername = (e) => {
+        e.preventDefault()
+
+        setUsername(e.target.value)
+    }
+
     const handleChange = async (e) => {
         e.preventDefault()
 
@@ -42,6 +75,7 @@ const Home = () => {
         setSuggestions(results.data.data)
     }
     
+
     const searchByName = async (e) => {
         try {
             setDefaultCards(null)
@@ -58,13 +92,59 @@ const Home = () => {
         }
     }
 
+    const login = async (e) => {
+        e.preventDefault()
+        const results = await axios.post("http://localhost:5000/login", {
+            username: username, password: password
+        })
+
+        if (!results.data.message) {
+            setUserID(results.data)
+            localStorage.setItem("userID", results.data)
+            setLoginClicked(!loginClicked)
+        } else {
+            console.log("login failed")
+        }
+        
+    }
 
     return <>
-    <header className="header">
-        <div className="section">
-            <Link id="mycards" to="/mycards">My Cards</Link>
-        </div>
-    </header>
+    <Popup 
+        open={loginClicked} 
+        modal
+        nested    
+    > 
+        {close => (
+            <div className="modal">
+                <div className="header">Login</div>
+                <button className="close" onClick={() => {close(); setLoginClicked(!loginClicked)}}>
+                    &times;
+                </button>
+                <div className="content">
+                    <form onSubmit={login}>
+                        <div className="username">
+                            <input 
+                                type="text" 
+                                onChange={changeUsername} 
+                                placeholder="username">
+                            </input>
+                        </div>
+                        <div className="password">
+                            <input 
+                                type="text" 
+                                onChange={changePassword} 
+                                placeholder="password">
+                            </input>
+                        </div>
+                        <button className={"login-button"} type="submit">Login</button>
+                    </form>
+                </div>
+
+            </div>    
+        )}
+        
+    </Popup>
+    <Header setLoginClicked={setLoginClicked}  loginClicked={loginClicked} fromHome={true}/>
     <div id="main">
         <form onSubmit={(e) => {e.preventDefault(); searchByName(e)}}>
             <input className="search" list="suggestions" type="text" placeholder="Search" 
@@ -78,24 +158,25 @@ const Home = () => {
         </form>
         {cards && <div className="cards">
             {cards.map(card => {
-                return <>
-                    <Card 
+                return <div key={card.id}>
+                    <Card
                     cards={cards}
                     withButton={true} 
-                    card={card}/>
-                </>
+                    card={card}
+                    />
+                </div>
             })}
+            </div>}
         {defaultCards && <div className="cards">
                 {defaultCards.map(card => {
-                    return <>
+                    return <div key={card.id}>
                         <Card 
-                        withButton={true}
                         card={card}
                         />
-                    </>
+                    </div>
                 })}
             </div>}
-        </div>}
+        
     </div>
     </>
 }

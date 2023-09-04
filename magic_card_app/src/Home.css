@@ -1,8 +1,18 @@
-.header {
+.container {
+    display: flex;
+}
+
+.header{
     border-bottom: solid white 1px;
     background-color: rgb(37, 45, 63);
+    border-bottom: 1px white solid;
     position: sticky;
     top: 0;
+}
+
+#home {
+    text-decoration: none;;
+    color: white;
 }
 
 #mycards {
@@ -12,7 +22,13 @@
 
 .section {
     border-right: solid 2px white;
-    width: 67px
+    width: 50px;
+}
+
+.section-2 {
+    border-right: solid 2px white;
+    width: 75px;
+    margin-left: 10px;
 }
 
 #main {
@@ -23,8 +39,10 @@
 }
 
 .cards {
+    margin-top: 10px;
     display: grid;
     grid-template-columns: repeat(5, auto);
+    column-gap: 0px;
     grid-auto-flow: row;
 }
 
@@ -48,3 +66,49 @@ body {
     background-color: rgb(37, 45, 63);
     margin: 0;
 }
+
+.login-button {
+    height: 20px;
+    width: 60px;
+}
+
+.popup-content {
+    display: grid;
+    grid-template-columns: repeat(1, auto);
+    background-color: rgb(37, 45, 63) 
+}
+
+.modal {
+    font-size: 12px;
+  }
+  .modal > .header {
+    color: white;
+    width: 94%;
+    border-bottom: 1px solid gray;
+    font-size: 18px;
+    text-align: center;
+    padding: 5px;
+  }
+  .modal > .content {
+    width: 100%;
+    padding: 10px 5px;
+  }
+  .modal > .actions {
+    width: 100%;
+    padding: 10px 5px;
+    margin: auto;
+    text-align: center;
+  }
+  .modal > .close {
+    cursor: pointer;
+    position: absolute;
+    display: block;
+    padding: 2px 5px;
+    line-height: 20px;
+    right: -10px;
+    top: -10px;
+    font-size: 24px;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #cfcece;
+  }

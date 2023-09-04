@@ -7,7 +7,7 @@ const Card = ({
         withButton,
         fromCardPage,
         fromMyCards,
-        cards
+        cards,
     }) => {
 
     let button
@@ -16,22 +16,25 @@ const Card = ({
 
     const navigate = useNavigate()
 
+    const userID = localStorage.getItem("userID")
+
     const buyCard = () => {
         window.open(card.purchase_uris.tcgplayer, "_blank")
     }
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        console.log(userID)
         axios.put("http://localhost:5000/addCard", {
             card: card,
-            userId: 2
+            userId: userID
         })
     }
 
     const handleDelete = (e) => {
         e.preventDefault()
         axios.delete("http://localhost:5000/deleteCard?cardId=" 
-            + card.id + "&userId=" + 2)
+            + card.id + "&userId=" + userID)
         navigate("/mycards")
     }
 

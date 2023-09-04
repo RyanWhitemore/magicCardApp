@@ -1,6 +1,7 @@
 import Card from "./Card"
 import { Link, useLocation } from "react-router-dom"
 import "./CardPage.css"
+import Header from "./Header"
 
 const CardPage = () => {
     
@@ -8,11 +9,7 @@ const CardPage = () => {
     const { card, fromMyCards, cards } = location.state
 
     return <>
-        <header className="header">
-            <div className="section">
-                <Link id="mycards" to="/mycards">My Cards</Link>
-            </div>
-        </header>
+        <Header fromHome={false}/>
         <div id="main">
             <Card
                 cards={cards}
