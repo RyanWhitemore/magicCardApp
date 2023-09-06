@@ -27,6 +27,8 @@ const addCardToDb = async (req, res) => {
 
 const registerUser = async (req, res) => {
 
+    console.log(req.body.username.toLowerCase())
+
     const makeID = (length) => {
         let result = "";
         const characters = 'ABCDEFGHIJKKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -46,7 +48,7 @@ const registerUser = async (req, res) => {
 
     let userID = makeID(36) 
 
-    const user = {username, password: hash, userID}
+    const user = {username: username.toLowerCase(), password: hash, userID}
 
     const database = client.db("magicCards")
     const collection = database.collection("users")
@@ -115,7 +117,7 @@ const deleteCardFromDb = async (req, res) => {
 
         const query = {id: cardId, userId: cardUserID}
 
-        const results = await magicCards.deleteOne(query)
+        await magicCards.deleteOne(query)
 
         res.status(200)
 

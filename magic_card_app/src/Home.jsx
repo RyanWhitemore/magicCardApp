@@ -8,7 +8,7 @@ import "./Home.css"
 
 
 
-const Home = ({ search, setSearch }) => {
+const Home = ({ search, setSearch, fromDeckBuilder, addedCards, setAddedCards }) => {
 
     const [ userID, setUserID ] = useState("guest")
 
@@ -25,11 +25,23 @@ const Home = ({ search, setSearch }) => {
     const [ password, setPassword ] = useState("")
 
     const getDefaultCards = async () => {
-        const results = await axios.get("https://api.scryfall.com/sets/aer")
 
-        const cardResults = await axios.get(results.data.search_uri)
+        if (fromDeckBuilder) {
+            if (localStorage.getItem("userID")) {
 
-        setDefaultCards(cardResults.data.data)
+                const results = await axios.get("http://localhost:5000/getCards/" + localStorage.getItem("userID")
+                )
+
+                setDefaultCards(results.data)
+    }
+        } else {
+            const results = await axios.get("https://api.scryfall.com/sets/aer")
+
+            const cardResults = await axios.get(results.data.search_uri)
+
+            setDefaultCards(cardResults.data.data)
+        }
+        
         
     }
     
@@ -49,9 +61,15 @@ const Home = ({ search, setSearch }) => {
 
     useEffect(() => {
 
+        console.log(addedCards)
+
+        if (localStorage.getItem("userID")) {
+            setUserID(localStorage.getItem("userID"))
+        }
+
         checkIfFromCard()
 
-    }, [setDefaultCards])
+    }, [setDefaultCards, localStorage.getItem("userID")])
     
     const changePassword = (e) => {
         e.preventDefault()
@@ -95,7 +113,7 @@ const Home = ({ search, setSearch }) => {
     const login = async (e) => {
         e.preventDefault()
         const results = await axios.post("http://localhost:5000/login", {
-            username: username, password: password
+            username: username.toLowerCase(), password: password
         })
 
         if (!results.data.message) {
@@ -107,6 +125,7 @@ const Home = ({ search, setSearch }) => {
         }
         
     }
+    
 
     return <>
     <Popup 
@@ -163,6 +182,7 @@ const Home = ({ search, setSearch }) => {
                     cards={cards}
                     withButton={true} 
                     card={card}
+                    fromDeckBuilder={fromDeckBuilder}
                     />
                 </div>
             })}
@@ -171,6 +191,9 @@ const Home = ({ search, setSearch }) => {
                 {defaultCards.map(card => {
                     return <div key={card.id}>
                         <Card 
+                        fromDeckBuilder={fromDeckBuilder}
+                        addedCards={addedCards}
+                        setAddedCards={setAddedCards}
                         card={card}
                         />
                     </div>

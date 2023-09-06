@@ -42,8 +42,9 @@ app.delete("/deleteCard", (req, res) => {
 
 app.post('/login',  passport.authenticate('local', { failureRedirect: '/failure'}), 
 (req, res) => {
-   res.redirect("/user/" + req.body.username)
-   return;
+    console.log(req.username)
+    res.redirect("/user/" + req.body.username)
+    return;
 })
 
 app.get("/user/:username", (req, res) => {

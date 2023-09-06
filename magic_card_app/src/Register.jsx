@@ -1,6 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import "./Register.css"
 
 const Register = () => {
     const navigate = useNavigate();
@@ -11,6 +12,7 @@ const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [ error, setError ] = useState('')
+    const [ registered, setRegistered ] = useState(false)
     const specialChars = /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~\s]/
 
     const handleUsernameChange = (e) => {
@@ -56,18 +58,20 @@ const Register = () => {
             setError('')
             return true
         }
-    }, [username, specialChars])
+    }, [username])
 
 
     let registerUser = async (e) => {
         e.preventDefault();
+
+        setRegistered(true)
 
         if (!checkPassword() || !checkUsername()) {
             return setError('Username or password does not meet requirements')
         }      
 
         const body = {
-            username: username,
+            username: username.toLowerCase(),
             password: password
         }
 
@@ -118,6 +122,7 @@ const Register = () => {
         <>
             <div id="register">
                 <h1 id={"register-header"}>Register</h1>
+                {registered && <p className="success">Registered</p>}
                 {usernameTaken ? <h5 id={"error"}>Username taken</h5> : ''}            
                 <form onSubmit={registerUser}>
                     <input 
@@ -131,7 +136,7 @@ const Register = () => {
                     <button id={"register-submit"} type="submit" disabled={canSubmit}>Register</button><br/>
                 </form>
                 {error ? <h5 id={"error"}>{error}</h5> : ''}
-                <Link id={"register-link"} to="/">Login</Link>
+                <Link id={"register-link"} to="/">Home</Link>
             </div>
         </>
     )

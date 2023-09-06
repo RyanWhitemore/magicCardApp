@@ -8,11 +8,15 @@ const Card = ({
         fromCardPage,
         fromMyCards,
         cards,
+        fromDeckBuilder,
+        setAddedCards,
+        addedCards
     }) => {
 
     let button
     let deleteButton
     let cardImage
+    let addButton
 
     const navigate = useNavigate()
 
@@ -20,6 +24,10 @@ const Card = ({
 
     const buyCard = () => {
         window.open(card.purchase_uris.tcgplayer, "_blank")
+    }
+
+    const addCard = (e) => {
+        setAddedCards(prevArray => [...prevArray, card])
     }
 
     const handleSubmit = (e) => {
@@ -38,6 +46,11 @@ const Card = ({
         navigate("/mycards")
     }
 
+    if (fromDeckBuilder) {
+        addButton = <>
+            <button value={card} onClick={addCard}>Add to Deck</button>
+        </>
+    }
 
     if (withButton === true) {
         button = <form onSubmit={handleSubmit}>
@@ -68,13 +81,16 @@ const Card = ({
             <Link className="back" to="/" state={{cards: cards, fromElswhere: true}}>&times;</Link>
         </>
     } else {
-        cardImage = <Link to="/CardPage" state={{card: card, fromMyCards: fromMyCards, cards: cards}}>
+        cardImage = <>
+            <Link to="/CardPage" state={{card: card, fromMyCards: fromMyCards, cards: cards}}>
                 <img 
                     width="180px"
                     src={card.image_uris.border_crop} 
                     alt={card.name}
                 ></img>
             </Link>
+             {addButton}
+        </> 
     }
     return <>
         
