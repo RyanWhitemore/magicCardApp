@@ -27,8 +27,6 @@ const addCardToDb = async (req, res) => {
 
 const registerUser = async (req, res) => {
 
-    console.log(req.body.username.toLowerCase())
-
     const makeID = (length) => {
         let result = "";
         const characters = 'ABCDEFGHIJKKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'

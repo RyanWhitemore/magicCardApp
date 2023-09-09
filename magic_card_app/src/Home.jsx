@@ -4,11 +4,16 @@ import Card from "./Card";
 import Header from "./Header";
 import { useLocation } from "react-router-dom";
 import Popup from "reactjs-popup";
-import "./Home.css"
+import styles from "./Home.module.css"
 
 
 
-const Home = ({ search, setSearch, fromDeckBuilder, addedCards, setAddedCards }) => {
+const Home = ({  
+        fromDeckBuilder, 
+        addedCards, 
+        setAddedCards,
+        deckCost,
+        setDeckCost }) => {
 
     const [ userID, setUserID ] = useState("guest")
 
@@ -23,6 +28,8 @@ const Home = ({ search, setSearch, fromDeckBuilder, addedCards, setAddedCards })
     const [ username, setUsername ] = useState("")
 
     const [ password, setPassword ] = useState("")
+
+    const [ search, setSearch ] = useState("")
 
     const getDefaultCards = async () => {
 
@@ -135,27 +142,27 @@ const Home = ({ search, setSearch, fromDeckBuilder, addedCards, setAddedCards })
     > 
         {close => (
             <div className="modal">
-                <div className="header">Login</div>
-                <button className="close" onClick={() => {close(); setLoginClicked(!loginClicked)}}>
+                <div className={styles.header}>Login</div>
+                <button className={styles.close} onClick={() => {close(); setLoginClicked(!loginClicked)}}>
                     &times;
                 </button>
-                <div className="content">
+                <div className={styles.content}>
                     <form onSubmit={login}>
-                        <div className="username">
+                        <div className={styles.username}>
                             <input 
                                 type="text" 
                                 onChange={changeUsername} 
                                 placeholder="username">
                             </input>
                         </div>
-                        <div className="password">
+                        <div className={styles.password}>
                             <input 
                                 type="text" 
                                 onChange={changePassword} 
                                 placeholder="password">
                             </input>
                         </div>
-                        <button className={"login-button"} type="submit">Login</button>
+                        <button className={styles.loginbutton} type="submit">Login</button>
                     </form>
                 </div>
 
@@ -163,19 +170,20 @@ const Home = ({ search, setSearch, fromDeckBuilder, addedCards, setAddedCards })
         )}
         
     </Popup>
-    <Header setLoginClicked={setLoginClicked}  loginClicked={loginClicked} fromHome={true}/>
+    <Header 
+        setLoginClicked={setLoginClicked}  
+        loginClicked={loginClicked} 
+        fromHome={true}
+        suggestions={suggestions}
+        setSuggestions={setSuggestions}
+        search={search}
+        setSearch={setSearch}
+        defaultCards={defaultCards}
+        setDefaultCards={setDefaultCards}
+        cards={cards}
+        setCards={setCards}/>
     <div id="main">
-        <form onSubmit={(e) => {e.preventDefault(); searchByName(e)}}>
-            <input className="search" list="suggestions" type="text" placeholder="Search" 
-            value={search}
-            onChange={handleChange}/>
-                <datalist id="suggestions">
-                    {suggestions.map((item) => {
-                        return <option>{item}</option>
-                    })}
-                </datalist>
-        </form>
-        {cards && <div className="cards">
+        {cards && <div className={styles.cards}>
             {cards.map(card => {
                 return <div key={card.id}>
                     <Card
@@ -183,11 +191,13 @@ const Home = ({ search, setSearch, fromDeckBuilder, addedCards, setAddedCards })
                     withButton={true} 
                     card={card}
                     fromDeckBuilder={fromDeckBuilder}
+                    deckCost={deckCost}
+                    setDeckCost={setDeckCost}
                     />
                 </div>
             })}
             </div>}
-        {defaultCards && <div className="cards">
+        {defaultCards && <div className={styles.cards}>
                 {defaultCards.map(card => {
                     return <div key={card.id}>
                         <Card 
@@ -195,6 +205,8 @@ const Home = ({ search, setSearch, fromDeckBuilder, addedCards, setAddedCards })
                         addedCards={addedCards}
                         setAddedCards={setAddedCards}
                         card={card}
+                        setDeckCost={setDeckCost}
+                        deckCost={deckCost}
                         />
                     </div>
                 })}

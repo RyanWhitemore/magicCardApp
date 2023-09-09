@@ -6,7 +6,7 @@ import { Link } from "react-router-dom"
 import "./MyCards.css"
 
 
-const MyCards = () => {
+const MyCards = ({search, setSearch}) => {
 
     const userID = localStorage.getItem("userID")
 
@@ -15,6 +15,8 @@ const MyCards = () => {
     const getMyCards = async () => {
         const cards = await axios.get("http://localhost:5000/getCards/" + userID
         )
+
+        console.log(cards)
 
         setmycards(cards.data)
     }
@@ -32,7 +34,9 @@ const MyCards = () => {
                     card={card}
                     withDeleteButton={true}
                     fromMyCards={true}
-                    userID={userID}/>
+                    userID={userID}
+                    search={search}
+                    setSearch={setSearch}/>
             })}</>}
         </div>
     </>

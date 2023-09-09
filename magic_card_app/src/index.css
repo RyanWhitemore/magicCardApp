@@ -1,17 +1,9 @@
 
 #main {
-  width: 100vw;
-  height: 100vh;
   display: grid;
-  grid-template-columns: repeat(6, 1rf);
+  grid-template-columns: repeat(auto-fill, 1rf);
   grid-template-rows: repeat(auto-fill, auto);
   background-color: black;
 }
 
 
-.wrapper {
-  display: grid;
-  grid-template-columns: 10rem 10rem 10rem;
-  grid-gap: 1rem;
-  grid-auto-flow: row;
-}

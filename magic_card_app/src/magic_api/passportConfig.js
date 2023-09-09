@@ -20,7 +20,6 @@ passport.deserializeUser((id, done) => {
 passport.use(new LocalStrategy( async (username, password, done,) => {
     getUserFromDBByUsername(username, async (userPromise) => {
         const user = await userPromise
-        console.log(user)
         try {
             if (!user) {
                 return done(null, false)

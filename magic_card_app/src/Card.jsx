@@ -1,5 +1,6 @@
 import "./Card.css"
 import axios from "axios"
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 const Card = ({
@@ -10,8 +11,13 @@ const Card = ({
         cards,
         fromDeckBuilder,
         setAddedCards,
-        addedCards
+        addedCards,
+        inDeck,
+        chosenDeckType,
+        deckCost,
+        setDeckCost
     }) => {
+
 
     let button
     let deleteButton
@@ -22,12 +28,48 @@ const Card = ({
 
     const userID = localStorage.getItem("userID")
 
+    const [ deckCount, setDeckCount ] = useState(1)
+
     const buyCard = () => {
         window.open(card.purchase_uris.tcgplayer, "_blank")
     }
 
     const addCard = (e) => {
+        let newDeckCost = parseFloat(deckCost) + parseFloat(card.prices.usd)
+        newDeckCost = parseFloat(newDeckCost)
+        newDeckCost = newDeckCost.toFixed(2)
+        setDeckCost(newDeckCost)
         setAddedCards(prevArray => [...prevArray, card])
+    }
+
+    const addCardInDeck = () => {
+        if (chosenDeckType === "commander") {
+            return 
+        } else {
+
+            if (deckCount < 4) {
+                let newDeckCost = parseFloat(deckCost) + parseFloat(card.prices.usd)
+                newDeckCost = parseFloat(newDeckCost)
+                newDeckCost = newDeckCost.toFixed(2)
+                setDeckCost(newDeckCost)
+                setDeckCount(deckCount + 1)
+            }
+        }
+    }
+    
+    const removeCardInDeck = () => {
+        let newDeckCost = parseFloat(deckCost) - parseFloat(card.prices.usd)
+        newDeckCost = parseFloat(newDeckCost)
+        newDeckCost = newDeckCost.toFixed(2)
+        setDeckCost(newDeckCost)
+        if (deckCount > 1) {
+            setDeckCount(deckCount - 1)
+        } else {
+            const newAddedCards = [...addedCards]
+            const indexToRemove = addedCards.indexOf(card)
+            newAddedCards.splice(indexToRemove, 1)
+            setAddedCards(newAddedCards)
+        }
     }
 
     const handleSubmit = (e) => {
@@ -92,13 +134,19 @@ const Card = ({
              {addButton}
         </> 
     }
-    return <>
-        
-            <div className="image">
-                {cardImage}
-                {button}
-            </div>
+        return <>
+        <div className="image">
+            {cardImage}
+            {button}
+            {inDeck && <>
+                <button onClick={addCardInDeck}>Add</button>
+                <p>{deckCount}</p>
+                <button onClick={removeCardInDeck}>Remove</button>
+            </>}
+        </div>
     </>
+
+   
     
     
 }

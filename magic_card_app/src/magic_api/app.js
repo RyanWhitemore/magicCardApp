@@ -1,21 +1,30 @@
 const express = require("express")
-const { addCardToDb, getCardsByUserId, deleteCardFromDb, registerUser } = require("./routeFunctions")
+const { addCardToDb, 
+        getCardsByUserId, 
+        deleteCardFromDb, 
+        registerUser,
+         } = require("./routeFunctions")
 const cors = require("cors")
 const passport = require("passport")
 const session = require("express-session")
 const { getUserFromDBByUsername } = require("./helper")
+const MongoStore = require("connect-mongo")
 require('./passportConfig')
 
 
 const app = express()
 const port = 5000
 
-
 app.use(session({
     secret: "3",
     cookie: {maxAge: 60 * 60 * 1000, sameSite: "lax"},
     saveUninitialized: false,
-    resave: false
+    resave: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.CONNECTIONSTRING,
+        ttl: 14 * 24 * 60 * 60,
+        autoRemove: "native"
+    })
 }))
 app.use(express.urlencoded())
 app.use(express.text())
@@ -32,7 +41,6 @@ app.get("/getCards/:userID", (req, res) => {
 })
 
 app.put("/addCard", (req, res) => {
-    console.log("called")
     addCardToDb(req, res)
 })
 
@@ -42,7 +50,6 @@ app.delete("/deleteCard", (req, res) => {
 
 app.post('/login',  passport.authenticate('local', { failureRedirect: '/failure'}), 
 (req, res) => {
-    console.log(req.username)
     res.redirect("/user/" + req.body.username)
     return;
 })
@@ -61,6 +68,21 @@ app.get("/user/:username", (req, res) => {
             throw (err);
         }
     })
+})
+
+app.post("/session", (req, res) => {
+    const { userID, deck } = req.body
+    req.session.deck = {userID: userID, deck: deck}
+
+    req.session.save()
+
+    res.status(200).send()
+})
+
+app.post("/logout", (req, res) => {
+    req.session.destroy()
+
+    res.status(200).send()
 })
 
 app.post('/register', registerUser)

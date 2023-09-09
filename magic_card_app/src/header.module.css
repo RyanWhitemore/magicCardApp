@@ -1,0 +1,86 @@
+.container {
+    display: flex;
+}
+
+.register {
+    text-decoration: none;
+    color: white;
+    padding-left: 5px;
+}
+
+.loginbutton {
+    height: 20px;
+    width: 60px;
+    border-right: solid white 2px;
+}
+
+.section {
+    border-right: solid 2px white;
+    width: 50px;
+}
+
+.section2 {
+    border-right: solid 2px white;
+    width: 75px;
+    margin-left: 10px;
+}
+
+.section3 {
+    border-right: solid 2px white;
+    width: 100px;
+}
+
+.loginbutton {
+    background-color: white;
+    border-radius: 15px;
+}
+
+.logoutbutton {
+    border-radius: 15px;
+}
+
+.section-3 {
+    width: 100px;
+    border-right: 2px solid white;
+}
+
+.link {
+    text-decoration: none;
+    color: white;
+    padding-left: 5px;
+}
+
+.search {
+    margin-top: 10px;
+    margin-bottom: 0px;
+    float: left;
+    border-right: solid white 2px;
+    display: block;
+    width: 90%;
+    height: 2vh;
+    background: white;
+    border-radius: 25px;
+    margin-left: 15px;
+}
+
+.header {
+    height: 2vh;
+    border-right: solid white 2px;
+    color: white;
+    border-bottom: solid white 1px;
+    background-color: rgb(37, 45, 63);
+    border-bottom: 1px white solid;
+    position: sticky;
+    top: 0;
+}
+
+.home {
+    text-decoration: none;;
+    color: white;
+    width: 100vw
+}
+
+.mycards {
+    text-decoration: none;
+    color: white;
+}

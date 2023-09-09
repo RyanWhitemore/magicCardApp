@@ -1,0 +1,65 @@
+.flexcontainer {
+    display: flex;
+}
+
+.addedCards {
+    width: 50vw;
+    margin-top: 0px;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    column-gap: 10px;
+}
+
+.homediv {
+    width: 50vw;
+}
+
+.cost {
+    color: white;
+}
+
+.header {
+    display: flex;
+    position: sticky;
+    height: 2vh;
+    border-right: solid white 2px;
+    color: white;
+    border-bottom: solid white 1px;
+    background-color: rgb(37, 45, 63);
+    border-bottom: 1px white solid;
+    position: sticky;
+    top: 0;
+    margin-bottom: 9.8vh;
+    
+}
+
+.checkBox {
+    color: white;
+}
+
+body {
+    color: white;
+}
+
+.section {
+    width: 100px;
+    margin-top: 0px;
+}
+
+.section2 {
+    border-right: solid 2px white;
+    width: 400px;
+    margin-left: 10px;
+}
+
+.cards {
+    margin-left: 1.5vw;
+}
+
+.container {
+    border-left: white solid 4px;
+    flex-direction: column;
+    display: grid;
+    height: 100vh;
+}

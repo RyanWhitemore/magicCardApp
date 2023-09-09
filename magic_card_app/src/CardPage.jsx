@@ -5,8 +5,10 @@ import Header from "./Header"
 
 const CardPage = () => {
     
+
     const location = useLocation()
     const { card, fromMyCards, cards } = location.state
+    console.log(card)
 
     return <>
         <Header fromHome={false}/>
