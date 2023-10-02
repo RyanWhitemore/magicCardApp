@@ -1,24 +1,34 @@
 import { Link } from "react-router-dom"
 import styles from "./header.module.css"
 import axios from "axios"
+import { useState } from "react"
 
 const Header = ({
         fromHome, 
         loginClicked, 
         setLoginClicked,
-        search,
-        setSearch,
         setDefaultCards,
         setCards,
-        suggestions,
-        setSuggestions
-
+        collectionTotalPrice,
+        setIsSearched,
+        fromMyCards,
+        setSortValue,
+        sortValue
     }) => {
+
+    const user = localStorage.getItem("userID")
+
+    const [ suggestions, setSuggestions ] = useState([])
+
+    const [ search, setSearch ] = useState("")
+
+    
 
     const searchByName = async (e) => {
         try {
             setDefaultCards(null)
             const results = await axios.get("https://api.scryfall.com/cards/search?q=" + search )
+            setIsSearched(true)
             setCards(results.data.data)
         } catch (err) {
             return <>
@@ -28,6 +38,24 @@ const Header = ({
                     <button>Search</button>
                 </form>
             </>
+        }
+    }
+
+    const searchMyCards = async (e) => {
+        try {
+            const results = await axios.get("http://localhost:5000/myCards/" + user + "/" + search)
+
+            setCards({data: [results.data]})
+            setIsSearched(true)
+        } catch (err) {
+            console.log(err)
+            return <>
+                <form onSubmit={(e) => {e.preventDefault(); searchMyCards(e)}}>
+                    <input type="text" placeholder="Search" value={search}
+                    onChange={handleChange}/>
+                    <button>Search</button>
+                </form>
+            </> 
         }
     }
 
@@ -45,6 +73,10 @@ const Header = ({
     const logout = () => {
         localStorage.setItem("userID", "guest")
         window.location.reload()
+    }
+
+    const sort = (e) => {
+        setSortValue(e.target.value)
     }
 
     return <>
@@ -66,8 +98,28 @@ const Header = ({
                 {localStorage.getItem("userID") !== "guest" && <div className="logout-button">
                     <button className={styles.logoutbutton}onClick={logout}>Logout</button>
                 </div>}
+                <div className={styles.section4}>
+                    <select onChange={sort}>
+                        <option value={"name"} selected>Name</option>
+                        <option value={"color"}>Color</option>
+                        <option value={"value"}>Value</option>
+                    </select>
+                </div>
+                {collectionTotalPrice > 0 ? <div className={styles.section5}>
+                    Total Value: ${collectionTotalPrice}
+                </div> : null}
             </div>
             {fromHome && <form onSubmit={(e) => {e.preventDefault(); searchByName(e)}}>
+                <input className={styles.search} list="suggestions" type="text" placeholder="Search" 
+                value={search}
+                onChange={handleChange}/>
+                    <datalist id="suggestions">
+                        {suggestions.map((item) => {
+                            return <option>{item}</option>
+                        })}
+                    </datalist>
+            </form>}
+            {fromMyCards && <form onSubmit={(e) => {e.preventDefault(); searchMyCards(e)}}>
                 <input className={styles.search} list="suggestions" type="text" placeholder="Search" 
                 value={search}
                 onChange={handleChange}/>

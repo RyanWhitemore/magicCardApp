@@ -3,6 +3,7 @@ const { addCardToDb,
         getCardsByUserId, 
         deleteCardFromDb, 
         registerUser,
+        searchMyCards,
          } = require("./routeFunctions")
 const cors = require("cors")
 const passport = require("passport")
@@ -26,7 +27,7 @@ app.use(session({
         autoRemove: "native"
     })
 }))
-app.use(express.urlencoded())
+app.use(express.urlencoded({extended: true}))
 app.use(express.text())
 app.use(express.json())
 
@@ -38,6 +39,10 @@ app.get("/failure", (req, res) => {
 
 app.get("/getCards/:userID", (req, res) => {
     getCardsByUserId(req, res)
+})
+
+app.get("/myCards/:userID/:searchTerm", (req, res) => {
+    searchMyCards(req, res)
 })
 
 app.put("/addCard", (req, res) => {

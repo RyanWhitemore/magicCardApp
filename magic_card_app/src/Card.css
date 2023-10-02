@@ -13,6 +13,7 @@
 
 .image {
     border-radius: 16px;
+    text-align: center;
 }
 
 .buy-card {
@@ -32,5 +33,10 @@
 }
 
 .price {
+    text-align: center;
     color: white;
+}
+
+.quantity {
+    text-align: center;
 }

@@ -1,12 +1,23 @@
 import Home from "./Home"
 import styles from "./DeckBuilder.module.css"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Card from "./Card"
-import axios from "axios"
 
 const DeckBuilder = () => {
 
     const [ addedCards, setAddedCards ] = useState([])
+
+    const [ chosenColors, setChosenColors ] = useState("all")
+
+    const [ notChosenColors, setNotChosenColors ] = useState(["R", "U", "B", "G", "W"])
+
+    const [ commander, setCommander] = useState(false)
+
+    const [ isCommander, setIsCommander ] = useState(false)
+
+    const [ chosenDeckType, setChosenDeckType ] = useState("commander")
+
+    const [ deckCost, setDeckCost ] = useState(0.00)
 
     const typesOfDecks = ["commander",
         "modern","pauper","standard","future",
@@ -15,22 +26,44 @@ const DeckBuilder = () => {
         "brawl","historicbrawl","alchemy","paupercommander",
         "duel","oldschool","premodern","predh"]
         
-    
-    
+    const handleCheck = (e) => {
+        if (e.target.checked) {
+            if (chosenColors === "all") {
+                setChosenColors([e.target.value])
+                setNotChosenColors(notChosenColors.filter(color => {
+                    if (color === e.target.value) {
+                        return false
+                    }
+                    return true
+                }))
+            } else {
+                setNotChosenColors(notChosenColors.filter(color => {
+                    if (color === e.target.value) {
+                        return false
+                    }
+                    return true
+                }))
+                setChosenColors(prevArray => [...prevArray, e.target.value])
+            }   
+        }
+        if (!e.target.checked) {
+            setNotChosenColors(prevArray => [...prevArray, e.target.value])
+            setChosenColors(chosenColors.filter((color) => {
+                return color !== e.target.value
+            }))
+        }
+    }
 
-
-   // useEffect(() => {
-   //     
-   //     axios.post("http://localhost:5000/session", {
-   //         userID: localStorage.getItem("userID"),
-   //         deck: addedCards
-   //     })
-   //
-   // }, [addedCards])
-
-    const [ chosenDeckType, setChosenDeckType ] = useState("commander")
-
-    const [ deckCost, setDeckCost ] = useState(0.00)
+    useEffect(() => {
+        setAddedCards(cards => cards.filter(card =>  {
+            for (const color of notChosenColors) {
+                if (card.color_identity.indexOf(color) >= 0) {
+                    return false
+                }
+            }
+            return true
+        }))
+    }, [notChosenColors])
     
     const handleChange = (e) => {
         setChosenDeckType(e.target.value)
@@ -46,6 +79,11 @@ const DeckBuilder = () => {
                 deckCost={deckCost}
                 setDeckCost={setDeckCost}
                 chosenDeckType={chosenDeckType}
+                chosenColors={chosenColors}
+                notChosenColors={notChosenColors}
+                setCommander={setCommander}
+                setIsCommander={setIsCommander}
+                isCommander={isCommander}
                 />
             </div>
             <div className={styles.container}>
@@ -64,7 +102,29 @@ const DeckBuilder = () => {
                     <div>
                         {"Cost of Deck: $" + deckCost.toString()}
                     </div>
+                    <div>
+                        <input onChange={handleCheck} type="checkbox" name="red" value={"R"}/>                        
+                        <label htmlFor="red">Red</label>
+                        <input onChange={handleCheck} type="checkbox" name="blue" value={"U"}/>
+                        <label htmlFor="blue">Blue</label>
+                        <input onChange={handleCheck} type="checkbox" name="black" value={"B"}/>                        
+                        <label htmlFor="black">Black</label>
+                        <input onChange={handleCheck} type="checkbox" name="green" value={"G"}/>
+                        <label htmlFor="green">Green</label>
+                        <input onChange={handleCheck} type="checkbox" name="white" value={"W"}/>
+                        <label htmlFor="white">White</label>
+                    </div>  
                 </header>
+                {commander ? <Card
+                    className={styles.commander}
+                    card={commander}
+                    inDeck={true}
+                    deckCost={deckCost}
+                    setDeckCost={setDeckCost}
+                    chosenDeckType={chosenDeckType}
+                    isCommander={isCommander}
+                    setCommander={setCommander}
+                /> : null}
                 <div className={styles.addedCards}>
                     {addedCards.map((card) => {
                     

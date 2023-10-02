@@ -30,8 +30,12 @@
     border-bottom: 1px white solid;
     position: sticky;
     top: 0;
-    margin-bottom: 9.8vh;
+    margin-bottom: 0vh;
     
+}
+
+.commander {
+    margin-top: 0;
 }
 
 .checkBox {
@@ -49,7 +53,7 @@ body {
 
 .section2 {
     border-right: solid 2px white;
-    width: 400px;
+    width: 250px;
     margin-left: 10px;
 }
 

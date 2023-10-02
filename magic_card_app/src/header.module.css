@@ -30,6 +30,17 @@
     width: 100px;
 }
 
+.section4 {
+    border-right: solid 2px white;
+    margin-left: 10px;
+}
+
+.section5 {
+    border-right: solid 2px white;
+    width: 150px;
+    margin-left: 10px;
+}
+
 .loginbutton {
     background-color: white;
     border-radius: 15px;

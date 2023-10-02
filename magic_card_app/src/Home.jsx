@@ -1,10 +1,10 @@
-import {React, useEffect, useState} from "react";
+import {React, useState} from "react";
 import axios from "axios";
 import Card from "./Card";
 import Header from "./Header";
-import { useLocation } from "react-router-dom";
 import Popup from "reactjs-popup";
 import styles from "./Home.module.css"
+import { useQuery } from "react-query";
 
 
 
@@ -13,70 +13,115 @@ const Home = ({
         addedCards, 
         setAddedCards,
         deckCost,
-        setDeckCost }) => {
+        setDeckCost,
+        chosenDeckType,
+        setChosenDeckType,
+        chosenColors,
+        notChosenColors,
+        setCommander,
+        setIsCommander,
+        isCommander }) => {
 
-    const [ userID, setUserID ] = useState("guest")
+    const User = localStorage.getItem("userID")
 
     const [ loginClicked, setLoginClicked ] = useState(false)
 
-    const [ defaultCards, setDefaultCards ] = useState()
+    const [ defaultCards, setDefaultCards ] = useState(false)
 
-    const [cards, setCards] = useState([])
+    const [ cards, setCards ] = useState([])
 
-    const [ suggestions, setSuggestions ] = useState([])
+    const [ sortValue, setSortValue ] = useState("name")
+
+    const [isCards, setIsCards] = useState(false)
+
+    const [ isSearched, setIsSearched ] = useState(false)
 
     const [ username, setUsername ] = useState("")
 
     const [ password, setPassword ] = useState("")
 
-    const [ search, setSearch ] = useState("")
-
-    const getDefaultCards = async () => {
-
-        if (fromDeckBuilder) {
-            if (localStorage.getItem("userID")) {
-
-                const results = await axios.get("http://localhost:5000/getCards/" + localStorage.getItem("userID")
-                )
-
-                setDefaultCards(results.data)
-    }
-        } else {
-            const results = await axios.get("https://api.scryfall.com/sets/aer")
-
-            const cardResults = await axios.get(results.data.search_uri)
-
-            setDefaultCards(cardResults.data.data)
-        }
-        
-        
-    }
-    
-    const location = useLocation()
-
-    const checkIfFromCard = () => {
-        if (location.state) {
-            if (location.state.cards) {
-                setCards(location.state.cards)
-            } else {
-                getDefaultCards()
+    let {status, data, error, isFetching} = useQuery({queryKey: ["defaultCards", User], refetchOnWindowFocus: false, queryFn: () => {
+        if (fromDeckBuilder & !isSearched) {
+            if (User !=="guest") {
+                setIsCards(true)
+                return axios.get("http://localhost:5000/getCards/" + User)
             }
         } else {
-            getDefaultCards()
+            if (User !=="guest" & !isSearched) {
+                setIsCards(true)
+                return axios.get("http://localhost:5000/getCards/" + User)
+            } else {
+                return axios.get("https://api.scryfall.com/sets/aer")
+            }
+        }
+        
+    }})
+
+    if (sortValue === "name") {
+        if (data) {
+            data = data.data.sort((a, b) => {
+                return a.name.localeCompare(b.name)
+            })
         }
     }
 
-    useEffect(() => {
-
-        console.log(addedCards)
-
-        if (localStorage.getItem("userID")) {
-            setUserID(localStorage.getItem("userID"))
+    if (sortValue === "value") {
+        if (data) {
+            data = data.data.sort((a, b) => {
+                if (a.prices.usd === null | b.prices.usd === null) {
+                    return false
+                }
+                return b.prices.usd - a.prices.usd
+            })
         }
+    }
+    
+    if (sortValue === "color") {
+        if (data) {
+            data = data.data.sort((a, b) => {
+                
+                a = a.color_identity.join()
+                b = b.color_identity.join()
 
-        checkIfFromCard()
+                return b.localeCompare(a)
 
-    }, [setDefaultCards, localStorage.getItem("userID")])
+            })
+        }
+    }
+    
+    if (chosenColors && chosenColors !== "all") {
+        if (data && chosenColors.length > 0) {
+            data = data.filter((card) => {
+                if (card.color_identity.length === 0) {
+                    return true
+                }
+                for (const color of notChosenColors) {
+                    if (card.color_identity.indexOf(color) >= 0) {
+                        return false
+                    }
+                }
+                return true
+            })
+        }
+    }
+
+    const setInfo = data?.data
+
+    const defaultSet = useQuery({queryKey: ["defaultSet", User], queryFn: () => {
+        if (setInfo.data) {
+            if (setInfo.data.search_uri) {
+                setDefaultCards(true)
+                return axios.get(setInfo.data.search_uri)
+            }
+        } else {
+            return null
+        }
+       
+    }, enabled: !!setInfo})
+
+    if (defaultSet.error) {
+        console.log(defaultSet.error.message)
+    }
     
     const changePassword = (e) => {
         e.preventDefault()
@@ -90,33 +135,6 @@ const Home = ({
         setUsername(e.target.value)
     }
 
-    const handleChange = async (e) => {
-        e.preventDefault()
-
-        setSearch(e.target.value)
-
-        const results = await axios.get("https://api.scryfall.com/cards/autocomplete?q=" + e.target.value)
-
-        setSuggestions(results.data.data)
-    }
-    
-
-    const searchByName = async (e) => {
-        try {
-            setDefaultCards(null)
-            const results = await axios.get("https://api.scryfall.com/cards/search?q=" + search )
-            setCards(results.data.data)
-        } catch {
-            return <>
-                <form onSubmit={(e) => {e.preventDefault(); searchByName(e)}}>
-                    <input type="text" placeholder="Search" value={search}
-                    onChange={handleChange}/>
-                    <button>Search</button>
-                </form>
-            </>
-        }
-    }
-
     const login = async (e) => {
         e.preventDefault()
         const results = await axios.post("http://localhost:5000/login", {
@@ -124,7 +142,8 @@ const Home = ({
         })
 
         if (!results.data.message) {
-            setUserID(results.data)
+            setIsCards(true)
+            setDefaultCards(false)
             localStorage.setItem("userID", results.data)
             setLoginClicked(!loginClicked)
         } else {
@@ -174,43 +193,84 @@ const Home = ({
         setLoginClicked={setLoginClicked}  
         loginClicked={loginClicked} 
         fromHome={true}
-        suggestions={suggestions}
-        setSuggestions={setSuggestions}
-        search={search}
-        setSearch={setSearch}
         defaultCards={defaultCards}
         setDefaultCards={setDefaultCards}
         cards={cards}
-        setCards={setCards}/>
+        setCards={setCards}
+        setIsSearched={setIsSearched}
+        setSortValue={setSortValue}
+        sortValue={sortValue}/>
     <div id="main">
-        {cards && <div className={styles.cards}>
-            {cards.map(card => {
-                return <div key={card.id}>
-                    <Card
-                    cards={cards}
-                    withButton={true} 
-                    card={card}
-                    fromDeckBuilder={fromDeckBuilder}
-                    deckCost={deckCost}
-                    setDeckCost={setDeckCost}
-                    />
-                </div>
-            })}
-            </div>}
-        {defaultCards && <div className={styles.cards}>
-                {defaultCards.map(card => {
+        {!isFetching & isCards & !isSearched ? <div className={styles.cards}>
+            {data.map(card => {
+                if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
                     return <div key={card.id}>
-                        <Card 
+                        <Card
+                        cards={isCards}
+                        withButton={true} 
+                        card={card}
                         fromDeckBuilder={fromDeckBuilder}
                         addedCards={addedCards}
                         setAddedCards={setAddedCards}
-                        card={card}
-                        setDeckCost={setDeckCost}
                         deckCost={deckCost}
+                        setDeckCost={setDeckCost}
+                        chosenDeckType={chosenDeckType}
+                        setChosenDeckType={setChosenDeckType}
+                        setCommander={setCommander}
+                        setIsCommander={setIsCommander}
+                        isCommander={isCommander}
                         />
                     </div>
+                } else {
+                    return null
+                }
+                
+            })}
+            </div> : null}
+
+        {isSearched ? <div className={styles.cards}>
+            {cards.map(card => {
+                if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
+                    return <div key={card.id}>
+                        <Card
+                        cards={isCards}
+                        withButton={true} 
+                        card={card}
+                        fromDeckBuilder={fromDeckBuilder}
+                        addedCards={addedCards}
+                        setAddedCards={setAddedCards}
+                        deckCost={deckCost}
+                        setDeckCost={setDeckCost}
+                        chosenDeckType={chosenDeckType}
+                        setChosenDeckType={setChosenDeckType}
+                        />
+                    </div>
+                } else {
+                    return null
+                }
+                
+            })}
+            </div> : null}
+        {!defaultSet.isLoading & defaultCards ? <div className={styles.cards}>
+                {defaultSet.data.data.data.map(card => {
+                    if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
+                        return <div key={card.id}>
+                            <Card 
+                            fromDeckBuilder={fromDeckBuilder}
+                            addedCards={addedCards}
+                            setAddedCards={setAddedCards}
+                            card={card}
+                            setDeckCost={setDeckCost}
+                            deckCost={deckCost}
+                            chosenDeckType={chosenDeckType}
+                            setChosenDeckType={setChosenDeckType}
+                            />
+                        </div>
+                    } else {
+                        return null
+                    }
                 })}
-            </div>}
+            </div>: null}
         
     </div>
     </>
