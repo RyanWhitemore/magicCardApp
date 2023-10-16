@@ -17,30 +17,37 @@ const Home = ({
         chosenDeckType,
         setChosenDeckType,
         chosenColors,
+        setChosenColors,
         notChosenColors,
         setCommander,
         setIsCommander,
-        isCommander }) => {
+        isCommander,
+        setNotChosenColors,
+        commander,
+        withoutButton,
+        loginClicked,
+        setLoginClicked,
+        username,
+        password,
+        setUsername,
+        setPassword,
+        login,
+        defaultCards,
+        setDefaultCards,
+        setIsCards,
+        isCards }) => {
 
     const User = localStorage.getItem("userID")
 
-    const [ loginClicked, setLoginClicked ] = useState(false)
-
-    const [ defaultCards, setDefaultCards ] = useState(false)
+    
 
     const [ cards, setCards ] = useState([])
 
     const [ sortValue, setSortValue ] = useState("name")
 
-    const [isCards, setIsCards] = useState(false)
-
     const [ isSearched, setIsSearched ] = useState(false)
 
-    const [ username, setUsername ] = useState("")
-
-    const [ password, setPassword ] = useState("")
-
-    let {status, data, error, isFetching} = useQuery({queryKey: ["defaultCards", User], refetchOnWindowFocus: false, queryFn: () => {
+    let data = useQuery({queryKey: ["defaultCards", User], refetchOnWindowFocus: false, queryFn: () => {
         if (fromDeckBuilder & !isSearched) {
             if (User !=="guest") {
                 setIsCards(true)
@@ -51,63 +58,21 @@ const Home = ({
                 setIsCards(true)
                 return axios.get("http://localhost:5000/getCards/" + User)
             } else {
-                return axios.get("https://api.scryfall.com/sets/aer")
+                return axios.get("https://api.scryfall.com/sets/woe")
             }
         }
         
     }})
 
-    if (sortValue === "name") {
-        if (data) {
-            data = data.data.sort((a, b) => {
-                return a.name.localeCompare(b.name)
-            })
-        }
+
+    let setInfo = false
+
+    if (User === "guest") {
+        setInfo = data.data
     }
 
-    if (sortValue === "value") {
-        if (data) {
-            data = data.data.sort((a, b) => {
-                if (a.prices.usd === null | b.prices.usd === null) {
-                    return false
-                }
-                return b.prices.usd - a.prices.usd
-            })
-        }
-    }
-    
-    if (sortValue === "color") {
-        if (data) {
-            data = data.data.sort((a, b) => {
-                
-                a = a.color_identity.join()
-                b = b.color_identity.join()
-
-                return b.localeCompare(a)
-
-            })
-        }
-    }
-    
-    if (chosenColors && chosenColors !== "all") {
-        if (data && chosenColors.length > 0) {
-            data = data.filter((card) => {
-                if (card.color_identity.length === 0) {
-                    return true
-                }
-                for (const color of notChosenColors) {
-                    if (card.color_identity.indexOf(color) >= 0) {
-                        return false
-                    }
-                }
-                return true
-            })
-        }
-    }
-
-    const setInfo = data?.data
-
-    const defaultSet = useQuery({queryKey: ["defaultSet", User], queryFn: () => {
+    let defaultSet = useQuery({queryKey: ["defaultSet", User], refetchOnWindowFocus: false, queryFn: () => {
+        console.log("default set called")
         if (setInfo.data) {
             if (setInfo.data.search_uri) {
                 setDefaultCards(true)
@@ -119,10 +84,114 @@ const Home = ({
        
     }, enabled: !!setInfo})
 
+    const collectionData = useQuery({queryKey: "ownedCards", refetchOnWindowFocus: false, queryFn: () => {
+        if (User !== "guest") {
+            return axios.get("http://localhost:5000/getCards/" + User)
+        }
+        return
+    }})
+
+    if (collectionData.isSuccess && User !== "guest" && data) {
+        if(data.data) {
+            for (const card of data.data.data) {
+                if (!collectionData.isLoading && collectionData.data) {
+                    if (collectionData.data.data.indexOf(card)) {
+                        card.inCollection = true
+                    }
+                }
+            }
+        }
+    }
+
+    const sort = (data) => {
+        if (sortValue === "name") {
+            if (!data) {
+                return
+            }
+            if (data) {
+                data = {data: {data: data.sort((a, b) => {
+                    return a.name.localeCompare(b.name)
+                })}}
+            }
+        }
+    
+        if (sortValue === "value") {
+            if (data) {
+                data = data.sort((a, b) => {
+                    if (!a.prices.usd) {
+                        return 1
+                    }
+                    if (!b.prices.usd) {
+                        return -1
+                    }
+                    return b.prices.usd - a.prices.usd
+                })
+            }
+        }
+        
+        if (sortValue === "color") {
+            if (data) {
+                data = data.sort((a, b) => {
+                    
+                    a = a.color_identity.join()
+                    b = b.color_identity.join()
+    
+                    return b.localeCompare(a)
+    
+                })
+            }
+        }
+    }
+     
+    if (chosenColors && chosenColors !== "all") {
+        if (User === "guest" && defaultSet.isSuccess) {
+            defaultSet = {data: {data: {data: defaultSet.data.data.data.filter(card => {
+                if (card === commander) {
+                    return false
+                }
+                if (card.color_identity.length === 0) {
+                    return true
+                }
+                for (const color of notChosenColors) {
+                    if (card.color_identity.indexOf(color) >= 0) {
+                        return false
+                    }
+                }
+                return true
+            })}}}
+        }
+        if (data.data && chosenColors.length > 0 && User !== "guest") {
+            data = {data: {data: data.data.data.filter((card) => {
+                if (card === commander) {
+                    return false
+                }
+                if (card.color_identity.length === 0) {
+                    return true
+                }
+                for (const color of notChosenColors) {
+                    if (card.color_identity.indexOf(color) >= 0) {
+                        return false
+                    }
+                }
+                return true
+            })}}
+        }
+    }
+
     if (defaultSet.error) {
         console.log(defaultSet.error.message)
     }
-    
+
+    if (User !== "guest") {
+        if (data.data) {
+            sort(data.data.data)
+        }
+    }
+
+    if (User === "guest" && defaultSet.data) {
+        sort(defaultSet.data.data.data)
+    }
+
     const changePassword = (e) => {
         e.preventDefault()
 
@@ -135,23 +204,11 @@ const Home = ({
         setUsername(e.target.value)
     }
 
-    const login = async (e) => {
-        e.preventDefault()
-        const results = await axios.post("http://localhost:5000/login", {
-            username: username.toLowerCase(), password: password
-        })
-
-        if (!results.data.message) {
-            setIsCards(true)
-            setDefaultCards(false)
-            localStorage.setItem("userID", results.data)
-            setLoginClicked(!loginClicked)
-        } else {
-            console.log("login failed")
-        }
-        
+   if (data.isSuccess && User !== "guest") {
+    for (const card of data.data.data) {
+        card.inCollection = true
     }
-    
+   }
 
     return <>
     <Popup 
@@ -201,13 +258,13 @@ const Home = ({
         setSortValue={setSortValue}
         sortValue={sortValue}/>
     <div id="main">
-        {!isFetching & isCards & !isSearched ? <div className={styles.cards}>
-            {data.map(card => {
+        {!data.isFetching && isCards && !isSearched && data  ? <div className={styles.cards}>
+            {data.data.data.map(card => {
                 if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
                     return <div key={card.id}>
                         <Card
                         cards={isCards}
-                        withButton={true} 
+                        withoutButton={withoutButton}
                         card={card}
                         fromDeckBuilder={fromDeckBuilder}
                         addedCards={addedCards}
@@ -219,6 +276,10 @@ const Home = ({
                         setCommander={setCommander}
                         setIsCommander={setIsCommander}
                         isCommander={isCommander}
+                        setNotChosenColors={setNotChosenColors}
+                        notChosenColors={notChosenColors}
+                        setChosenColors={setChosenColors}
+                        commander={commander}
                         />
                     </div>
                 } else {
@@ -228,13 +289,68 @@ const Home = ({
             })}
             </div> : null}
 
-        {isSearched ? <div className={styles.cards}>
+        {isSearched && fromDeckBuilder ? <div className={styles.cards}>
+            {cards.map(card => {
+                if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
+                    if (chosenColors === "all") {
+                        return <div key={card.id}> 
+                        <Card
+                        cards={isCards}
+                        withButton={false} 
+                        card={card}
+                        fromDeckBuilder={fromDeckBuilder}
+                        addedCards={addedCards}
+                        setAddedCards={setAddedCards}
+                        deckCost={deckCost}
+                        setDeckCost={setDeckCost}
+                        chosenDeckType={chosenDeckType}
+                        setChosenDeckType={setChosenDeckType}
+                        setCommander={setCommander}
+                        setIsCommander={setIsCommander}
+                        isCommander={isCommander}
+                        setNotChosenColors={setNotChosenColors}
+                        setChosenColors={setChosenColors}
+                        notChosenColors={notChosenColors}
+                        />
+                    </div>
+                    }
+                    for (const color of card.color_identity) {
+                        if (notChosenColors.indexOf(color) >= 0) {
+                            return null
+                        }
+                    }
+                    return <div key={card.id}> 
+                            <Card
+                            cards={isCards}
+                            withButton={false} 
+                            card={card}
+                            fromDeckBuilder={fromDeckBuilder}
+                            addedCards={addedCards}
+                            setAddedCards={setAddedCards}
+                            deckCost={deckCost}
+                            setDeckCost={setDeckCost}
+                            chosenDeckType={chosenDeckType}
+                            setChosenDeckType={setChosenDeckType}
+                            setCommander={setCommander}
+                            setIsCommander={setIsCommander}
+                            isCommander={isCommander}
+                            setNotChosenColors={setNotChosenColors}
+                            setChosenColors={setChosenColors}
+                            notChosenColors={notChosenColors}
+                            />
+                        </div>
+                }
+                return null
+            })}
+        </div> : null}
+
+        {isSearched && !fromDeckBuilder ? <div className={styles.cards}>
             {cards.map(card => {
                 if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
                     return <div key={card.id}>
                         <Card
                         cards={isCards}
-                        withButton={true} 
+                        withButton={false} 
                         card={card}
                         fromDeckBuilder={fromDeckBuilder}
                         addedCards={addedCards}
@@ -251,7 +367,7 @@ const Home = ({
                 
             })}
             </div> : null}
-        {!defaultSet.isLoading & defaultCards ? <div className={styles.cards}>
+        {!defaultSet.isLoading && defaultSet.status !== "idle" ? <div className={styles.cards}>
                 {defaultSet.data.data.data.map(card => {
                     if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
                         return <div key={card.id}>
@@ -262,8 +378,13 @@ const Home = ({
                             card={card}
                             setDeckCost={setDeckCost}
                             deckCost={deckCost}
+                            setCommander={setCommander}
+                            setIsCommander={setIsCommander}
+                            setChosenColors={setChosenColors}
+                            setNotChosenColors={setNotChosenColors}
                             chosenDeckType={chosenDeckType}
                             setChosenDeckType={setChosenDeckType}
+                            withButton={false}
                             />
                         </div>
                     } else {

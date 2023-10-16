@@ -110,6 +110,10 @@ const getCardsByUserId = async (req, res) => {
 
     try {
 
+        if (userID === "guest") {
+            return res.status(200).send()
+        }
+
         const collection = client.db("magicCards")
 
         const magicCards = collection.collection("magicCards")
@@ -146,7 +150,7 @@ const getCardsByUserId = async (req, res) => {
         res.send(cards)
 
     } catch (err) {
-        throw(err)
+        console.log(err)
     }
 
 } 

@@ -13,7 +13,10 @@ const Header = ({
         setIsSearched,
         fromMyCards,
         setSortValue,
-        sortValue
+        username,
+        password,
+        setUsername,
+        setPassword
     }) => {
 
     const user = localStorage.getItem("userID")
@@ -28,6 +31,14 @@ const Header = ({
         try {
             setDefaultCards(null)
             const results = await axios.get("https://api.scryfall.com/cards/search?q=" + search )
+            const collectionResults = await axios.get("http://localhost:5000/getcards/" + user)
+            for (const result of results.data.data) {
+                for (let i = 0; i < collectionResults.data.length; i++) {
+                    if (collectionResults.data[i].id === result.id) {
+                        result.inCollection = true
+                    }
+                }
+            }
             setIsSearched(true)
             setCards(results.data.data)
         } catch (err) {
@@ -72,12 +83,18 @@ const Header = ({
 
     const logout = () => {
         localStorage.setItem("userID", "guest")
+        localStorage.setItem("chosenColors", "all")
+        localStorage.setItem("commander", JSON.stringify(false))
+        localStorage.setItem("deck", JSON.stringify([]))
+        localStorage.setItem("notChosenColors", JSON.stringify({data: ['G', "R", "B", "U", "W"]}))
+        localStorage.setItem("deckCost", JSON.stringify(0.00))
         window.location.reload()
     }
 
     const sort = (e) => {
         setSortValue(e.target.value)
     }
+
 
     return <>
         <header className={styles.header}>
@@ -100,7 +117,7 @@ const Header = ({
                 </div>}
                 <div className={styles.section4}>
                     <select onChange={sort}>
-                        <option value={"name"} selected>Name</option>
+                        <option value={"name"} defaultValue>Name</option>
                         <option value={"color"}>Color</option>
                         <option value={"value"}>Value</option>
                     </select>

@@ -22,12 +22,6 @@
     left: 1%
 }
 
-.add-card {
-    position: absolute;
-    bottom: 10px;
-    left: 85%;
-}
-
 .counter {
     color: white;
 }

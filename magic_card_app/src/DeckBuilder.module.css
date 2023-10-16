@@ -1,5 +1,6 @@
 .flexcontainer {
     display: flex;
+    height: 100vh;
 }
 
 .addedCards {
@@ -9,10 +10,24 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     column-gap: 10px;
+    overflow: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.addedCards::-webkit-scrollbar {
+    display: none;
 }
 
 .homediv {
     width: 50vw;
+    overflow: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.homediv::-webkit-scrollbar {
+    display: none;
 }
 
 .cost {
