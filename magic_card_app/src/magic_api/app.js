@@ -4,6 +4,8 @@ const { addCardToDb,
         deleteCardFromDb, 
         registerUser,
         searchMyCards,
+        saveDeck,
+        getDecksFromDB,
          } = require("./routeFunctions")
 const cors = require("cors")
 const passport = require("passport")
@@ -91,5 +93,13 @@ app.post("/logout", (req, res) => {
 })
 
 app.post('/register', registerUser)
+
+app.put("/deck", (req, res) => {
+    saveDeck(req, res)
+})
+
+app.get("/deck/:userID", (req, res) => {
+    getDecksFromDB(req, res)
+})
 
 app.listen(port)

@@ -194,12 +194,12 @@ const searchMyCards = async (req, res) => {
 
         const magicCards = database.collection("magicCards")
 
-        const results = await userCards.find({userID, "cards.cardName": searchTerm}).toArray()
+        const results = await userCards.find({userID, "cards.cardName": {$regex: searchTerm, $options: "i"}}).toArray()
 
         if (results.length > 0) {
             for (const card of results[0].cards) {
-                if (card.cardName === searchTerm) {
-                    const matchedCard = await magicCards.findOne({name: searchTerm})
+                if (new RegExp(searchTerm, "i").exec(card.cardName)) {
+                    const matchedCard = await magicCards.findOne({name:  {$regex: searchTerm, $options: "i"}})
                     if (matchedCard) {
                         matchedCard.quantity = 1
                         return res.send(matchedCard)
@@ -220,7 +220,61 @@ const searchMyCards = async (req, res) => {
     }
 }
 
+const saveDeck = async (req, res) => {
+    const userID = req.body.userID
+    const deckID = req.body.deckID
+    const cardsArray = req.body.cards
+    const commanderID = req.body.commanderID
+    let queryObj = {deckID: deckID, commander: commanderID, cards: cardsArray} 
+
+    const database = client.db("magicCards")
+
+    const userDecks = database.collection("userDecks")
+
+    let deckList = userDecks.find({userID}).toArray()
+
+    deckList = await deckList
+
+    if (deckList[0]?.decks) {
+        for (const deck of deckList[0].decks) {
+            if (deck.deckID === deckID) {
+                return res.status(200).send()
+            }
+        }
+    }
+    
+    if (deckList.length <= 0) {
+        userDecks.insertOne({userID, decks: [queryObj]})
+    } else {
+        const newDecksList = deckList[0].decks
+        
+        newDecksList.push(queryObj)
+        userDecks.updateOne({userID}, {$set: {decks: newDecksList}})
+    }
+
+    res.status(200).send()
+}
+
+const getDecksFromDB = async (req, res) => {
+    const userID = req.params.userID
+
+    const database = client.db("magicCards")
+
+    const userDecks = database.collection("userDecks")
+
+    let deckList = userDecks.find({userID}).toArray()
+
+    deckList = await deckList
+
+    console.log(deckList[0]?.decks)
+
+    res.status(200).send(deckList[0]?.decks)
+
+} 
+
 module.exports = {
+    getDecksFromDB: getDecksFromDB,
+    saveDeck: saveDeck,
     addCardToDb: addCardToDb,
     getCardsByUserId: getCardsByUserId,
     deleteCardFromDb: deleteCardFromDb,

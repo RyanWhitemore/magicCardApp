@@ -45,12 +45,20 @@
     border-bottom: 1px white solid;
     position: sticky;
     top: 0;
-    margin-bottom: 0vh;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
     
 }
 
-.commander {
-    margin-top: 0;
+.deckCost {
+    font-size: 14px;
+    padding-left: 15px;
+    padding-top: 2px;
+}
+
+.commanderDiv {
+    display: flex;
+    justify-content: center;
 }
 
 .checkBox {
@@ -61,15 +69,22 @@ body {
     color: white;
 }
 
+.dropdown {
+    font-size: 14px;
+    padding-left: 20px;
+}
+
 .section {
+    font-size: 14px;
     width: 100px;
     margin-top: 0px;
 }
 
 .section2 {
     border-right: solid 2px white;
-    width: 250px;
+    width: 220px;
     margin-left: 10px;
+    font-size: 14px;
 }
 
 .cards {
@@ -78,7 +93,25 @@ body {
 
 .container {
     border-left: white solid 4px;
-    flex-direction: column;
-    display: grid;
+    row-gap: 0;
     height: 100vh;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
+.save {
+    margin-left: 8px;
+}
+
+.type {
+    text-align: center;
+    padding-bottom: 0px;
+}
+
+.cardDiv {
+    width: 180px;
 }

@@ -39,8 +39,6 @@ const Home = ({
 
     const User = localStorage.getItem("userID")
 
-    
-
     const [ cards, setCards ] = useState([])
 
     const [ sortValue, setSortValue ] = useState("name")
@@ -311,6 +309,7 @@ const Home = ({
                         setNotChosenColors={setNotChosenColors}
                         setChosenColors={setChosenColors}
                         notChosenColors={notChosenColors}
+                        inDeck={false}
                         />
                     </div>
                     }

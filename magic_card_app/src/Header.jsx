@@ -116,7 +116,7 @@ const Header = ({
                     <button className={styles.logoutbutton}onClick={logout}>Logout</button>
                 </div>}
                 <div className={styles.section4}>
-                    <select onChange={sort}>
+                    <select id={"sort options"}onChange={sort}>
                         <option value={"name"} defaultValue>Name</option>
                         <option value={"color"}>Color</option>
                         <option value={"value"}>Value</option>
@@ -127,7 +127,7 @@ const Header = ({
                 </div> : null}
             </div>
             {fromHome && <form onSubmit={(e) => {e.preventDefault(); searchByName(e)}}>
-                <input className={styles.search} list="suggestions" type="text" placeholder="Search" 
+                <input id={"search bar"}className={styles.search} list="suggestions" type="text" placeholder="Search" 
                 value={search}
                 onChange={handleChange}/>
                     <datalist id="suggestions">

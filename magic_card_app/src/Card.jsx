@@ -37,9 +37,9 @@ const Card = ({
             setIsCommander,
             isCommander,
             setNotChosenColors,
-            notChosenColors,
             setChosenColors,
-            commander
+            commander,
+            numberOfType
         }) => {
         
         // initialize variables for various buttons
@@ -85,6 +85,9 @@ const Card = ({
         const addCommander = () => {
             // initialize array with all possible colors
             const colors = ["G", "B", "U", "R", "W"]
+            if (card.id === JSON.parse(localStorage.getItem("commander")).id) {
+                return
+            }
             if (card.legalities[chosenDeckType] === "legal") {
                 if (card.prices.usd) {
                     let newDeckCost = parseFloat(deckCost) + parseFloat(card.prices.usd)
@@ -247,7 +250,7 @@ const Card = ({
             addButton = <>
                 <button value={card} onClick={addCard}>Add to Deck</button>
             </>
-            // if the card is able to act as a commander an
+            // if the card is able to act as a commander a
             // commander button is given the value of add commander button
             if ((chosenDeckType === "commander" && 
                 card.type_line.includes("Legendary Creature")) | 
@@ -280,10 +283,6 @@ const Card = ({
             </>
         }
 
-        if (inDeck) {
-            
-        }
-
         // if the card component comes from the mycards component 
         // a quantity is given value as well as a button to delete
         // the card from the collection
@@ -293,21 +292,55 @@ const Card = ({
         
         // if card image exists
         if (card.image_uris) {
-            cardImage = <>
-            <div>
-                <div>
+            if (inDeck | inDeck && !isCommander) {
+                cardImage = [<div className="buttonsDiv" >
+                    <button className="addInDeck" onClick={addCardInDeck}>+</button>
+                    <button className="removeInDeck" onClick={removeCardInDeck}>-</button>
+                </div>]
+                for (let i = 0; i < deckCount; i++) {
+                    const topPx = i + numberOfType + "px"
+                    cardImage.push(<>
+                        <div className="imageDiv">
+                            <img
+                                style={{
+                                    opacity: 
+                                    (card.inCollection && !fromMyCards) 
+                                    | fromMyCards | userID === "guest" 
+                                    | (!fromDeckBuilder && !fromMyCards) ? 1.0 : 0.5,
+                                    position: inDeck ? "absolute": null,
+                                    top: inDeck ? topPx : null,
+                                    right: inDeck ? "0vw" : null,
+                                    left: inDeck ? "2.5vw" : null}}
+                                onClick={() => {setPopup(true)}}
+                                width="180px"
+                                src={card.image_uris.border_crop} 
+                                alt={card.name}
+                            ></img>
+                            {addButton} 
+                            {commanderButton}
+                        </div>
+                    </> )
+                }
+            } else {
+                cardImage = <>
+                <div className="imageDiv">
                     <img
-                        style={{opacity: (card.inCollection && !fromMyCards) | fromMyCards | userID === "guest" | (!fromDeckBuilder && !fromMyCards) ? 1.0 : 0.5}}
+                        className="cardImage"
+                        style={{
+                            opacity: 
+                            (card.inCollection && !fromMyCards) 
+                            | fromMyCards | userID === "guest" 
+                            | (!fromDeckBuilder && !fromMyCards) ? 1.0 : 0.5}}
                         onClick={() => {setPopup(true)}}
                         width="180px"
                         src={card.image_uris.border_crop} 
                         alt={card.name}
                     ></img>
+                    {addButton} 
+                    {commanderButton}
                 </div>
-            </div>
-            {addButton}
-            {commanderButton}
             </> 
+            }
         } 
         // if card image does not exist
         else {
@@ -322,24 +355,25 @@ const Card = ({
 
 
             return <>
-                <div className="image">
-                    {cardImage}
+                <div key={card.name} className="image">
+                    {!cardImage.length ? cardImage : cardImage.map(card => {
+                        return card
+                    })}
                     {button}
                     <Popup
                     open={popup}
                     >
                         <img
-                            src={card.image_uris.border_crop}
+                            src={card.image_uris?.border_crop}
                             alt={card.name}
                             ref={wrapperRef}
                         />
                     </Popup>
-                    {inDeck && <div>
-                        <button onClick={addCardInDeck}>Add</button>
-                        <p>{deckCount}</p>
-                        <button onClick={removeCardInDeck}>Remove</button>
-                    </div>}
-                    {card.prices && <p className="price">${card.prices.usd}</p>}
+                    {card.prices && <p className="price"
+                    style={{
+                        top: inDeck ? "3.5vh" : null,
+                        textAlign: inDeck ? "left": null
+                    }}>${card.prices.usd}</p>}
                     {quantity}
                     {fromMyCards && <>
                         <button onClick={(e) => {

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import Card from "./Card"
 import { useQuery } from "react-query"
 import axios from "axios"
+import Popup from "reactjs-popup"
+import CardInDeck from "./CardInDeck"
 
 const DeckBuilder = ({
             login,
@@ -34,12 +36,23 @@ const DeckBuilder = ({
 
     const [ deckCost, setDeckCost ] = useState(localStorage.getItem("deckCost") > 0 ? JSON.parse(localStorage.getItem("deckCost")) : 0.00)
 
+    const [ creatingDeck, setCreatingDeck ] = useState(false)
+
+    const [ editingDeck, setEditingDeck ] = useState(false)
+
     const user = localStorage.getItem("userID")
 
     const localCommander = localStorage.getItem("commander")
 
     const localIsCommander = localStorage.getItem("isCommander")
 
+    let numberOfType = 0
+
+    const cardTypes = ["Artifact", "Instant", "Creature", 
+        "Enchantment", "Sorcery", "Land", "Basic Land", "Planeswalker",
+        "Battle"
+        ]
+       
     useEffect(() => {
         if (localStorage.getItem("commander")) {
             setCommander(JSON.parse(localStorage.getItem("commander")))
@@ -60,17 +73,51 @@ const DeckBuilder = ({
         "duel","oldschool","premodern","predh"]
    
     
-    const {data, isFetching} = useQuery({queryKey: "ownedCards", refetchOnWindowFocus: false, queryFn: () => {
+    const {data, isFetched} = useQuery({queryKey: "ownedCards", refetchOnWindowFocus: false, queryFn: () => {
         return axios.get("http://localhost:5000/getCards/" + user)
     }})
 
-    if (!isFetching) {
+    if (isFetched) {
         if (typeof addedCards !== "string")
         for (const card of addedCards) {
             if (data.data.indexOf(card)) {
                 card.inCollection = true
             }
         }
+    }
+
+    const deckList = useQuery({queryKey: "deckList" + user, refetchOnWindowFocus: false, queryFn: () => {
+        return axios.get("http://localhost:5000/deck/" + user)
+    }})
+
+    const saveDeck = async () => {
+        const deckList = await axios.get("http://localhost:5000/deck/" + user)
+        const deck = []
+        for (const card of addedCards) {
+            deck.push(card.id)
+        }
+        if (deckList.data.length === 0) {
+            axios.put("http://localhost:5000/deck", {
+                commanderID: commander ? commander.id : null, 
+                userID: user,
+                deckID: 1,
+                cards: deck
+            })
+        }
+    }
+
+    const openDeck = async (deck) => {
+        const deckToOpen = []
+
+        for (const card of deck.cards) {
+            const cardToAdd = await axios.get("https://api.scryfall.com/cards/" + card)
+            deckToOpen.push(cardToAdd.data)
+        }
+        setAddedCards(deckToOpen) 
+        const commanderToOpen = await axios.get("https://api.scryfall.com/cards/" + deck.commander)
+        setCommander(commanderToOpen.data)
+        setCreatingDeck(true)
+        setEditingDeck(false)
     }
 
     const handleChecks = (e) => {
@@ -130,7 +177,6 @@ const DeckBuilder = ({
     const handleChange = (e) => {
         setChosenDeckType(e.target.value)
     }
-    
     return <>
         <div className={styles.flexcontainer}>
             <div className={styles.homediv}>
@@ -167,7 +213,7 @@ const DeckBuilder = ({
                 <header className={styles.header}>
                     <div className={styles.section2}>
                         <label htmlFor="deckTypes">Deck Types:</label>
-                        <select defaultValue={"commander"} name="deckTypes" onChange={handleChange}>
+                        <select defaultValue={"commander"} id="deckTypes" onChange={handleChange}>
                             {typesOfDecks.map((key) =>{
                                 return <>
                                        <option value={key}>{key}</option>
@@ -176,56 +222,97 @@ const DeckBuilder = ({
                         </select>
                         
                     </div> 
-                    <div>
+                    <div className={styles.deckCost}>
                         {"Cost of Deck: $" + deckCost.toString()}
                     </div>
-                    <div>
+                    <div className={styles.dropdown}>
                         <input onChange={handleChecks} 
-                        type="checkbox" name="red" value={"R"} checked={notChosenColors.indexOf("R") < 0}/>                        
+                        type="checkbox" id="red" value={"R"} checked={notChosenColors.indexOf("R") < 0}/>                        
                         <label htmlFor="red">Red</label>
                         <input onChange={handleChecks} 
-                        type="checkbox" name="blue" value={"U"} checked={notChosenColors.indexOf("U") < 0}/>
+                        type="checkbox" id="blue" value={"U"} checked={notChosenColors.indexOf("U") < 0}/>
                         <label htmlFor="blue">Blue</label>
                         <input onChange={handleChecks} 
-                        type="checkbox" name="black" value={"B"} checked={notChosenColors.indexOf("B") < 0}/>                        
+                        type="checkbox" id="black" value={"B"} checked={notChosenColors.indexOf("B") < 0}/>                        
                         <label htmlFor="black">Black</label>
                         <input onChange={handleChecks} 
-                        type="checkbox" name="green" value={"G"} checked={notChosenColors.indexOf("G") < 0}/>
+                        type="checkbox" id="green" value={"G"} checked={notChosenColors.indexOf("G") < 0}/>
                         <label htmlFor="green">Green</label>
                         <input onChange={handleChecks} 
-                        type="checkbox" name="white" value={"W"} checked={notChosenColors.indexOf("W") < 0}/>
+                        type="checkbox" id="white" value={"W"} checked={notChosenColors.indexOf("W") < 0}/>
                         <label htmlFor="white">White</label>
-                    </div>  
+                    </div>
+                    <button className={styles.save} onClick={saveDeck}>Save deck</button>  
                 </header>
-                {commander ? <Card
-                    className={styles.commander}
-                    card={commander}
-                    inDeck={true}
-                    deckCost={deckCost}
-                    setDeckCost={setDeckCost}
-                    chosenDeckType={chosenDeckType}
-                    isCommander={isCommander}
-                    setCommander={setCommander}
-                    setNotChosenColors={setNotChosenColors}
-                    setChosenColors={setChosenColors}
-                    withoutButton={true}
-                /> : null}
+                {chosenDeckType === "commander" && creatingDeck ? <header className={styles.type}>Commander</header> : null}
+                {commander && creatingDeck ? <div className={styles.commanderDiv}>
+                    <Card
+                        className={styles.commander}
+                        card={commander}
+                        inDeck={true}
+                        deckCost={deckCost}
+                        setDeckCost={setDeckCost}
+                        chosenDeckType={chosenDeckType}
+                        isCommander={isCommander}
+                        setCommander={setCommander}
+                        setNotChosenColors={setNotChosenColors}
+                        setChosenColors={setChosenColors}
+                        withoutButton={true}
+                    />
+                    </div>: null}
                 <div className={styles.addedCards}>
-                    {addedCards.map((card) => {
-                            return <div className={styles.cards}>
-                                         <Card 
-                                         card={card} 
-                                         inDeck={true}
-                                         addedCards={addedCards}
-                                         setAddedCards={setAddedCards}
-                                         deckCost={deckCost}
-                                         setDeckCost={setDeckCost}
-                                         chosenDeckType={chosenDeckType}
-                                         withoutButton={true}
-                                    />
-                                 </div>
-                        
-                        })}
+                    {localStorage.getItem("userID") !== "guest" && <Popup open={editingDeck}>{deckList.data?.data?.map((deck) => {
+                        return <button onClick={() => {openDeck(deck)}}>{deck.deckID}</button>
+                    })}</Popup>}
+                    {creatingDeck ? cardTypes.map((type) => {
+                        let numOfType = addedCards.reduce((sum, card) => {
+                            if (card.type_line.indexOf(type) >= 0) {
+                                sum += 1
+                                return sum
+                            }
+                            return sum
+                        }, 0)
+                        return <div key={type} className={styles.typeDiv} style={{
+                            height: numOfType === 1 ? 255 : numOfType * 185 
+                        }}>
+                            <header className={styles.type}>{type}</header>
+                            {addedCards.map((card) => {
+                                if (card.type_line.indexOf(type) >= 0) {
+                                    if (card.type_line.indexOf(type) >= 0) {
+                                        numberOfType += 1
+                                    }
+                                    return <>
+                                        <div className={styles.cardDiv} key={card.card_id}>
+                                            <Card 
+                                                numberOfType={numberOfType}
+                                                card={card} 
+                                                inDeck={true}
+                                                addedCards={addedCards}
+                                                setAddedCards={setAddedCards}
+                                                deckCost={deckCost}
+                                                setDeckCost={setDeckCost}
+                                                chosenDeckType={chosenDeckType}
+                                                withoutButton={true}
+                                            />
+                                        </div>
+                                    </>
+                                }
+                                return null
+                            })}
+                        </div>
+                    }): <>
+                            <button onClick={() => {
+                            setCreatingDeck(true); 
+                            localStorage.setItem("deckID", 
+                                JSON.stringify(deckList.data.data.length))
+                            }}>Create Deck</button>
+                            <button onClick={() => setEditingDeck(true)}>Edit Deck</button>
+                        </>
+                        }
+                     {creatingDeck ? <button onClick={() => {
+                        setCreatingDeck(false); 
+                        localStorage.setItem("deckID", JSON.stringify(null))}}
+                        >Cancel</button> : null}
                 </div>
             </div>
             
