@@ -225,7 +225,13 @@ const saveDeck = async (req, res) => {
     const deckID = req.body.deckID
     const cardsArray = req.body.cards
     const commanderID = req.body.commanderID
-    let queryObj = {deckID: deckID, commander: commanderID, cards: cardsArray} 
+    const deckName = req.body.deckName
+    const deckType = req.body.deckType
+
+
+    let queryObj = {deckID: deckID, deckName: deckName,
+        commander: commanderID, cards: cardsArray,
+        deckType} 
 
     const database = client.db("magicCards")
 
@@ -234,16 +240,20 @@ const saveDeck = async (req, res) => {
     let deckList = userDecks.find({userID}).toArray()
 
     deckList = await deckList
+    let filteredDeckList = ""
+
 
     if (deckList[0]?.decks) {
-        for (const deck of deckList[0].decks) {
+        filteredDeckList = deckList[0].decks.filter(deck => {
             if (deck.deckID === deckID) {
-                return res.status(200).send()
+                return false
             }
-        }
+            return true
+        })
+        deckList[0].decks = filteredDeckList
     }
     
-    if (deckList.length <= 0) {
+    if (deckList[0].length <= 0) {
         userDecks.insertOne({userID, decks: [queryObj]})
     } else {
         const newDecksList = deckList[0].decks
@@ -272,6 +282,30 @@ const getDecksFromDB = async (req, res) => {
 
 } 
 
+const deleteDeckFromDB = async (req, res) => {
+    const userID = req.query.userID
+    const deckID = req.query.deckID
+
+    const database = client.db("magicCards")
+
+    const userDecks = database.collection("userDecks")
+
+    const deckList = await userDecks.findOne({userID: userID})
+
+    deckList.decks = deckList.decks.filter((deck) => {
+        console.log(deck.deckID, deckID)
+        if (deck.deckID === deckID) {
+            return false
+        }
+        return true
+    })
+
+
+    userDecks.updateOne({userID: userID}, {$set: {decks: deckList.decks}})
+
+    res.status(200).send()
+}
+
 module.exports = {
     getDecksFromDB: getDecksFromDB,
     saveDeck: saveDeck,
@@ -279,5 +313,6 @@ module.exports = {
     getCardsByUserId: getCardsByUserId,
     deleteCardFromDb: deleteCardFromDb,
     registerUser: registerUser,
-    searchMyCards: searchMyCards
+    searchMyCards: searchMyCards,
+    deleteDeckFromDB: deleteDeckFromDB
 }

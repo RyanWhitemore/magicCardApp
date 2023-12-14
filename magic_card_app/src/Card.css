@@ -12,8 +12,11 @@
 }
 
 .image {
+    display: flex;
+    flex-direction: column;
     width: 180px;
     text-align: center;
+    cursor: pointer;
 }
 
 .buy-card {
@@ -27,7 +30,6 @@
 }
 
 .price {
-    position: relative;
     text-align: center;
     color: white;
 }
@@ -75,4 +77,24 @@
 .cardImage {
     flex: 1;
     position: relative;
+}
+
+.addAndRemove {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.addAndRemoveButton {
+    display: flex;
+    font-weight: bold;
+    padding: 0px;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border-radius: 15px;
+    height: 20px;
+    width: 20px;
+    background-color: rgb(37, 45, 63);
+
 }

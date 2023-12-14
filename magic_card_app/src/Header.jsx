@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import styles from "./header.module.css"
 import axios from "axios"
 import { useState } from "react"
+import Popup from "reactjs-popup"
 
 const Header = ({
         fromHome, 
@@ -16,7 +17,8 @@ const Header = ({
         username,
         password,
         setUsername,
-        setPassword
+        setPassword,
+        login
     }) => {
 
     const user = localStorage.getItem("userID")
@@ -25,7 +27,17 @@ const Header = ({
 
     const [ search, setSearch ] = useState("")
 
-    
+    const changePassword = (e) => {
+        e.preventDefault()
+
+        setPassword(e.target.value)
+    }
+
+    const changeUsername = (e) => {
+        e.preventDefault()
+
+        setUsername(e.target.value)
+    }
 
     const searchByName = async (e) => {
         try {
@@ -88,6 +100,7 @@ const Header = ({
         localStorage.setItem("deck", JSON.stringify([]))
         localStorage.setItem("notChosenColors", JSON.stringify({data: ['G', "R", "B", "U", "W"]}))
         localStorage.setItem("deckCost", JSON.stringify(0.00))
+        localStorage.setItem('deckID', null)
         window.location.reload()
     }
 
@@ -98,6 +111,41 @@ const Header = ({
 
     return <>
         <header className={styles.header}>
+        <Popup 
+            open={loginClicked} 
+            modal
+            nested    
+        >   
+            {close => (
+                <div className="modal">
+                    <div className={"header"}>Login</div>
+                    <button className={"close"} onClick={() => {close(); setLoginClicked(!loginClicked)}}>
+                        &times;
+                    </button>
+                    <div className={"content"}>
+                        <form onSubmit={login}>
+                            <div className={"username"}>
+                                <input 
+                                    type="text" 
+                                    onChange={changeUsername} 
+                                    placeholder="username">
+                                </input>
+                            </div>
+                            <div className={"password"}>
+                                <input 
+                                    type="text" 
+                                    onChange={changePassword} 
+                                    placeholder="password">
+                                </input>
+                            </div>
+                            <button className={"loginbutton"} type="submit">Login</button>
+                        </form>
+                    </div>
+
+                </div>    
+            )}
+        
+        </Popup>
             <div className={styles.container}>
                 <div className={styles.section}>
                     <Link className={styles.home} to="/" >Home</Link>
@@ -106,7 +154,7 @@ const Header = ({
                     <Link className={styles.mycards} to="/mycards">My Cards</Link>
                 </div>
                 <div className={styles.section3}>
-                    <Link className={styles.link} to="/deckbuilder">Deck Builder</Link>
+                    <Link className={styles.link} to="/mydecks">My Decks</Link>
                 </div>
                 {localStorage.getItem("userID") === "guest" && <div className="login">
                     <button className={styles.loginbutton} onClick={() => {setLoginClicked(!loginClicked);}}>Login</button>

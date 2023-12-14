@@ -209,41 +209,7 @@ const Home = ({
    }
 
     return <>
-    <Popup 
-        open={loginClicked} 
-        modal
-        nested    
-    > 
-        {close => (
-            <div className="modal">
-                <div className={styles.header}>Login</div>
-                <button className={styles.close} onClick={() => {close(); setLoginClicked(!loginClicked)}}>
-                    &times;
-                </button>
-                <div className={styles.content}>
-                    <form onSubmit={login}>
-                        <div className={styles.username}>
-                            <input 
-                                type="text" 
-                                onChange={changeUsername} 
-                                placeholder="username">
-                            </input>
-                        </div>
-                        <div className={styles.password}>
-                            <input 
-                                type="text" 
-                                onChange={changePassword} 
-                                placeholder="password">
-                            </input>
-                        </div>
-                        <button className={styles.loginbutton} type="submit">Login</button>
-                    </form>
-                </div>
-
-            </div>    
-        )}
-        
-    </Popup>
+    <div>
     <Header 
         setLoginClicked={setLoginClicked}  
         loginClicked={loginClicked} 
@@ -254,7 +220,11 @@ const Home = ({
         setCards={setCards}
         setIsSearched={setIsSearched}
         setSortValue={setSortValue}
-        sortValue={sortValue}/>
+        sortValue={sortValue}
+        setUsername={setUsername}
+        setPassword={setPassword}
+        login={login}/>
+    </div>
     <div id="main">
         {!data.isFetching && isCards && !isSearched && data  ? <div className={styles.cards}>
             {data.data.data.map(card => {

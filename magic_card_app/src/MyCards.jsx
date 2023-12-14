@@ -102,41 +102,7 @@ const MyCards = ({
     const newTotal = getCollectionTotalPrice()
     console.log(isFetching)
     return <>
-        <Popup 
-            open={loginClicked} 
-            modal
-            nested    
-        >   
-            {close => (
-                <div className="modal">
-                    <div className={"header"}>Login</div>
-                    <button className={"close"} onClick={() => {close(); setLoginClicked(!loginClicked)}}>
-                        &times;
-                    </button>
-                    <div className={"content"}>
-                        <form onSubmit={login}>
-                            <div className={"username"}>
-                                <input 
-                                    type="text" 
-                                    onChange={changeUsername} 
-                                    placeholder="username">
-                                </input>
-                            </div>
-                            <div className={"password"}>
-                                <input 
-                                    type="text" 
-                                    onChange={changePassword} 
-                                    placeholder="password">
-                                </input>
-                            </div>
-                            <button className={"loginbutton"} type="submit">Login</button>
-                        </form>
-                    </div>
-
-                </div>    
-            )}
         
-        </Popup>
         <Header fromHome={false}
             collectionTotalPrice={newTotal}
             fromMyCards={true}
@@ -144,7 +110,11 @@ const MyCards = ({
             cards={cards}
             setIsSearched={setIsSearched}
             setSortValue={setSortValue}
+            loginClicked={loginClicked}
             setLoginClicked={setLoginClicked}
+            setUsername={setUsername}
+            setPassword={setPassword}
+            login={login}
         />
         <div id="main">
             {userID !== "guest" && !isFetching && !isSearched ? 

@@ -1,0 +1,73 @@
+.manaPip {
+    font-weight: normal;
+    display: block;
+    background-color: rgb(202, 197, 192);
+    width: 13px;
+    height: 13px;
+    text-align: center;
+    font-size: small;
+    border-radius: 10px;
+    box-shadow: 0px 1.5px;
+}
+
+.cardDiv {
+    font-weight: bold;
+    color: black;
+    border-radius: 5px;
+    width: 230px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    box-shadow: 0px 2px rgb(89, 94, 88);
+    justify-content: space-between;
+}
+
+.cardDiv p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+
+.pipImage {
+    box-shadow: 0px 1.5px;
+    border-radius: 10px;
+}
+
+.manaSection {
+    display: flex;
+    align-items: center;
+}
+
+.counterButton {
+    display: flex;
+    border-radius: 15px;
+    height: 15px;
+    width: 15px;
+    font-weight: bold;
+    padding: 0px;
+    margin-right: 3px;
+    justify-content: center;
+    align-items: center;
+}
+
+.counter {
+    display: flex;
+    margin-left: 10px;
+    align-items: center;
+    justify-items: right;
+    text-align: center;
+}
+
+.cardContainer {
+    display: flex;
+    min-width: 250px;
+    max-width: 250px;
+}
+
+.counterText {
+    margin-right: 1px;
+    font-size: 100%;
+}

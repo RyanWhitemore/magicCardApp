@@ -1,11 +1,12 @@
 import Home from "./Home"
 import styles from "./DeckBuilder.module.css"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Card from "./Card"
 import { useQuery } from "react-query"
 import axios from "axios"
 import Popup from "reactjs-popup"
 import CardInDeck from "./CardInDeck"
+import useOutsideAlerter from "./util"
 
 const DeckBuilder = ({
             login,
@@ -40,11 +41,25 @@ const DeckBuilder = ({
 
     const [ editingDeck, setEditingDeck ] = useState(false)
 
+    const [ namingDeck, setNamingDeck ] = useState(false)
+
+    const [ deckName, setDeckName ] = useState("")
+
     const user = localStorage.getItem("userID")
 
     const localCommander = localStorage.getItem("commander")
 
     const localIsCommander = localStorage.getItem("isCommander")
+
+    const nameRef = useRef(null)
+
+    const editRef = useRef(null)
+
+    useOutsideAlerter(editRef, setEditingDeck)
+
+    useOutsideAlerter(nameRef, setNamingDeck)
+
+    const deckID = localStorage.getItem("deckID")
 
     let numberOfType = 0
 
@@ -90,20 +105,32 @@ const DeckBuilder = ({
         return axios.get("http://localhost:5000/deck/" + user)
     }})
 
-    const saveDeck = async () => {
-        const deckList = await axios.get("http://localhost:5000/deck/" + user)
+    const createDeckID = () => {
+        const chars = 'aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890'
+
+        let deckID = ''
+
+        for (let i = 0; i < 20; i++) {
+            const charIndex = Math.floor(Math.random() * chars.length)
+            deckID = deckID + chars[charIndex]
+        }
+        return deckID
+    }
+
+    const saveDeck = () => {
         const deck = []
         for (const card of addedCards) {
             deck.push(card.id)
         }
-        if (deckList.data.length === 0) {
-            axios.put("http://localhost:5000/deck", {
-                commanderID: commander ? commander.id : null, 
-                userID: user,
-                deckID: 1,
-                cards: deck
-            })
-        }
+        console.log(deck)
+        axios.put("http://localhost:5000/deck", {
+            deckType: chosenDeckType,
+            deckName: deckName,
+            commanderID: commander ? commander.id : null, 
+            userID: user,
+            deckID: localStorage.getItem("deckID"),
+            cards: deck
+        })
     }
 
     const openDeck = async (deck) => {
@@ -113,11 +140,15 @@ const DeckBuilder = ({
             const cardToAdd = await axios.get("https://api.scryfall.com/cards/" + card)
             deckToOpen.push(cardToAdd.data)
         }
-        setAddedCards(deckToOpen) 
-        const commanderToOpen = await axios.get("https://api.scryfall.com/cards/" + deck.commander)
-        setCommander(commanderToOpen.data)
+        setAddedCards(deckToOpen)
+        if (deck.commander) {
+            const commanderToOpen = await axios.get("https://api.scryfall.com/cards/" + deck.commander)
+            setCommander(commanderToOpen.data)
+        }
         setCreatingDeck(true)
         setEditingDeck(false)
+        localStorage.setItem("deckID", deck.deckID)
+        console.log(deck.deckID)
     }
 
     const handleChecks = (e) => {
@@ -177,6 +208,7 @@ const DeckBuilder = ({
     const handleChange = (e) => {
         setChosenDeckType(e.target.value)
     }
+
     return <>
         <div className={styles.flexcontainer}>
             <div className={styles.homediv}>
@@ -244,6 +276,7 @@ const DeckBuilder = ({
                     </div>
                     <button className={styles.save} onClick={saveDeck}>Save deck</button>  
                 </header>
+                <div className={styles.body}>
                 {chosenDeckType === "commander" && creatingDeck ? <header className={styles.type}>Commander</header> : null}
                 {commander && creatingDeck ? <div className={styles.commanderDiv}>
                     <Card
@@ -262,37 +295,66 @@ const DeckBuilder = ({
                     </div>: null}
                 <div className={styles.addedCards}>
                     {localStorage.getItem("userID") !== "guest" && <Popup open={editingDeck}>{deckList.data?.data?.map((deck) => {
-                        return <button onClick={() => {openDeck(deck)}}>{deck.deckID}</button>
+                        return <button ref={editRef} onClick={() => {openDeck(deck)}}>{deck.deckName}</button>
                     })}</Popup>}
-                    {creatingDeck ? cardTypes.map((type) => {
-                        let numOfType = addedCards.reduce((sum, card) => {
-                            if (card.type_line.indexOf(type) >= 0) {
-                                sum += 1
-                                return sum
-                            }
-                            return sum
-                        }, 0)
-                        return <div key={type} className={styles.typeDiv} style={{
-                            height: numOfType === 1 ? 255 : numOfType * 185 
-                        }}>
-                            <header className={styles.type}>{type}</header>
-                            {addedCards.map((card) => {
+                    <Popup open={namingDeck}
+                        ><div ref={nameRef} className={styles.popupDiv}>
+                            <input defaultValue={"New Deck(" + (deckList.isFetched  && deckList.data.data? deckList.data.data.filter((deck) => {
+                                if (deck.deckName?.match(/[Deck Name]/)) {
+                                    return true
+                                }
+                                return false
+                            }).length + 1 + ")": null)} onInput={e => setDeckName(e.target.value)}></input>
+                            <button onClick={(e) => {
+                                console.log(deckName)
+                                setCreatingDeck(true);
+                                const deckID = createDeckID(); 
+                                localStorage.setItem("deckID", 
+                                    JSON.stringify(deckID));
+                                setNamingDeck(false);
+                                setAddedCards([])
+                                setCommander(false)
+                                localStorage.setItem("commander", JSON.stringify(false))
+                                localStorage.setItem("deck", JSON.stringify([]))
+                            }}>Submit</button>
+                        </div></Popup>
+                        {creatingDeck ? cardTypes.map((type) => {
+                            let numOfType = addedCards.reduce((sum, card) => {
                                 if (card.type_line.indexOf(type) >= 0) {
-                                    if (card.type_line.indexOf(type) >= 0) {
-                                        numberOfType += 1
+                                    sum += 1
+                                    return sum
+                                }
+                                return sum
+                            }, 0)
+                        return <div key={type} className={styles.typeDiv} style={{
+                           
+                        }}>
+                            <header className={styles.type}>{type} ({numOfType})</header>
+                            {addedCards.map((card) => {
+                                const addedTypes = []
+                                for (const typeToAdd of cardTypes) {
+                                    if (card.type_line.indexOf(typeToAdd) >= 0) {
+                                        addedTypes.push(typeToAdd)
                                     }
+                                }
+                                const mana_array = card.mana_cost.replace(/[}]/g, "").split("{")
+                                let finalType = null
+                                if (addedTypes.length > 1 & addedTypes[1] === type) {
+                                    finalType = addedTypes[1]
+                                } else {
+                                    finalType = type
+                                }
+                                if (card.type_line.indexOf(finalType) >= 0) {
+                                    numOfType += 1
                                     return <>
                                         <div className={styles.cardDiv} key={card.card_id}>
-                                            <Card 
-                                                numberOfType={numberOfType}
-                                                card={card} 
-                                                inDeck={true}
-                                                addedCards={addedCards}
+                                            <CardInDeck
                                                 setAddedCards={setAddedCards}
+                                                addedCards={addedCards}
+                                                mana_array={mana_array}
+                                                card={card}
                                                 deckCost={deckCost}
                                                 setDeckCost={setDeckCost}
-                                                chosenDeckType={chosenDeckType}
-                                                withoutButton={true}
                                             />
                                         </div>
                                     </>
@@ -300,22 +362,36 @@ const DeckBuilder = ({
                                 return null
                             })}
                         </div>
-                    }): <>
+                    }): <div className={styles.deckButtons}>
                             <button onClick={() => {
-                            setCreatingDeck(true); 
-                            localStorage.setItem("deckID", 
-                                JSON.stringify(deckList.data.data.length))
+                                setNamingDeck(true)
+                                setDeckName("New Deck(" + (deckList.isFetched ? deckList.data.data.filter((deck) => {
+                                    if (deck.deckName?.match(/[Deck Name]/)) {
+                                        return true
+                                    }
+                                    return false
+                                }).length + 1 + ")": null))
                             }}>Create Deck</button>
-                            <button onClick={() => setEditingDeck(true)}>Edit Deck</button>
-                        </>
+                        </div>
                         }
-                     {creatingDeck ? <button onClick={() => {
-                        setCreatingDeck(false); 
-                        localStorage.setItem("deckID", JSON.stringify(null))}}
-                        >Cancel</button> : null}
+                     {creatingDeck ? <div>
+                            <button onClick={() => {
+                                setCreatingDeck(false); 
+                                localStorage.setItem("deckID", JSON.stringify(null))}}
+                            >Cancel</button>
+                            <button onClick={() => {
+                                const deckID = localStorage.getItem("deckID")
+                                console.log(deckID)
+                                setCreatingDeck(false)
+                                axios.delete(`http://localhost:5000/deck?userID=${user}&deckID=${deckID}`)
+                            }}>
+                                Delete
+                            </button>
+                        </div>
+                        : null}
                 </div>
             </div>
-            
+            </div>
         </div>
         
     </>

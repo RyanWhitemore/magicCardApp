@@ -6,6 +6,7 @@ const { addCardToDb,
         searchMyCards,
         saveDeck,
         getDecksFromDB,
+        deleteDeckFromDB,
          } = require("./routeFunctions")
 const cors = require("cors")
 const passport = require("passport")
@@ -100,6 +101,10 @@ app.put("/deck", (req, res) => {
 
 app.get("/deck/:userID", (req, res) => {
     getDecksFromDB(req, res)
+})
+
+app.delete("/deck", (req, res) => {
+    deleteDeckFromDB(req, res)
 })
 
 app.listen(port)

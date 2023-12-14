@@ -8,6 +8,7 @@ import Popup from "reactjs-popup"
 const useOutsideAlerter = (ref, setPopup) => {
     useEffect(() => {
         const handleOutsideClick = (e) => {
+            console.log(ref.current)
             // if the reference does not contain the target of the click
             if (ref.current && !ref.current.contains(e.target)) {
                 setPopup(false)
@@ -134,6 +135,7 @@ const Card = ({
             }
             // check if card is legal in chosen format and if it is add it to deck
             if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
+                card.numInDeck = 1
                 const currentDeck = [...addedCards]
                 currentDeck.push(card)
                 
@@ -369,23 +371,26 @@ const Card = ({
                             ref={wrapperRef}
                         />
                     </Popup>
-                    {card.prices && <p className="price"
-                    style={{
-                        top: inDeck ? "3.5vh" : null,
-                        textAlign: inDeck ? "left": null
-                    }}>${card.prices.usd}</p>}
-                    {quantity}
+                    {card.prices.usd && <p className="price"
+                    >${card.prices.usd}</p>}
                     {fromMyCards && <>
-                        <button onClick={(e) => {
-                            e.preventDefault()
-                            handleSubmit(e)
-                            setNumInColl(numInColl + 1)
-                        }}>Add</button>
-                        <button onClick={(e) => {
-                            e.preventDefault()
-                            handleDelete(e)
-                            setNumInColl(numInColl - 1)
-                        }}>Delete</button>
+                        <div className="addAndRemove">
+                            <button 
+                            className="addAndRemoveButton"
+                            onClick={(e) => {
+                                e.preventDefault()
+                                handleSubmit(e)
+                                setNumInColl(numInColl + 1)
+                            }}>+</button>
+                            {quantity}
+                            <button 
+                            className="addAndRemoveButton"
+                            onClick={(e) => {
+                                e.preventDefault()
+                                handleDelete(e)
+                                setNumInColl(numInColl - 1)
+                            }}>-</button>
+                        </div>
                     </>}
                 </div>
         </>

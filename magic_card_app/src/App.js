@@ -6,6 +6,7 @@ import axios from 'axios';
 import {Route, Routes, BrowserRouter} from "react-router-dom"
 import { Register } from './Register';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import MyDecks from './MyDecks';
 
 function App() {
 
@@ -76,6 +77,18 @@ function App() {
             setUsername={setUsername}/>}/>
             <Route exact path="/register" element={<Register/>}/>
             <Route exact path="/deckBuilder" element={<DeckBuiler
+            login={login}
+            defaultCards={defaultCards}
+            setDefaultCards={setDefaultCards}
+            setIsCards={setIsCards}
+            isCards={isCards}
+            loginClicked={loginClicked}
+            setLoginClicked={setLoginClicked}
+            username={username}
+            password={password}
+            setPassword={setPassword}
+            setUsername={setUsername}/>}/>
+            <Route exact path='/mydecks' element={<MyDecks
             login={login}
             defaultCards={defaultCards}
             setDefaultCards={setDefaultCards}

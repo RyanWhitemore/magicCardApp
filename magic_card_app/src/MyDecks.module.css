@@ -1,0 +1,13 @@
+.header {
+    text-align: center;
+}
+
+.decksDiv {
+    display: flex;
+}
+
+.deckDiv {
+    display: flex;
+    margin-left: 10px;
+    align-items: center;
+}

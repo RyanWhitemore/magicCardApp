@@ -58,7 +58,9 @@
 
 .commanderDiv {
     display: flex;
+    text-align: center;
     justify-content: center;
+    align-items: flex-end;
 }
 
 .checkBox {
@@ -114,4 +116,36 @@ body {
 
 .cardDiv {
     width: 180px;
+}
+
+.body {
+    overflow: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    height: 100%;
+}
+
+.body::-webkit-scrollbar {
+    display: none;
+}
+
+.popupDiv {
+    background-color: rgb(37, 45, 63);
+    height: 20vh;
+    width: 20vw;
+    position: absolute;
+    border: 2px solid white;
+    bottom: 0vh;
+    left: 5vw;
+    box-shadow: 1px 1px rgb(37, 45, 63);
+    border-radius: 5px;
+}
+
+.deckButtons {
+    grid-column: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
 }
