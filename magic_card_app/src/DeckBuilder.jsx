@@ -43,7 +43,7 @@ const DeckBuilder = ({
 
     const [ namingDeck, setNamingDeck ] = useState(false)
 
-    const [ deckName, setDeckName ] = useState("")
+    const [ deckName, setDeckName ] = useState(localStorage.getItem("deckName"))
 
     const user = localStorage.getItem("userID")
 
@@ -93,7 +93,6 @@ const DeckBuilder = ({
     }})
 
     if (isFetched) {
-        if (typeof addedCards !== "string")
         for (const card of addedCards) {
             if (data.data.indexOf(card)) {
                 card.inCollection = true
@@ -104,6 +103,7 @@ const DeckBuilder = ({
     const deckList = useQuery({queryKey: "deckList" + user, refetchOnWindowFocus: false, queryFn: () => {
         return axios.get("http://localhost:5000/deck/" + user)
     }})
+
 
     const createDeckID = () => {
         const chars = 'aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890'
@@ -119,17 +119,39 @@ const DeckBuilder = ({
 
     const saveDeck = () => {
         const deck = []
-        for (const card of addedCards) {
-            deck.push(card.id)
+        const colorIdentity = []
+        const addedColors = []
+        const colors = {
+            W: "white", U: "blue", B: "black",
+            R: "red", G: "green"
         }
-        console.log(deck)
+        if (chosenDeckType === "commander") {
+            for (const color of commander.color_identity) {
+                if (addedColors.indexOf(color) < 0) {
+                    addedColors.push(color)
+                    colorIdentity.push(colors[color])
+                }
+            }
+        }
+        for (const card of addedCards) {
+            if (chosenDeckType !== "commander") {
+                for (const color of card.color_identity) {
+                    if (addedCards.indexOf(color) < 0) {
+                        console.log(color)
+                        colorIdentity.push(colors[color])
+                    }
+                }
+            }
+            deck.push({card: card.card.id, numInDeck: card.numInDeck})
+        }
         axios.put("http://localhost:5000/deck", {
             deckType: chosenDeckType,
             deckName: deckName,
             commanderID: commander ? commander.id : null, 
             userID: user,
             deckID: localStorage.getItem("deckID"),
-            cards: deck
+            cards: deck,
+            colorIdentity: colorIdentity
         })
     }
 
@@ -138,7 +160,7 @@ const DeckBuilder = ({
 
         for (const card of deck.cards) {
             const cardToAdd = await axios.get("https://api.scryfall.com/cards/" + card)
-            deckToOpen.push(cardToAdd.data)
+            deckToOpen.push({card: cardToAdd.data, numInDeck: card.numInDeck})
         }
         setAddedCards(deckToOpen)
         if (deck.commander) {
@@ -186,7 +208,6 @@ const DeckBuilder = ({
     useEffect(() => {
         if (JSON.parse(localStorage.getItem("deck")).length > 0) {
             if (chosenColors !== "all") {
-                console.log(chosenColors)
                 localStorage.setItem("deck", JSON.stringify(JSON.parse(localStorage.getItem("deck")).filter(card => {
                     for (const color of notChosenColors) { 
                         if (card.color_identity.indexOf(color) >= 0) {
@@ -277,8 +298,8 @@ const DeckBuilder = ({
                     <button className={styles.save} onClick={saveDeck}>Save deck</button>  
                 </header>
                 <div className={styles.body}>
-                {chosenDeckType === "commander" && creatingDeck ? <header className={styles.type}>Commander</header> : null}
-                {commander && creatingDeck ? <div className={styles.commanderDiv}>
+                {chosenDeckType === "commander" ? <header className={styles.type}>Commander</header> : null}
+                {commander ? <div className={styles.commanderDiv}>
                     <Card
                         className={styles.commander}
                         card={commander}
@@ -318,9 +339,9 @@ const DeckBuilder = ({
                                 localStorage.setItem("deck", JSON.stringify([]))
                             }}>Submit</button>
                         </div></Popup>
-                        {creatingDeck ? cardTypes.map((type) => {
+                        {cardTypes.map((type) => {
                             let numOfType = addedCards.reduce((sum, card) => {
-                                if (card.type_line.indexOf(type) >= 0) {
+                                if (card.card.type_line.indexOf(type) >= 0) {
                                     sum += 1
                                     return sum
                                 }
@@ -333,22 +354,24 @@ const DeckBuilder = ({
                             {addedCards.map((card) => {
                                 const addedTypes = []
                                 for (const typeToAdd of cardTypes) {
-                                    if (card.type_line.indexOf(typeToAdd) >= 0) {
+                                    if (card.card.type_line.indexOf(typeToAdd) >= 0) {
                                         addedTypes.push(typeToAdd)
                                     }
                                 }
-                                const mana_array = card.mana_cost.replace(/[}]/g, "").split("{")
+                                const mana_array = card.card.mana_cost.replace(/[}]/g, "").split("{")
                                 let finalType = null
                                 if (addedTypes.length > 1 & addedTypes[1] === type) {
                                     finalType = addedTypes[1]
                                 } else {
                                     finalType = type
                                 }
-                                if (card.type_line.indexOf(finalType) >= 0) {
+                                if (card.card.type_line.indexOf(finalType) >= 0) {
                                     numOfType += 1
+
                                     return <>
-                                        <div className={styles.cardDiv} key={card.card_id}>
+                                        <div className={styles.cardDiv} key={card.card.card_id}>
                                             <CardInDeck
+                                                fromBuilder={true}
                                                 setAddedCards={setAddedCards}
                                                 addedCards={addedCards}
                                                 mana_array={mana_array}
@@ -362,33 +385,7 @@ const DeckBuilder = ({
                                 return null
                             })}
                         </div>
-                    }): <div className={styles.deckButtons}>
-                            <button onClick={() => {
-                                setNamingDeck(true)
-                                setDeckName("New Deck(" + (deckList.isFetched ? deckList.data.data.filter((deck) => {
-                                    if (deck.deckName?.match(/[Deck Name]/)) {
-                                        return true
-                                    }
-                                    return false
-                                }).length + 1 + ")": null))
-                            }}>Create Deck</button>
-                        </div>
-                        }
-                     {creatingDeck ? <div>
-                            <button onClick={() => {
-                                setCreatingDeck(false); 
-                                localStorage.setItem("deckID", JSON.stringify(null))}}
-                            >Cancel</button>
-                            <button onClick={() => {
-                                const deckID = localStorage.getItem("deckID")
-                                console.log(deckID)
-                                setCreatingDeck(false)
-                                axios.delete(`http://localhost:5000/deck?userID=${user}&deckID=${deckID}`)
-                            }}>
-                                Delete
-                            </button>
-                        </div>
-                        : null}
+                    })}
                 </div>
             </div>
             </div>

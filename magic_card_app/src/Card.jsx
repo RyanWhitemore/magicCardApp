@@ -8,7 +8,6 @@ import Popup from "reactjs-popup"
 const useOutsideAlerter = (ref, setPopup) => {
     useEffect(() => {
         const handleOutsideClick = (e) => {
-            console.log(ref.current)
             // if the reference does not contain the target of the click
             if (ref.current && !ref.current.contains(e.target)) {
                 setPopup(false)
@@ -135,9 +134,9 @@ const Card = ({
             }
             // check if card is legal in chosen format and if it is add it to deck
             if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
-                card.numInDeck = 1
                 const currentDeck = [...addedCards]
-                currentDeck.push(card)
+                currentDeck.push({card: card, numInDeck: 1})
+                console.log(currentDeck)
                 
                 localStorage.setItem("deck", JSON.stringify(currentDeck))
 

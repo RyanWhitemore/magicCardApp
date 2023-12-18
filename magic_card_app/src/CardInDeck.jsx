@@ -23,7 +23,7 @@ const useOutsideAlerter = (ref, setPopup) => {
 
 const CardInDeck = ({
     card, mana_array, addedCards, setAddedCards,
-    deckCost, setDeckCost
+    deckCost, setDeckCost, fromBuilder
 }) => {
 
     const backgroundColors = {
@@ -57,15 +57,15 @@ const CardInDeck = ({
             card.numInDeck = numInDeck
         } else {
             const newDeck = addedCards.filter((cardInDeck) => {
-                if (card.name === cardInDeck.name) {
+                if (card.card.name === cardInDeck.card.name) {
                     return false
                 }
                 return true
             })
             setAddedCards(newDeck)
             localStorage.setItem("deck", JSON.stringify(newDeck))
-            if (card.prices) {
-                let newDeckCost = parseFloat(deckCost) - parseFloat(card.prices.usd)
+            if (card.card.prices) {
+                let newDeckCost = parseFloat(deckCost) - parseFloat(card.card.prices.usd)
                 setDeckCost(newDeckCost)
             }
         }
@@ -74,17 +74,17 @@ const CardInDeck = ({
     let colorIdentity = ""
     let fontSize = 0
 
-    if (card.type_line.indexOf("Artifact") >= 0 | card.color_identity.length === 0) {
+    if (card.card.type_line.indexOf("Artifact") >= 0 | card.card.color_identity.length === 0) {
         colorIdentity = "colorless"
-    } else if (card.color_identity.length > 1) {
+    } else if (card.card.color_identity.length > 1) {
         colorIdentity = "multi"
     } else {
-        colorIdentity = card.color_identity[0]
+        colorIdentity = card.card.color_identity[0]
     }
 
-    if (card.name.length >= 22) {
+    if (card?.card.name.length >= 22) {
         fontSize = "70%"
-    } else if (card.color_identity.length === 5) {
+    } else if (card.card.color_identity.length === 5) {
         fontSize = "70%"
     } else {
         fontSize = "100%"
@@ -92,18 +92,18 @@ const CardInDeck = ({
 
     return <>
         <Popup open={popup}><img
-            src={card.image_uris?.border_crop}
-            alt={card.name}
+            src={card?.card.image_uris?.border_crop}
+            alt={card?.card.name}
             ref={wrapperRef}
         />
-        <p>{card.prices.usd}</p>
+        <p>{card?.card.prices.usd}</p>
         </Popup>
         <div className={styles.cardContainer}>
             <div className={styles.cardDiv}
                 style={backgroundColors[colorIdentity]}  
             ><p onClick={() => setPopup(true)}
 
-                style={{fontSize: fontSize}}>{card.name} </p> 
+                style={{fontSize: fontSize}}>{card?.card.name} </p> 
             <div className={styles.manaSection}>
             {mana_array.map((pip) => {
                 if (pip === "") {
@@ -129,11 +129,11 @@ const CardInDeck = ({
                     }
                     return null
                 })}
-                <div className={styles.counter}>
+                {fromBuilder ? <div className={styles.counter}>
                     <button className={styles.counterButton} onClick={addCardInDeck} style={backgroundColors[colorIdentity]}>+</button>
                     <p className={styles.counterText}> {numInDeck} </p>
                     <button className={styles.counterButton} onClick={removeCardInDeck} style={backgroundColors[colorIdentity]}>-</button>
-                </div>
+                </div> : <p className={styles.counterText}>{numInDeck}</p>}
                 </div>
             </div>
         </div>

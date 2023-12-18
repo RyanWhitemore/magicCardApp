@@ -14,31 +14,39 @@
     border-right: solid white 2px;
 }
 
+.login {
+    text-align: center;
+    width: 75px;
+}
+
+.logout {
+    
+    width: 75px;
+}
+
 .section {
-    border-right: solid 2px white;
-    width: 50px;
+    width: 75px;
+    text-align: center;
 }
 
 .section2 {
-    border-right: solid 2px white;
     width: 75px;
-    margin-left: 10px;
+    text-align: center;
 }
 
 .section3 {
-    border-right: solid 2px white;
-    width: 100px;
+    width: 75px;
+    text-align: center;
 }
 
 .section4 {
-    border-right: solid 2px white;
-    margin-left: 10px;
+    width: 75px;
+    text-align: center;
 }
 
 .section5 {
-    border-right: solid 2px white;
-    width: 150px;
-    margin-left: 10px;
+    text-align: center;
+    width: 75px;
 }
 
 .loginbutton {
@@ -48,11 +56,6 @@
 
 .logoutbutton {
     border-radius: 15px;
-}
-
-.section-3 {
-    width: 100px;
-    border-right: 2px solid white;
 }
 
 .link {
@@ -65,7 +68,6 @@
     margin-top: 10px;
     margin-bottom: 0px;
     float: left;
-    border-right: solid white 2px;
     display: block;
     width: 90%;
     height: 2vh;
@@ -76,11 +78,8 @@
 
 .header {
     height: 2vh;
-    border-right: solid white 2px;
     color: white;
-    border-bottom: solid white 1px;
-    background-color: rgb(37, 45, 63);
-    border-bottom: 1px white solid;
+    background-color: rgb(19, 21, 37);
     position: sticky;
     top: 0;
 }
@@ -94,4 +93,12 @@
 .mycards {
     text-decoration: none;
     color: white;
+}
+
+.divider {
+    width: 2.5px;
+    background-color: white;
+    border-radius: 99px;
+    height: 1.6vh;
+    margin-top: 2px;
 }

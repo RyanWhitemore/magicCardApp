@@ -1,0 +1,72 @@
+.filterOptions {
+    display: flex;
+    flex-direction: column;
+}
+
+.cardDiv {
+    grid-area: main-b;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    display: grid;
+    grid-template-columns: 10% 80% 10%;
+    grid-template-rows:   5% 25% 70%;
+    grid-template-areas: 
+    "sidebar title edit"
+    "sidebar main-t  ."
+    "sidebar main-b  main-b"
+    ;
+    justify-content: space-between;
+    column-gap: 0px;
+    row-gap: 0px;
+}
+
+.commander {
+    max-height: 300px;
+    display: flex;
+    justify-content: center;
+    grid-area: main-t;
+    margin-bottom: 0px;
+}
+
+.filter {
+    height: 100vh;
+    grid-area: sidebar;
+    width: 140px;
+    background-color: rgb(19, 21, 37);
+}
+
+.deckName {
+    grid-area: title;
+    text-align: center;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+}
+
+.editButton {
+    grid-area: edit;
+}
+
+.type {
+    padding-left: 20px;
+}
+
+.num {
+    padding-left: 20px;
+}
+
+.color {
+    padding-left: 20px;
+}
+
+.header {
+    position: sticky;
+}

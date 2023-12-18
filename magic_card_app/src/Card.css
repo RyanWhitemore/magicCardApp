@@ -17,6 +17,7 @@
     width: 180px;
     text-align: center;
     cursor: pointer;
+    max-height: 350px;
 }
 
 .buy-card {
@@ -30,6 +31,7 @@
 }
 
 .price {
+    padding-top: 0px;
     text-align: center;
     color: white;
 }
@@ -62,7 +64,6 @@
 .imageDiv {
     vertical-align: middle;
     position: relative;
-    height: 100%;
 }
 
 .buttonsDiv {

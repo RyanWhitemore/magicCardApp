@@ -31,11 +31,23 @@ const MyDecks = ({
         const deckToOpen = []
         for (const card of deck.cards) {
             console.log(card)
-            const cardToAdd = axios.get(`https://api.scryfall.com/cards/${card}`) 
-            deckToOpen.push(cardToAdd)
+            let cardToAdd = axios.get(`https://api.scryfall.com/cards/${card.card}`) 
+            cardToAdd = await cardToAdd
+            deckToOpen.push({card: cardToAdd.data, numInDeck: card.numInDeck})
         }
+
+        let commander = "false"
+
+        if (deck.commander) {
+            commander = await axios.get(`https://api.scryfall.com/cards/${deck.commander}`)
+        }
+
+
         localStorage.setItem("deck", JSON.stringify(deckToOpen))
-        navigate("/deckBuilder")
+        localStorage.setItem("commander", JSON.stringify(commander.data))
+        localStorage.setItem("deckID", deck.deckID)
+        localStorage.setItem("deckName", deck.deckName)
+        navigate("/deckpage")
     }
 
     return <>

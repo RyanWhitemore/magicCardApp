@@ -7,6 +7,7 @@ import {Route, Routes, BrowserRouter} from "react-router-dom"
 import { Register } from './Register';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import MyDecks from './MyDecks';
+import DeckPage from "./DeckPage.jsx"
 
 function App() {
 
@@ -100,6 +101,7 @@ function App() {
             password={password}
             setPassword={setPassword}
             setUsername={setUsername}/>}/>
+            <Route exact path="DeckPage" element={<DeckPage/>}/>
           </Routes> 
         </BrowserRouter>
       </QueryClientProvider>

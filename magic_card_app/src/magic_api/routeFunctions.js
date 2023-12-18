@@ -227,11 +227,11 @@ const saveDeck = async (req, res) => {
     const commanderID = req.body.commanderID
     const deckName = req.body.deckName
     const deckType = req.body.deckType
-
+    const colorIdentity = req.body.colorIdentity
 
     let queryObj = {deckID: deckID, deckName: deckName,
         commander: commanderID, cards: cardsArray,
-        deckType} 
+        deckType, colorIdentity} 
 
     const database = client.db("magicCards")
 

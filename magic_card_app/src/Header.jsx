@@ -150,19 +150,23 @@ const Header = ({
                 <div className={styles.section}>
                     <Link className={styles.home} to="/" >Home</Link>
                 </div>
+                <span className={styles.divider}></span>
                 <div className={styles.section2}>
                     <Link className={styles.mycards} to="/mycards">My Cards</Link>
                 </div>
+                <span className={styles.divider}></span>
                 <div className={styles.section3}>
                     <Link className={styles.link} to="/mydecks">My Decks</Link>
                 </div>
-                {localStorage.getItem("userID") === "guest" && <div className="login">
+                <span className={styles.divider}></span>
+                {localStorage.getItem("userID") === "guest" && <div className={styles.login}>
                     <button className={styles.loginbutton} onClick={() => {setLoginClicked(!loginClicked);}}>Login</button>
                     <Link className={styles.register} to="/register">Register</Link>
                 </div>}
-                {localStorage.getItem("userID") !== "guest" && <div className="logout-button">
+                {localStorage.getItem("userID") !== "guest" && <div className={styles.logout}>
                     <button className={styles.logoutbutton}onClick={logout}>Logout</button>
                 </div>}
+                <span className={styles.divider}></span>
                 <div className={styles.section4}>
                     <select id={"sort options"}onChange={sort}>
                         <option value={"name"} defaultValue>Name</option>
