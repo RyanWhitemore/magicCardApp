@@ -17,7 +17,7 @@ require('./passportConfig')
 
 
 const app = express()
-const port = 5000
+const port = process.env.REACT_APP_SERVPORT
 
 app.use(session({
     secret: "3",

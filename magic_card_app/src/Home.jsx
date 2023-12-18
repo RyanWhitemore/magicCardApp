@@ -6,8 +6,6 @@ import Popup from "reactjs-popup";
 import styles from "./Home.module.css"
 import { useQuery } from "react-query";
 
-
-
 const Home = ({  
         fromDeckBuilder, 
         addedCards, 
@@ -49,12 +47,12 @@ const Home = ({
         if (fromDeckBuilder & !isSearched) {
             if (User !=="guest") {
                 setIsCards(true)
-                return axios.get("http://localhost:5000/getCards/" + User)
+                return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
             }
         } else {
             if (User !=="guest" & !isSearched) {
                 setIsCards(true)
-                return axios.get("http://localhost:5000/getCards/" + User)
+                return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
             } else {
                 return axios.get("https://api.scryfall.com/sets/woe")
             }
@@ -84,7 +82,7 @@ const Home = ({
 
     const collectionData = useQuery({queryKey: "ownedCards", refetchOnWindowFocus: false, queryFn: () => {
         if (User !== "guest") {
-            return axios.get("http://localhost:5000/getCards/" + User)
+            return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
         }
         return
     }})

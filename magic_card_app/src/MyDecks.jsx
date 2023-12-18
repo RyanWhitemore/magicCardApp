@@ -22,7 +22,7 @@ const MyDecks = ({
     const user = localStorage.getItem("userID")
 
     const deckList = useQuery({queryKey: "deckList" + user, refetchOnWindowFocus: false, queryFn: () => {
-        return axios.get("http://localhost:5000/deck/" + user)
+        return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/deck/` + user)
     }})
 
     const navigate = useNavigate()

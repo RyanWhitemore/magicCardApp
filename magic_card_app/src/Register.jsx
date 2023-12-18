@@ -5,7 +5,7 @@ import "./Register.css"
 
 const Register = () => {
     const navigate = useNavigate();
-    const path = "http://localhost:5000"
+    const path = `http://localhost:${process.env.REACT_APP_SERVPORT}`
 
     const [ usernameTaken, setUsernameTaken ] = useState(false)
     const [ canSubmit, setCanSubmit ] = useState(true)

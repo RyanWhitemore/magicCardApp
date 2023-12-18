@@ -220,7 +220,7 @@ const Card = ({
         // and updates the quantity owned if entry does exist
         const handleSubmit = (e) => {
             e.preventDefault()
-            axios.put("http://localhost:5000/addCard", {
+            axios.put(`http://localhost:${process.env.REACT_APP_SERVPORT}/addCard`, {
                 card: card,
                 userId: userID
             })
@@ -233,7 +233,7 @@ const Card = ({
         // or updates quantity if more than one is owned
         const handleDelete = (e) => {
             e.preventDefault()
-            axios.delete("http://localhost:5000/deleteCard?cardId=" 
+            axios.delete(`http://localhost:${process.env.REACT_APP_SERVPORT}/deleteCard?cardId=`
                 + card.id + "&userId=" + userID)
         }
 

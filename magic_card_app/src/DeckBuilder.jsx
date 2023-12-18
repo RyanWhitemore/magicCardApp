@@ -89,7 +89,7 @@ const DeckBuilder = ({
    
     
     const {data, isFetched} = useQuery({queryKey: "ownedCards", refetchOnWindowFocus: false, queryFn: () => {
-        return axios.get("http://localhost:5000/getCards/" + user)
+        return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + user)
     }})
 
     if (isFetched) {
@@ -101,7 +101,7 @@ const DeckBuilder = ({
     }
 
     const deckList = useQuery({queryKey: "deckList" + user, refetchOnWindowFocus: false, queryFn: () => {
-        return axios.get("http://localhost:5000/deck/" + user)
+        return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/deck/` + user)
     }})
 
 
@@ -144,7 +144,7 @@ const DeckBuilder = ({
             }
             deck.push({card: card.card.id, numInDeck: card.numInDeck})
         }
-        axios.put("http://localhost:5000/deck", {
+        axios.put(`http://localhost:${process.env.REACT_APP_SERVPORT}/deck`, {
             deckType: chosenDeckType,
             deckName: deckName,
             commanderID: commander ? commander.id : null, 

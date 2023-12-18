@@ -39,7 +39,7 @@ const MyCards = ({
 
     let { data, isFetching } = useQuery({queryKey: ["myCardData"], refetchOnWindowFocus: false, queryFn: () => {
         if (userID !== "guest") {
-            return axios.get("http://localhost:5000/getCards/" + userID).then((res) => {
+            return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + userID).then((res) => {
             setCards(res)
             return res
             })
