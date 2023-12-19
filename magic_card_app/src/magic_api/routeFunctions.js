@@ -35,8 +35,7 @@ const addCardToDb = async (req, res) => {
                 return element.cardID === card.id
             })
             if (cardFound) {
-                const quantity = cardFound.quantity + 1
-                const res = await userCards.updateOne({ userID, "cards.cardID": card.id }, {$set: {"cards.$.quantity": quantity}})
+                await userCards.updateOne({ userID, "cards.cardID": card.id }, {$inc: {"cards.$.quantity": +1}})
             } else {
                 await userCards.updateOne({userID}, {$push: {cards: {cardID: card.id, quantity: 1, cardName: card.name}}})
             }
@@ -166,9 +165,9 @@ const deleteCardFromDb = async (req, res) => {
         const userCards = collection.collection("userCards")
 
         let results = await userCards.updateOne({userID},
-            {$pull: {cards: {cardID, quantity:1}}})
+            {$pull: {cards: {cardID: cardID, quantity:1}}})
 
-
+    
         if (results.modifiedCount === 0) {
             await userCards.updateOne({userID, "cards.cardID": cardID}, 
                 {$inc: {"cards.$.quantity": -1}})

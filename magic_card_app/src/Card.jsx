@@ -233,7 +233,7 @@ const Card = ({
         // or updates quantity if more than one is owned
         const handleDelete = (e) => {
             e.preventDefault()
-            axios.delete(`http://localhost:${process.env.REACT_APP_SERVPORT}/deleteCard?cardId=`
+            axios.delete(`http://localhost:${process.env.REACT_APP_SERVPORT}/deleteCard?cardId=` 
                 + card.id + "&userId=" + userID)
         }
 

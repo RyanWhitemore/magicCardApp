@@ -86,8 +86,7 @@ const DeckBuilder = ({
         "legacy","vintage","penny","oathbreaker",
         "brawl","historicbrawl","alchemy","paupercommander",
         "duel","oldschool","premodern","predh"]
-   
-    
+
     const {data, isFetched} = useQuery({queryKey: "ownedCards", refetchOnWindowFocus: false, queryFn: () => {
         return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + user)
     }})

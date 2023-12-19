@@ -149,7 +149,9 @@ const DeckPage = ({
                             {cardTypes.map(type => {
                                     return <>
                                     <div className={styles.type}>
-                                        <input id={type} type="checkbox"/>
+                                        <input value={type} 
+                                        id={type} 
+                                        onChange={filterDeckType} type="checkbox"/>
                                         <label htmlFor={type}>{type}</label>
                                     </div>
                                     </>
@@ -171,6 +173,11 @@ const DeckPage = ({
         </div>
         <div className={styles.cardDiv}>
             {cardTypes.map(type => {
+                if (typeArray.length > 0) {
+                    if (typeArray.indexOf(type) < 0) {
+                        return null
+                    }
+                }
                 let numOfType = deck.reduce((sum, card) => {
                     if (card.card.type_line.indexOf(type) >= 0) {
                         sum += 1
