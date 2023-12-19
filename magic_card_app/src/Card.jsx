@@ -85,6 +85,7 @@ const Card = ({
         const addCommander = () => {
             // initialize array with all possible colors
             const colors = ["G", "B", "U", "R", "W"]
+            console.log(card.id)
             if (card.id === JSON.parse(localStorage.getItem("commander")).id) {
                 return
             }
@@ -370,7 +371,7 @@ const Card = ({
                             ref={wrapperRef}
                         />
                     </Popup>
-                    {card.prices.usd && <p className="price"
+                    {card.prices?.usd && <p className="price"
                     >${card.prices.usd}</p>}
                     {fromMyCards && <>
                         <div className="addAndRemove">

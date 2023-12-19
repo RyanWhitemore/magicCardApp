@@ -67,7 +67,6 @@ const Header = ({
     const searchMyCards = async (e) => {
         try {
             const results = await axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/myCards/` + user + "/" + search)
-
             setCards({data: [results.data]})
             setIsSearched(true)
         } catch (err) {

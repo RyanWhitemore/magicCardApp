@@ -18,9 +18,9 @@ const DeckPage = ({
         setPassword,
         setUsername
 }) => {
-
+    console.log(localStorage.getItem("commander"))
     const deck = JSON.parse(localStorage.getItem("deck"))
-    const commander = JSON.parse(localStorage.getItem("commander"))
+    const commander = localStorage.getItem("commander") ? JSON.parse(localStorage.getItem("commander")) : null
     const cardTypes = ["Artifact", "Instant", "Creature", 
         "Enchantment", "Sorcery", "Land", "Basic Land", "Planeswalker",
         "Battle"
@@ -40,6 +40,8 @@ const DeckPage = ({
     let maxCmc = 0;
     const cmcArray = []
     const navigate = useNavigate()
+
+    console.log(localStorage.getItem("deckType"))
 
     const editdeck = () => {
         navigate("/deckbuilder")

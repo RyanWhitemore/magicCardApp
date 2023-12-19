@@ -33,11 +33,9 @@ const DeckBuilder = ({
 
     const [ isCommander, setIsCommander ] = useState(false)
 
-    const [ chosenDeckType, setChosenDeckType ] = useState("commander")
+    const [ chosenDeckType, setChosenDeckType ] = useState(localStorage.getItem("deckType"))
 
     const [ deckCost, setDeckCost ] = useState(localStorage.getItem("deckCost") > 0 ? JSON.parse(localStorage.getItem("deckCost")) : 0.00)
-
-    const [ creatingDeck, setCreatingDeck ] = useState(false)
 
     const [ editingDeck, setEditingDeck ] = useState(false)
 
@@ -58,10 +56,6 @@ const DeckBuilder = ({
     useOutsideAlerter(editRef, setEditingDeck)
 
     useOutsideAlerter(nameRef, setNamingDeck)
-
-    const deckID = localStorage.getItem("deckID")
-
-    let numberOfType = 0
 
     const cardTypes = ["Artifact", "Instant", "Creature", 
         "Enchantment", "Sorcery", "Land", "Basic Land", "Planeswalker",
@@ -134,9 +128,12 @@ const DeckBuilder = ({
         }
         for (const card of addedCards) {
             if (chosenDeckType !== "commander") {
-                for (const color of card.color_identity) {
+                for (const color of card.card.color_identity) {
                     if (addedCards.indexOf(color) < 0) {
                         console.log(color)
+                        if (colorIdentity.indexOf(colors[color]) >= 0) {
+                            break
+                        }
                         colorIdentity.push(colors[color])
                     }
                 }
@@ -166,7 +163,6 @@ const DeckBuilder = ({
             const commanderToOpen = await axios.get("https://api.scryfall.com/cards/" + deck.commander)
             setCommander(commanderToOpen.data)
         }
-        setCreatingDeck(true)
         setEditingDeck(false)
         localStorage.setItem("deckID", deck.deckID)
         console.log(deck.deckID)
@@ -178,7 +174,6 @@ const DeckBuilder = ({
                 setChosenColors(e.target.value)
                 localStorage.setItem("chosenColors", JSON.stringify(e.target.value))
             }
-            console.log(notChosenColors)
             const notColors = notChosenColors.filter(color => {
                 if (color === e.target.value) {
                     return false
@@ -195,9 +190,7 @@ const DeckBuilder = ({
                 localStorage.setItem("notChosenColors", JSON.stringify({data: [e.target.value]}))
             } else {
                 const notColors = notChosenColors
-                console.log(notColors)
                 notColors.push(e.target.value)
-                console.log(notColors)
                 localStorage.setItem("notChosenColors", JSON.stringify({data: notColors}))
                 setNotChosenColors(JSON.parse(localStorage.getItem("notChosenColors")).data)
             }
@@ -209,9 +202,9 @@ const DeckBuilder = ({
             if (chosenColors !== "all") {
                 localStorage.setItem("deck", JSON.stringify(JSON.parse(localStorage.getItem("deck")).filter(card => {
                     for (const color of notChosenColors) { 
-                        if (card.color_identity.indexOf(color) >= 0) {
+                        if (card.card.color_identity.indexOf(color) >= 0) {
                             let newDeckCost = parseFloat(JSON.parse(localStorage.getItem("deckCost")))
-                            newDeckCost = newDeckCost - parseFloat(card.prices.usd)
+                            newDeckCost = newDeckCost - parseFloat(card.card.prices.usd)
                             newDeckCost = newDeckCost.toFixed(2)
                             localStorage.setItem("deckCost", JSON.stringify(newDeckCost))
                             setDeckCost(JSON.parse(localStorage.getItem("deckCost")))
@@ -227,6 +220,7 @@ const DeckBuilder = ({
     
     const handleChange = (e) => {
         setChosenDeckType(e.target.value)
+        localStorage.setItem("deckType", e.target.value)
     }
 
     return <>
@@ -265,7 +259,7 @@ const DeckBuilder = ({
                 <header className={styles.header}>
                     <div className={styles.section2}>
                         <label htmlFor="deckTypes">Deck Types:</label>
-                        <select defaultValue={"commander"} id="deckTypes" onChange={handleChange}>
+                        <select defaultValue={chosenDeckType} id="deckTypes" onChange={handleChange}>
                             {typesOfDecks.map((key) =>{
                                 return <>
                                        <option value={key}>{key}</option>
@@ -326,8 +320,7 @@ const DeckBuilder = ({
                                 return false
                             }).length + 1 + ")": null)} onInput={e => setDeckName(e.target.value)}></input>
                             <button onClick={(e) => {
-                                console.log(deckName)
-                                setCreatingDeck(true);
+                                console.log(deckName);
                                 const deckID = createDeckID(); 
                                 localStorage.setItem("deckID", 
                                     JSON.stringify(deckID));

@@ -1,14 +1,80 @@
 .header {
+    grid-area: title;
     text-align: center;
+    height: 20px;
 }
 
 .decksDiv {
+    grid-area: decks;
     display: flex;
 }
 
 .deckDiv {
-    display: flex;
+    align-items: center;
     margin-left: 10px;
     align-items: center;
     cursor: pointer;
+    justify-content: center;
+}
+
+.main {
+    display: grid;
+    grid-template-columns: 33vw 33vw 33vw;
+    grid-template-rows: 10vh 90vh;
+    grid-template-areas: 
+        ". title create"
+        "decks decks decks"
+    ;
+    height: 90vh;
+}
+
+.create {
+    grid-area: create;
+    display: flex;
+    justify-content: end;
+    height: 30px;
+}
+
+.creationMenu {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    grid-template-rows: 33% 33% 33%;
+    grid-template-areas: 
+        ". deckName ."
+        "typeLabel colorLabel ."
+        "dropdown colors button"
+    ;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(19, 21, 37);
+    height: 200px;
+}
+
+.deckName {
+    grid-area: deckName;
+}
+
+.typeMenu {
+    grid-area: dropdown;
+}
+
+.colorMenu {
+    grid-area: colors;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    margin-left: 10px;
+}
+
+.createButton {
+    grid-area: button;
+}
+
+.typeLabel {
+    text-align: center;
+    grid-area: typeLabel;
+}
+
+.colorLabel {
+    text-align: center;
+    grid-area: colorLabel;
 }

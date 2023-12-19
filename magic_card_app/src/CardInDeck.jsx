@@ -46,6 +46,12 @@ const CardInDeck = ({
     useOutsideAlerter(wrapperRef, setPopup)
 
     const addCardInDeck = () => {
+        if (localStorage.getItem("deckType") === "commander") {
+            return 
+        }
+        if (numInDeck >= 4) {
+            return
+        }
         setNumInDeck(numInDeck + 1)
         card.numInDeck = numInDeck
     }
@@ -82,7 +88,7 @@ const CardInDeck = ({
         colorIdentity = card.card.color_identity[0]
     }
 
-    if (card?.card.name.length >= 22) {
+    if (card?.card.name.length >= 20) {
         fontSize = "70%"
     } else if (card.card.color_identity.length === 5) {
         fontSize = "70%"

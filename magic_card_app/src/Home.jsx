@@ -2,7 +2,6 @@ import {React, useState} from "react";
 import axios from "axios";
 import Card from "./Card";
 import Header from "./Header";
-import Popup from "reactjs-popup";
 import styles from "./Home.module.css"
 import { useQuery } from "react-query";
 
@@ -139,24 +138,25 @@ const Home = ({
         }
     }
      
-    if (chosenColors && chosenColors !== "all") {
-        if (User === "guest" && defaultSet.isSuccess) {
-            defaultSet = {data: {data: {data: defaultSet.data.data.data.filter(card => {
-                if (card === commander) {
+    
+    if (User === "guest" && defaultSet.isSuccess && fromDeckBuilder) {
+        defaultSet = {data: {data: {data: defaultSet.data.data.data.filter(card => {
+            if (card === commander) {
+                return false
+            }
+            if (card.color_identity.length === 0) {
+                return true
+            }
+            for (const color of notChosenColors) {
+                if (card.color_identity.indexOf(color) >= 0) {
                     return false
                 }
-                if (card.color_identity.length === 0) {
-                    return true
-                }
-                for (const color of notChosenColors) {
-                    if (card.color_identity.indexOf(color) >= 0) {
-                        return false
-                    }
-                }
-                return true
-            })}}}
-        }
-        if (data.data && chosenColors.length > 0 && User !== "guest") {
+            }
+            return true
+        })}}}
+    }
+    if (fromDeckBuilder) {
+        if (data.data && User !== "guest") {
             data = {data: {data: data.data.data.filter((card) => {
                 if (card === commander) {
                     return false
@@ -172,6 +172,7 @@ const Home = ({
                 return true
             })}}
         }
+    
     }
 
     if (defaultSet.error) {
@@ -186,18 +187,6 @@ const Home = ({
 
     if (User === "guest" && defaultSet.data) {
         sort(defaultSet.data.data.data)
-    }
-
-    const changePassword = (e) => {
-        e.preventDefault()
-
-        setPassword(e.target.value)
-    }
-
-    const changeUsername = (e) => {
-        e.preventDefault()
-
-        setUsername(e.target.value)
     }
 
    if (data.isSuccess && User !== "guest") {
