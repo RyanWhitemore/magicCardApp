@@ -18,15 +18,14 @@ const DeckPage = ({
         setPassword,
         setUsername
 }) => {
-    console.log(localStorage.getItem("commander"))
     const deck = JSON.parse(localStorage.getItem("deck"))
     const commander = localStorage.getItem("commander") ? JSON.parse(localStorage.getItem("commander")) : null
     const cardTypes = ["Artifact", "Instant", "Creature", 
         "Enchantment", "Sorcery", "Land", "Basic Land", "Planeswalker",
         "Battle"
         ]
-    const colors = ["W", "U", "B", "R", "G"]
-    const colorNames = ["White", "Blue", "Black", "Red", "Green"]
+    const colors = ["W", "U", "B", "R", "G", "C"]
+    const colorNames = ["White", "Blue", "Black", "Red", "Green", "Colorless"]
     
     const deckName = localStorage.getItem("deckName")
 
@@ -41,9 +40,18 @@ const DeckPage = ({
     const cmcArray = []
     const navigate = useNavigate()
 
-    console.log(localStorage.getItem("deckType"))
-
     const editdeck = () => {
+        const colors = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
+        const colorIdentity = JSON.parse(localStorage.getItem("deckColorIdentity"))
+        const notChosenColors = ["W", "U", "B", "R", "G"]
+        for (const color of colorIdentity) {
+            const index = notChosenColors.indexOf(colors[color])
+            console.log(index, color)
+            if (index >= 0) {
+                notChosenColors.splice(index, 1)
+            }
+        }
+        localStorage.setItem("notChosenColors", JSON.stringify({data: notChosenColors}))
         navigate("/deckbuilder")
     }
 
@@ -115,7 +123,6 @@ const DeckPage = ({
         />
         <div className={styles.title}>
             <div className={styles.filter}>
-
                     <div className={styles.filterOptions}>
                         <div className={styles.colors}>
                             <label htmlFor="colors" >Colors:</label>
@@ -162,7 +169,7 @@ const DeckPage = ({
                         </div>
                             
             </div>
-            <span className={styles.deckName}>{deckName} {" "} {deck.length}/99</span>
+            <span className={styles.deckName}>{deckName} {" "} {deck.length}/{deck.deckType === "commander" ? 99 : 60}</span>
             <button className={styles.editButton}onClick={editdeck}>Edit Deck</button>                  
             
         
@@ -194,10 +201,18 @@ const DeckPage = ({
                                     return null
                                 }
                                 if (filterColors.length > 0) {
+                                    let matchedColor = false
                                     for (const color of filterColors) {
-                                        if (card.card.color_identity.indexOf(color) < 0) {
-                                            return null
+                                        if (card.card.color_identity.indexOf(color) >= 0 | 
+                                        (color === "C" & card.card.color_identity.length === 0)) {
+                                            matchedColor = true
                                         }
+                                        if (matchedColor) {
+                                            break
+                                        }
+                                    }
+                                    if (!matchedColor) {
+                                        return null
                                     }
                                 }
                                 const mana_array = card.card.mana_cost.replace(/[}]/g, "").split("{")

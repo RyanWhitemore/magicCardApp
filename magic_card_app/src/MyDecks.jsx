@@ -74,6 +74,7 @@ const MyDecks = ({
         localStorage.setItem("deckID", deck.deckID)
         localStorage.setItem("deckName", deck.deckName)
         localStorage.setItem("deckType", deck.deckType)
+        localStorage.setItem("deckColorIdentity",  JSON.stringify(deck.colorIdentity))
         navigate("/deckpage")
     }
 

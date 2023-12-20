@@ -233,6 +233,7 @@ const Card = ({
         // endpoint deletes entry if only one is owned
         // or updates quantity if more than one is owned
         const handleDelete = (e) => {
+            console.log("deleted")
             e.preventDefault()
             axios.delete(`http://localhost:${process.env.REACT_APP_SERVPORT}/deleteCard?cardId=` 
                 + card.id + "&userId=" + userID)
@@ -294,7 +295,7 @@ const Card = ({
         
         // if card image exists
         if (card.image_uris) {
-            if (inDeck | inDeck && !isCommander) {
+            if (inDeck) {
                 cardImage = [<div className="buttonsDiv" >
                     <button className="addInDeck" onClick={addCardInDeck}>+</button>
                     <button className="removeInDeck" onClick={removeCardInDeck}>-</button>
@@ -386,6 +387,7 @@ const Card = ({
                             <button 
                             className="addAndRemoveButton"
                             onClick={(e) => {
+                                console.log("called")
                                 e.preventDefault()
                                 handleDelete(e)
                                 setNumInColl(numInColl - 1)

@@ -53,6 +53,10 @@
 
 .editButton {
     grid-area: edit;
+    border-radius: 15px;
+    box-shadow: 1px 1px black;
+    color: white;
+    background-color: rgb(19, 21, 37);
 }
 
 .type {

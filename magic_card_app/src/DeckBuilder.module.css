@@ -8,7 +8,7 @@
     margin-top: 0px;
     height: 100%;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     column-gap: 10px;
     overflow: scroll;
     -ms-overflow-style: none;
@@ -148,4 +148,28 @@ body {
     align-items: center;
     height: 100%;
     width: 100%;
+}
+
+.deckName {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-size: xx-large;
+}
+
+.deckInput {
+    font-size: xx-large;
+    text-align: center;
+    color: white
+}
+
+input.deckInput[type=text] {
+    border: none;
+    border-radius: 5px;
+    box-shadow: 1px 1px rgb(9, 17, 34);
+    background-color: rgb(77, 103, 160);
+}
+
+.commanderImage {
+    height: 350px;
 }
