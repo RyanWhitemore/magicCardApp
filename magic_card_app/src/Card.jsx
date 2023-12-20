@@ -296,34 +296,24 @@ const Card = ({
         // if card image exists
         if (card.image_uris) {
             if (inDeck) {
-                cardImage = [<div className="buttonsDiv" >
-                    <button className="addInDeck" onClick={addCardInDeck}>+</button>
-                    <button className="removeInDeck" onClick={removeCardInDeck}>-</button>
-                </div>]
-                for (let i = 0; i < deckCount; i++) {
-                    const topPx = i + numberOfType + "px"
-                    cardImage.push(<>
-                        <div className="imageDiv">
+                cardImage = [<div className="commanderImageDiv">
+                        <div className="buttonsDiv" >
                             <img
                                 style={{
                                     opacity: 
                                     (card.inCollection && !fromMyCards) 
                                     | fromMyCards | userID === "guest" 
-                                    | (!fromDeckBuilder && !fromMyCards) ? 1.0 : 0.5,
-                                    position: inDeck ? "absolute": null,
-                                    top: inDeck ? topPx : null,
-                                    right: inDeck ? "0vw" : null,
-                                    left: inDeck ? "2.5vw" : null}}
+                                    | (!fromDeckBuilder && !fromMyCards) ? 1.0 : 0.5,}}
                                 onClick={() => {setPopup(true)}}
                                 width="180px"
                                 src={card.image_uris.border_crop} 
                                 alt={card.name}
                             ></img>
-                            {addButton} 
-                            {commanderButton}
+                            <div className="buttonsFlex">
+                                <button className="removeInDeck" onClick={removeCardInDeck}>-</button>
+                            </div>
                         </div>
-                    </> )
-                }
+                    </div>]
             } else {
                 cardImage = <>
                 <div className="imageDiv">

@@ -4,6 +4,7 @@ import Card from "./Card";
 import Header from "./Header";
 import styles from "./Home.module.css"
 import { useQuery } from "react-query";
+import { paginateCards } from "./util";
 
 const Home = ({  
         fromDeckBuilder, 
@@ -42,7 +43,12 @@ const Home = ({
 
     const [ isSearched, setIsSearched ] = useState(false)
 
-    let data = useQuery({queryKey: ["defaultCards", User], refetchOnWindowFocus: false, queryFn: () => {
+    const [ paginatedCards, setPaginatedCards ] = useState([])
+
+    const [ page, setPage ] = useState(1)
+
+
+    let data = useQuery({queryKey: ["defaultCards", User], refetchOnWindowFocus: false, queryFn: async () => {
         if (fromDeckBuilder & !isSearched) {
             if (User !=="guest") {
                 setIsCards(true)
@@ -51,7 +57,11 @@ const Home = ({
         } else {
             if (User !=="guest" & !isSearched) {
                 setIsCards(true)
-                return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
+                
+                let results = axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
+                results = await results
+                setPaginatedCards(paginateCards(results.data))
+                return results
             } else {
                 return axios.get("https://api.scryfall.com/sets/woe")
             }
@@ -348,7 +358,9 @@ const Home = ({
                     }
                 })}
             </div>: null}
-        
+        <div className={styles.pageNumbers}>{paginatedCards.map((cardArray, index) => {
+            return <span> {index + 1} </span>
+        })}</div>
     </div>
     </>
 }

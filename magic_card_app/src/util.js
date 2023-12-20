@@ -17,4 +17,23 @@ const useOutsideAlerter = (ref, setPopup) => {
     }, [ref, setPopup]) 
 }
 
-export default useOutsideAlerter
+
+const paginateCards = (cardArray) => {
+        const pageCount = Math.ceil(cardArray.length / 75)
+
+        const paginatedPages = []
+
+        console.log("called")
+
+        for (let i=0; i < pageCount; i++) {
+            const start = i * 75
+            const end = start + 75
+            
+            paginatedPages.push(cardArray.splice(start, end))
+        }
+        
+    return paginatedPages 
+}
+
+
+export {useOutsideAlerter, paginateCards}

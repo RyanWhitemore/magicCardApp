@@ -6,7 +6,7 @@ import { useQuery } from "react-query"
 import axios from "axios"
 import Popup from "reactjs-popup"
 import CardInDeck from "./CardInDeck"
-import useOutsideAlerter from "./util"
+import { useOutsideAlerter } from "./util"
 
 const DeckBuilder = ({
             login,
@@ -287,6 +287,9 @@ const DeckBuilder = ({
                         defaultValue={deckName}/>
                     </div> :
                 <header onDoubleClick={() => setEditable(true)}className={styles.deckName}>{deckName}</header>}
+                <header className={styles.deckCount}>
+                    {addedCards.length}/{chosenDeckType === "commander" ? 99 : 60}
+                </header>
                 {chosenDeckType === "commander" ? <header className={styles.type}>Commander</header> : null}
                 {commander ? <div className={styles.commanderDiv}>
                     <div className={styles.commanderImage}>
