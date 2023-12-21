@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, 1rf);
   grid-template-rows: repeat(auto-fill, auto);
-  background-color: black;
+  font-family: sans-serif;
 }
 
 

@@ -351,8 +351,8 @@ const Card = ({
                             ref={wrapperRef}
                         />
                     </Popup>
-                    {card.prices?.usd && <p className="price"
-                    >${card.prices.usd}</p>}
+                    {card.prices?.usd ? <p className="price"
+                    >${card.prices.usd}</p> : <p>Price Unavailable</p>}
                     {fromMyCards && <>
                         <div className="addAndRemove">
                             <button 

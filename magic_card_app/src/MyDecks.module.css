@@ -2,11 +2,16 @@
     grid-area: title;
     text-align: center;
     height: 20px;
+    font-size: 75px;
+    font-family: monospace;
 }
 
 .decksDiv {
     grid-area: decks;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 3.5vh;
 }
 
 .deckDiv {
@@ -15,6 +20,7 @@
     align-items: center;
     cursor: pointer;
     justify-content: center;
+    padding-bottom: 10px;
 }
 
 .main {

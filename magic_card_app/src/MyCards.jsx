@@ -143,8 +143,9 @@ const MyCards = ({
                         cards={cards}/>
                 })}
 
-                </div>: null} 
+                </div>: null}                
         </div>
+        {isSearched && <div><button onClick={() => setIsSearched(false)}>Back</button></div>}
     </>
 }
 

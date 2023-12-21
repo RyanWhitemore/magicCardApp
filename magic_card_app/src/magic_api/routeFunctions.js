@@ -196,6 +196,8 @@ const searchMyCards = async (req, res) => {
 
         const results = await userCards.find({userID, "cards.cardName": {$regex: searchTerm, $options: "i"}}).toArray()
 
+        console.log(results)
+
         if (results.length > 0) {
             for (const card of results[0].cards) {
                 if (new RegExp(searchTerm, "i").exec(card.cardName)) {

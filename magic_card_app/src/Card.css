@@ -1,3 +1,7 @@
+* {
+    font-family: sans-serif;
+}
+
 .back {
     width: 30px;
     height: 30px;
@@ -95,7 +99,7 @@
     border-radius: 15px;
     height: 20px;
     width: 20px;
-    background-color: rgb(37, 45, 63);
+    background-color: rgb(19, 21, 37);
 
 }
 
@@ -111,7 +115,7 @@
 
 button {
     border-radius: 10px;
-    background-color: rgb(27, 33, 46);
+    background-color: rgb(19, 21, 37);
     color: white;
 }
 
