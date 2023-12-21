@@ -45,14 +45,19 @@ const Home = ({
 
     const [ paginatedCards, setPaginatedCards ] = useState([])
 
-    const [ page, setPage ] = useState(1)
+    const [ page, setPage ] = useState(0)
 
 
-    let data = useQuery({queryKey: ["defaultCards", User], refetchOnWindowFocus: false, queryFn: async () => {
+    let data = useQuery({queryKey: ["defaultCards", [User, sortValue]], refetchOnWindowFocus: false, queryFn: async () => {
         if (fromDeckBuilder & !isSearched) {
             if (User !=="guest") {
+                console.log("called")
                 setIsCards(true)
-                return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
+                let results = axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
+                results = await results
+                results = sortResults(results)
+                setPaginatedCards(paginateCards(results))
+                return results 
             }
         } else {
             if (User !=="guest" & !isSearched) {
@@ -60,9 +65,15 @@ const Home = ({
                 
                 let results = axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
                 results = await results
-                setPaginatedCards(paginateCards(results.data))
-                return results
+                if (results.data.length > 0) {
+                    setPaginatedCards(paginateCards(results.data))
+                    return results
+                } else {
+                    setDefaultCards(true)
+                    return axios.get("https://api.scryfall.com/sets/woe")
+                }
             } else {
+                setDefaultCards(true)
                 return axios.get("https://api.scryfall.com/sets/woe")
             }
         }
@@ -72,7 +83,7 @@ const Home = ({
 
     let setInfo = false
 
-    if (User === "guest") {
+    if (data.isFetched & defaultCards) {
         setInfo = data.data
     }
 
@@ -96,8 +107,9 @@ const Home = ({
         return
     }})
 
-    if (collectionData.isSuccess && User !== "guest" && data) {
+    if (collectionData.isSuccess && User !== "guest" & data & !defaultCards) {
         if(data.data) {
+            console.log(data.data.data)
             for (const card of data.data.data) {
                 if (!collectionData.isLoading && collectionData.data) {
                     if (collectionData.data.data.indexOf(card)) {
@@ -106,6 +118,43 @@ const Home = ({
                 }
             }
         }
+    }
+
+    const sortResults = (results) => {
+        if (sortValue === "name") {
+            if (!results) {
+                return
+            }
+            if (results) {
+                results = results.data.sort((a, b) => {
+                    return a.name.localeCompare(b.name)
+                })
+            }
+        }
+        if (sortValue === "value") {
+            if (results) {
+                results = results.data.sort((a, b) => {
+                    if (!a.prices.usd) {
+                        return 1
+                    }
+                    if (!b.prices.usd) {
+                        return -1
+                    }
+                    return b.prices.usd - a.prices.usd
+                })
+            }
+        }
+
+        if (sortValue === "color") {
+            if (results) {
+                results = results.data.sort((a, b) => {
+                    a = a.color_identity.join()
+                    b = b.color_identity.join()
+                    return b.localeCompare(a)
+                })
+            }
+        }
+        return results
     }
 
     const sort = (data) => {
@@ -119,7 +168,7 @@ const Home = ({
                 })}}
             }
         }
-    
+     
         if (sortValue === "value") {
             if (data) {
                 data = data.sort((a, b) => {
@@ -165,45 +214,22 @@ const Home = ({
             return true
         })}}}
     }
-    if (fromDeckBuilder) {
-        if (data.data && User !== "guest") {
-            data = {data: {data: data.data.data.filter((card) => {
-                if (card === commander) {
-                    return false
-                }
-                if (card.color_identity.length === 0) {
-                    return true
-                }
-                for (const color of notChosenColors) {
-                    if (card.color_identity.indexOf(color) >= 0) {
-                        return false
-                    }
-                }
-                return true
-            })}}
-        }
     
-    }
-
     if (defaultSet.error) {
         console.log(defaultSet.error.message)
     }
 
-    if (User !== "guest") {
+    if (User !== "guest" & !defaultCards) {
         if (data.data) {
             sort(data.data.data)
         }
     }
 
-    if (User === "guest" && defaultSet.data) {
+    if ((User === "guest" && defaultSet.data) | (defaultCards & defaultSet.data)) {
         sort(defaultSet.data.data.data)
     }
 
-   if (data.isSuccess && User !== "guest") {
-    for (const card of data.data.data) {
-        card.inCollection = true
-    }
-   }
+  
 
     return <>
     <div>
@@ -224,33 +250,36 @@ const Home = ({
     </div>
     <div id="main">
         {!data.isFetching && isCards && !isSearched && data  ? <div className={styles.cards}>
-            {data.data.data.map(card => {
-                if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
-                    return <div key={card.id}>
-                        <Card
-                        cards={isCards}
-                        withoutButton={withoutButton}
-                        card={card}
-                        fromDeckBuilder={fromDeckBuilder}
-                        addedCards={addedCards}
-                        setAddedCards={setAddedCards}
-                        deckCost={deckCost}
-                        setDeckCost={setDeckCost}
-                        chosenDeckType={chosenDeckType}
-                        setChosenDeckType={setChosenDeckType}
-                        setCommander={setCommander}
-                        setIsCommander={setIsCommander}
-                        isCommander={isCommander}
-                        setNotChosenColors={setNotChosenColors}
-                        notChosenColors={notChosenColors}
-                        setChosenColors={setChosenColors}
-                        commander={commander}
-                        />
-                    </div>
-                } else {
-                    return null
-                }
-                
+            {paginatedCards.map((array, index) => {
+                return array.map((card) => {
+                    if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
+                        if (page === index) {
+                            return <div key={card.id}>
+                            <Card
+                            cards={isCards}
+                            withoutButton={withoutButton}
+                            card={card}
+                            fromDeckBuilder={fromDeckBuilder}
+                            addedCards={addedCards}
+                            setAddedCards={setAddedCards}
+                            deckCost={deckCost}
+                            setDeckCost={setDeckCost}
+                            chosenDeckType={chosenDeckType}
+                            setChosenDeckType={setChosenDeckType}
+                            setCommander={setCommander}
+                            setIsCommander={setIsCommander}
+                            isCommander={isCommander}
+                            setNotChosenColors={setNotChosenColors}
+                            notChosenColors={notChosenColors}
+                            setChosenColors={setChosenColors}
+                            commander={commander}
+                            />
+                        </div>
+                    } else {
+                        return null
+                    }  
+                        }
+                })
             })}
             </div> : null}
 
@@ -358,9 +387,15 @@ const Home = ({
                     }
                 })}
             </div>: null}
-        <div className={styles.pageNumbers}>{paginatedCards.map((cardArray, index) => {
-            return <span> {index + 1} </span>
+        <div className={styles.pageNumbers}>{paginatedCards.map((_, index) => {
+            if (!isSearched) {
+                return <button className={styles.pageNum} onClick={() => setPage(index)}> {index + 1} </button>
+            }
+            return null
+            
         })}</div>
+        {isSearched ? <button onClick={() => setIsSearched(false)}
+        className={styles.backButton}>Back</button> : null}
     </div>
     </>
 }

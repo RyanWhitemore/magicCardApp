@@ -23,13 +23,10 @@ const paginateCards = (cardArray) => {
 
         const paginatedPages = []
 
-        console.log("called")
-
         for (let i=0; i < pageCount; i++) {
             const start = i * 75
             const end = start + 75
-            
-            paginatedPages.push(cardArray.splice(start, end))
+            paginatedPages.push(cardArray.slice(start, end))
         }
         
     return paginatedPages 

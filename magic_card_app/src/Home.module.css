@@ -75,3 +75,12 @@ body {
     border-radius: 18px;
     border: 1px solid #cfcece;
   }
+
+  .pageNum {
+    cursor: pointer;
+    width: 100px
+  }
+
+  .backButton {
+    width: 75px;
+  }

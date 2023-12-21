@@ -42,6 +42,9 @@ const Header = ({
     const searchByName = async (e) => {
         try {
             setDefaultCards(null)
+            if (fromMyCards) {
+                const results = await axios.get("https://")
+            }
             const results = await axios.get("https://api.scryfall.com/cards/search?q=" + search )
             const collectionResults = await axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getcards/` + user)
             for (const result of results.data.data) {

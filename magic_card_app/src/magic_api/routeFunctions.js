@@ -185,8 +185,9 @@ const searchMyCards = async (req, res) => {
     const userID = req.params.userID
     const searchTerm = req.params.searchTerm
 
-    try {
 
+    try {
+        
         const database = client.db("magicCards")
 
         const userCards = database.collection("userCards")
@@ -200,7 +201,7 @@ const searchMyCards = async (req, res) => {
                 if (new RegExp(searchTerm, "i").exec(card.cardName)) {
                     const matchedCard = await magicCards.findOne({name:  {$regex: searchTerm, $options: "i"}})
                     if (matchedCard) {
-                        matchedCard.quantity = 1
+                        matchedCard.quantity = card.quantity
                         return res.send(matchedCard)
                     } else {
                         return res.send([])
@@ -243,6 +244,7 @@ const saveDeck = async (req, res) => {
 
 
     if (deckList[0]?.decks) {
+        console.log(deckList[0].decks)
         filteredDeckList = deckList[0].decks.filter(deck => {
             if (deck.deckID === deckID) {
                 return false
@@ -252,7 +254,7 @@ const saveDeck = async (req, res) => {
         deckList[0].decks = filteredDeckList
     }
     
-    if (deckList[0].length <= 0) {
+    if (!deckList[0]) {
         userDecks.insertOne({userID, decks: [queryObj]})
     } else {
         const newDecksList = deckList[0].decks

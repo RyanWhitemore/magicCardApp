@@ -59,6 +59,10 @@ const Card = ({
 
         const [ popup, setPopup ] = useState(false)
 
+        const [ showAdded, setShowAdded ] = useState(false)
+
+        const [ message, setMessage ] = useState('')
+
         const isLoggedIn = userID === "guest" ? false : true 
 
         const wrapperRef = useRef(null)
@@ -79,6 +83,12 @@ const Card = ({
             }
             return false
         }
+
+        useEffect(() => {
+            setTimeout(() => {
+                setShowAdded(false)
+            }, 3000)
+        })
 
 
         // function to add a card as a commander in deck builder
@@ -157,26 +167,6 @@ const Card = ({
         
         }
 
-        // function to increment number of cards in deck 
-        const addCardInDeck = () => {
-            // commander allows one of each card so if commander is chosen do nothing
-            if (chosenDeckType === "commander") {
-                return 
-            } else {
-                if (deckCount < 4) {
-                    // if the card object has a price in usd update the deck cost
-                    if (card.prices.usd) {
-                        let newDeckCost = parseFloat(deckCost) + parseFloat(card.prices.usd)
-                        newDeckCost = parseFloat(newDeckCost)
-                        newDeckCost = newDeckCost.toFixed(2)
-                        localStorage.setItem("deckCost", newDeckCost)
-                        setDeckCost(newDeckCost)
-                    }
-                    setDeckCount(deckCount + 1)
-                }
-            }
-        }
-
         // function to decrement number of cards in deck
         // or remove the card if there is only one in the deck
         const removeCardInDeck = () => {
@@ -219,21 +209,29 @@ const Card = ({
         // function to add card to user collection
         // endpoint makes new entry if one doesnt exist
         // and updates the quantity owned if entry does exist
-        const handleSubmit = (e) => {
+        const handleSubmit = async (e) => {
             e.preventDefault()
-            axios.put(`http://localhost:${process.env.REACT_APP_SERVPORT}/addCard`, {
+            const results = await axios.put(`http://localhost:${process.env.REACT_APP_SERVPORT}/addCard`, {
                 card: card,
                 userId: userID
             })
-            setNumInColl(card.quantity + 1)
-            card.inCollection = true
+
+            if (results.status === 200) {
+                setMessage("Added")
+                setShowAdded(true)
+                setNumInColl(card.quantity + 1)
+                card.inCollection = true
+            }
+            if (results.status === 400) {
+                setMessage("There was a Problem, try again")
+                setShowAdded(true)
+            }
         }
 
         // function to delete card from user collection
         // endpoint deletes entry if only one is owned
         // or updates quantity if more than one is owned
         const handleDelete = (e) => {
-            console.log("deleted")
             e.preventDefault()
             axios.delete(`http://localhost:${process.env.REACT_APP_SERVPORT}/deleteCard?cardId=` 
                 + card.id + "&userId=" + userID)
@@ -299,11 +297,6 @@ const Card = ({
                 cardImage = [<div className="commanderImageDiv">
                         <div className="buttonsDiv" >
                             <img
-                                style={{
-                                    opacity: 
-                                    (card.inCollection && !fromMyCards) 
-                                    | fromMyCards | userID === "guest" 
-                                    | (!fromDeckBuilder && !fromMyCards) ? 1.0 : 0.5,}}
                                 onClick={() => {setPopup(true)}}
                                 width="180px"
                                 src={card.image_uris.border_crop} 
@@ -319,11 +312,6 @@ const Card = ({
                 <div className="imageDiv">
                     <img
                         className="cardImage"
-                        style={{
-                            opacity: 
-                            (card.inCollection && !fromMyCards) 
-                            | fromMyCards | userID === "guest" 
-                            | (!fromDeckBuilder && !fromMyCards) ? 1.0 : 0.5}}
                         onClick={() => {setPopup(true)}}
                         width="180px"
                         src={card.image_uris.border_crop} 
@@ -353,6 +341,7 @@ const Card = ({
                         return card
                     })}
                     {button}
+                    {showAdded && <span className="addedAlert">{message}</span>}
                     <Popup
                     open={popup}
                     >
@@ -377,7 +366,6 @@ const Card = ({
                             <button 
                             className="addAndRemoveButton"
                             onClick={(e) => {
-                                console.log("called")
                                 e.preventDefault()
                                 handleDelete(e)
                                 setNumInColl(numInColl - 1)

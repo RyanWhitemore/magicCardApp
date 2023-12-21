@@ -100,7 +100,6 @@ const MyCards = ({
     }
 
     const newTotal = getCollectionTotalPrice()
-    console.log(isFetching)
     return <>
         
         <Header fromHome={false}

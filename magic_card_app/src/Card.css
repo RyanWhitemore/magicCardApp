@@ -114,3 +114,14 @@ button {
     background-color: rgb(27, 33, 46);
     color: white;
 }
+
+.addedAlert {
+    position: absolute;
+    top: 330px;
+    left: 125px;
+    background-color: white;
+    opacity: 0.8;
+    color: black;
+    border-radius: 5px;
+    width: 100px;
+}

@@ -93,10 +93,6 @@ const DeckBuilder = ({
         }
     }
 
-    const deckList = useQuery({queryKey: "deckList" + user, refetchOnWindowFocus: false, queryFn: () => {
-        return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/deck/` + user)
-    }})
-
     const saveDeck = () => {
         const deck = []
         const colorIdentity = []
@@ -106,10 +102,12 @@ const DeckBuilder = ({
             R: "red", G: "green"
         }
         if (chosenDeckType === "commander") {
-            for (const color of commander.color_identity) {
-                if (addedColors.indexOf(color) < 0) {
-                    addedColors.push(color)
-                    colorIdentity.push(colors[color])
+            if (commander) {
+                for (const color of commander.color_identity) {
+                    if (addedColors.indexOf(color) < 0) {
+                        addedColors.push(color)
+                        colorIdentity.push(colors[color])
+                    }
                 }
             }
         }
@@ -136,23 +134,6 @@ const DeckBuilder = ({
             cards: deck,
             colorIdentity: colorIdentity
         })
-    }
-
-    const openDeck = async (deck) => {
-        const deckToOpen = []
-
-        for (const card of deck.cards) {
-            const cardToAdd = await axios.get("https://api.scryfall.com/cards/" + card)
-            deckToOpen.push({card: cardToAdd.data, numInDeck: card.numInDeck})
-        }
-        setAddedCards(deckToOpen)
-        if (deck.commander) {
-            const commanderToOpen = await axios.get("https://api.scryfall.com/cards/" + deck.commander)
-            setCommander(commanderToOpen.data)
-        }
-        setEditingDeck(false)
-        localStorage.setItem("deckID", deck.deckID)
-        console.log(deck.deckID)
     }
 
     const handleChecks = (e) => {
@@ -311,9 +292,6 @@ const DeckBuilder = ({
                     </div>
                     </div>: null}
                 <div className={styles.addedCards}>
-                    {localStorage.getItem("userID") !== "guest" && <Popup open={editingDeck}>{deckList.data?.data?.map((deck) => {
-                        return <button ref={editRef} onClick={() => {openDeck(deck)}}>{deck.deckName}</button>
-                    })}</Popup>}
                         {cardTypes.map((type) => {
                             let numOfType = addedCards.reduce((sum, card) => {
                                 if (card.card.type_line.indexOf(type) >= 0) {
