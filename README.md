@@ -9,6 +9,7 @@ To get started with the project, follow these steps:
 ### Prerequisites
 
 Make sure you have Node.js installed, version 8 or later.
+Make sure to have MongoCommunity Server installed to locally host the database
 
 ### Environment Variables
 
@@ -17,6 +18,7 @@ Create two `.env` files:
 1. **Backend (.env in ./src/magic_api)**
     - `CONNECTIONSTRING`: MongoDB URL for database connection.
     - `REACT_APP_SERVPORT`: Port number for running the Backend locally in the background.
+    - `LOCALDBSTRING`: MongoDB URL for locally connecting to database
 
 2. **Root Directory (.env in repository's root)**
     - `REACT_APP_SERVPORT`: Port number for running the Backend locally in the background.
@@ -33,13 +35,18 @@ npm install
 
 After setting up the environment variables and installing dependencies, use the following commands to run the project:
 
-1. **Backend:**
+1. **Database**
+    ```
+    node ./src/magic_api/createDatabase
+    ```
+
+2. **Backend:**
    ```bash
    cd ./src/magic_api
    node app
    ```
 
-2. **Root:**
+3. **Root:**
    ```bash
    npm run start
    ```
