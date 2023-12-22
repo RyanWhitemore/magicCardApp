@@ -14,11 +14,11 @@
 
 .title {
     display: grid;
-    grid-template-columns: 10% 80% 10%;
+    grid-template-columns: 10% 75% 15%;
     grid-template-rows:   5% 25% 70%;
     grid-template-areas: 
     "sidebar title edit"
-    "sidebar main-t  ."
+    "sidebar main-t  main-t"
     "sidebar main-b  main-b"
     ;
     justify-content: space-between;
@@ -27,8 +27,12 @@
 }
 
 .commander {
+    grid-template-columns: 33% 33% 33%;
+    grid-template-rows: 100%;
+    grid-template-areas: 
+    ". commander graph";
     max-height: 300px;
-    display: flex;
+    display: grid;
     justify-content: center;
     grid-area: main-t;
     margin-bottom: 0px;
@@ -63,6 +67,12 @@
     padding-left: 20px;
 }
 
+.typeDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .num {
     padding-left: 20px;
 }
@@ -73,4 +83,15 @@
 
 .header {
     position: sticky;
+}
+
+.graph {
+    grid-area: graph;
+    color: white;
+}
+
+.image {
+    display: grid;
+    justify-content: center;
+    grid-area: commander;
 }

@@ -4,9 +4,9 @@ import { useEffect, useState, useRef } from "react"
 import Card from "./Card"
 import { useQuery } from "react-query"
 import axios from "axios"
-import Popup from "reactjs-popup"
 import CardInDeck from "./CardInDeck"
 import { useOutsideAlerter } from "./util"
+import Graph from "./Graph"
 
 const DeckBuilder = ({
             login,
@@ -35,9 +35,7 @@ const DeckBuilder = ({
 
     const [ chosenDeckType, setChosenDeckType ] = useState(localStorage.getItem("deckType"))
 
-    const [ deckCost, setDeckCost ] = useState(localStorage.getItem("deckCost") > 0 ? JSON.parse(localStorage.getItem("deckCost")) : 0.00)
-
-    const [ editingDeck, setEditingDeck ] = useState(false)
+    const [ deckCost, setDeckCost ] = useState(JSON.parse(localStorage.getItem("deckCost")) > 0 ? JSON.parse(localStorage.getItem("deckCost")) : 0.00)
 
     const [ deckName, setDeckName ] = useState(localStorage.getItem("deckName"))
     
@@ -50,10 +48,6 @@ const DeckBuilder = ({
     const localIsCommander = localStorage.getItem("isCommander")
 
     const nameRef = useRef(null)
-
-    const editRef = useRef(null)
-
-    useOutsideAlerter(editRef, setEditingDeck)
 
     useOutsideAlerter(nameRef, setEditable)
 
@@ -138,10 +132,6 @@ const DeckBuilder = ({
 
     const handleChecks = (e) => {
         if (e.target.checked) {
-            if (chosenColors === "all") {
-                setChosenColors(e.target.value)
-                localStorage.setItem("chosenColors", JSON.stringify(e.target.value))
-            }
             const notColors = notChosenColors.filter(color => {
                 if (color === e.target.value) {
                     return false
@@ -259,20 +249,22 @@ const DeckBuilder = ({
                     <button className={styles.save} onClick={saveDeck}>Save deck</button>  
                 </header>
                 <div className={styles.body}>
-                {editable ? <div className={styles.deckName}>
-                        <input 
-                        type="text"
-                        onChange={(e) => setDeckName(e.target.value)}
-                        ref={nameRef}
-                        className={styles.deckInput}
-                        defaultValue={deckName}/>
-                    </div> :
-                <header onDoubleClick={() => setEditable(true)}className={styles.deckName}>{deckName}</header>}
-                <header className={styles.deckCount}>
+                    <div className={styles.subheader}>
+                        {editable ? <div className={styles.deckName}>
+                            <input 
+                            type="text"
+                            onChange={(e) => setDeckName(e.target.value)}
+                            ref={nameRef}
+                            className={styles.deckInput}
+                            defaultValue={deckName}/>
+                        </div> :
+                    <header onDoubleClick={() => setEditable(true)}className={styles.deckName}>{deckName}</header>}
+                    <header className={styles.deckCount}>
                     {addedCards.length}/{chosenDeckType === "commander" ? 99 : 60}
-                </header>
-                {chosenDeckType === "commander" ? <header className={styles.type}>Commander</header> : null}
-                {commander ? <div className={styles.commanderDiv}>
+                    </header>
+                    {chosenDeckType === "commander" ? <header className={styles.type}>Commander</header> : null}
+                        </div>
+                    {commander ? <div className={styles.commanderDiv}>
                     <div className={styles.commanderImage}>
                         <Card
                             addedCards={addedCards}
@@ -291,6 +283,9 @@ const DeckBuilder = ({
                         />
                     </div>
                     </div>: null}
+                <div className={styles.graph}>
+                    <Graph/>
+                </div>
                 <div className={styles.addedCards}>
                         {cardTypes.map((type) => {
                             let numOfType = addedCards.reduce((sum, card) => {
@@ -322,7 +317,7 @@ const DeckBuilder = ({
                                     numOfType += 1
 
                                     return <>
-                                        <div className={styles.cardDiv} key={card.card.card_id}>
+                                        <div className={styles.cardInDeckContainer} key={card.card.card_id}>
                                             <CardInDeck
                                                 fromBuilder={true}
                                                 setAddedCards={setAddedCards}

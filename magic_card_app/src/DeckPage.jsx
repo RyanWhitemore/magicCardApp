@@ -1,6 +1,7 @@
 import styles from "./DeckPage.module.css"
 import Header from "./Header"
 import CardInDeck from "./CardInDeck"
+import Graph from "./Graph"
 import { useState } from "react"
 import Card from "./Card"
 import { useNavigate } from "react-router-dom"
@@ -46,7 +47,6 @@ const DeckPage = ({
         const notChosenColors = ["W", "U", "B", "R", "G"]
         for (const color of colorIdentity) {
             const index = notChosenColors.indexOf(colors[color])
-            console.log(index, color)
             if (index >= 0) {
                 notChosenColors.splice(index, 1)
             }
@@ -55,11 +55,23 @@ const DeckPage = ({
         navigate("/deckbuilder")
     }
 
+    let deckTotalPrice = 0.00
+
     for (const card of deck) {
+        if (commander) {
+            console.log("called")
+            deckTotalPrice = parseFloat(deckTotalPrice) + parseFloat(commander.prices.usd)
+        }
+        if (card.card.prices?.usd) {
+            deckTotalPrice = parseFloat(deckTotalPrice) + parseFloat(card.card.prices.usd)
+            console.log(typeof deckTotalPrice)
+            deckTotalPrice = deckTotalPrice.toFixed(2)
+        }
         if (card.card.cmc > maxCmc) {
             maxCmc = card.card.cmc
         }
     }
+    localStorage.setItem("deckCost", JSON.stringify(deckTotalPrice))
 
     for (let i=1; i <= maxCmc; i++) {
         cmcArray.push(i)
@@ -174,11 +186,14 @@ const DeckPage = ({
             
         
         <div className={styles.commander}>
-            <Card
-                card={commander}
-                fromHome={false}
-                withoutButton={true}
-            />
+            <div className={styles.image}>
+                <Card
+                    card={commander}
+                    fromHome={false}
+                    withoutButton={true}
+                />
+            </div>
+            <div className={styles.graph}><Graph/></div>
         </div>
         <div className={styles.cardDiv}>
             {cardTypes.map(type => {

@@ -14,6 +14,7 @@
     overflow: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    grid-area: cards;
 }
 
 .addedCards::-webkit-scrollbar {
@@ -48,7 +49,7 @@
     top: 0;
     margin-bottom: 0px;
     padding-bottom: 0px;
-    
+    grid-area: header;
 }
 
 .deckCost {
@@ -58,10 +59,11 @@
 }
 
 .commanderDiv {
-    display: flex;
+    grid-area: commander;
+    display: grid;
     text-align: center;
     justify-content: center;
-    align-items: flex-end;
+    align-items: center;
 }
 
 .checkBox {
@@ -95,6 +97,8 @@ body {
 }
 
 .container {
+    display: flex;
+    flex-direction: column;
     border-left: white solid 4px;
     row-gap: 0;
     height: 100vh;
@@ -115,15 +119,28 @@ body {
     padding-bottom: 0px;
 }
 
+.typeDiv {
+    display: grid;
+    justify-content: center;
+}
+
 .cardDiv {
     width: 180px;
 }
 
 .body {
+    display: grid;
     overflow: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
     height: 100%;
+    grid-template-columns: 33% 33% 33%;
+    grid-template-rows: 5% 40% 55%;
+    grid-template-areas: 
+    ". title ."
+    ". commander graph"
+    "cards cards cards"
+    ;
 }
 
 .body::-webkit-scrollbar {
@@ -176,4 +193,14 @@ input.deckInput[type=text] {
 }
 .deckCount {
     text-align: center;
+}
+
+.graph {
+    display: flex;
+    align-items: center;
+    grid-area: graph;
+}
+
+.subheader {
+    grid-area: title;
 }

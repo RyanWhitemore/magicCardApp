@@ -1,4 +1,4 @@
-import {React, useState} from "react";
+import {React, useEffect, useState} from "react";
 import axios from "axios";
 import Card from "./Card";
 import Header from "./Header";
@@ -48,10 +48,9 @@ const Home = ({
     const [ page, setPage ] = useState(0)
 
 
-    let data = useQuery({queryKey: ["defaultCards", [User, sortValue]], refetchOnWindowFocus: false, queryFn: async () => {
+    let data = useQuery({queryKey: ["defaultCards", [User, sortValue, notChosenColors]], refetchOnWindowFocus: false, queryFn: async () => {
         if (fromDeckBuilder & !isSearched) {
             if (User !=="guest") {
-                console.log("called")
                 setIsCards(true)
                 let results = axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
                 results = await results
@@ -65,8 +64,10 @@ const Home = ({
                 
                 let results = axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
                 results = await results
-                if (results.data.length > 0) {
-                    setPaginatedCards(paginateCards(results.data))
+                console.log(results)
+                results = sortResults(results)
+                if (results.length > 0) {
+                    setPaginatedCards(paginateCards(results))
                     return results
                 } else {
                     setDefaultCards(true)
@@ -109,7 +110,6 @@ const Home = ({
 
     if (collectionData.isSuccess && User !== "guest" & data & !defaultCards) {
         if(data.data) {
-            console.log(data.data.data)
             for (const card of data.data.data) {
                 if (!collectionData.isLoading && collectionData.data) {
                     if (collectionData.data.data.indexOf(card)) {
@@ -154,47 +154,18 @@ const Home = ({
                 })
             }
         }
-        return results
-    }
+        if (results.length >= 0 & fromDeckBuilder ) {
+            results = results.filter((card) => {
+                for (const color of card.color_identity) {
+                    if (notChosenColors.indexOf(color) >= 0) {
+                        return false
+                    }
+                }
+                return true
+            })
+        }
 
-    const sort = (data) => {
-        if (sortValue === "name") {
-            if (!data) {
-                return
-            }
-            if (data) {
-                data = {data: {data: data.sort((a, b) => {
-                    return a.name.localeCompare(b.name)
-                })}}
-            }
-        }
-     
-        if (sortValue === "value") {
-            if (data) {
-                data = data.sort((a, b) => {
-                    if (!a.prices.usd) {
-                        return 1
-                    }
-                    if (!b.prices.usd) {
-                        return -1
-                    }
-                    return b.prices.usd - a.prices.usd
-                })
-            }
-        }
-        
-        if (sortValue === "color") {
-            if (data) {
-                data = data.sort((a, b) => {
-                    
-                    a = a.color_identity.join()
-                    b = b.color_identity.join()
-    
-                    return b.localeCompare(a)
-    
-                })
-            }
-        }
+        return results
     }
      
     
@@ -217,18 +188,8 @@ const Home = ({
     
     if (defaultSet.error) {
         console.log(defaultSet.error.message)
+    
     }
-
-    if (User !== "guest" & !defaultCards) {
-        if (data.data) {
-            sort(data.data.data)
-        }
-    }
-
-    if ((User === "guest" && defaultSet.data) | (defaultCards & defaultSet.data)) {
-        sort(defaultSet.data.data.data)
-    }
-
   
 
     return <>
