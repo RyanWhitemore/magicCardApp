@@ -47,20 +47,24 @@ const CardInDeck = ({
 
     const addCardInDeck = () => {
         if (localStorage.getItem("deckType") === "commander") {
+            if (card.card.type_line.includes("Basic Land")) {
+                setNumInDeck(numInDeck + 1)
+                card.numInDeck = numInDeck + 1
+            }
             return 
         }
         if (numInDeck >= 4) {
             return
         }
         setNumInDeck(numInDeck + 1)
-        card.numInDeck = numInDeck
+        card.numInDeck = numInDeck + 1
     }
 
     const removeCardInDeck = () => {
         console.log(numInDeck)
         if (numInDeck > 1) {
             setNumInDeck(numInDeck -1)
-            card.numInDeck = numInDeck
+            card.numInDeck = numInDeck -1
         } else {
             const newDeck = addedCards.filter((cardInDeck) => {
                 if (card.card.name === cardInDeck.card.name) {
@@ -88,9 +92,11 @@ const CardInDeck = ({
         colorIdentity = card.card.color_identity[0]
     }
 
-    if (card?.card.name.length >= 20) {
+    if (card?.card.name.length >= 17) {
         fontSize = "70%"
     } else if (card.card.color_identity.length === 5) {
+        fontSize = "70%"
+    } else if (card.card.color_identity.length === 3 & card.card.name.length > 15) {
         fontSize = "70%"
     } else {
         fontSize = "100%"

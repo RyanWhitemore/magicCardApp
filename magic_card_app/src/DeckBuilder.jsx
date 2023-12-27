@@ -161,11 +161,13 @@ const DeckBuilder = ({
                 localStorage.setItem("deck", JSON.stringify(JSON.parse(localStorage.getItem("deck")).filter(card => {
                     for (const color of notChosenColors) { 
                         if (card.card.color_identity.indexOf(color) >= 0) {
-                            let newDeckCost = parseFloat(JSON.parse(localStorage.getItem("deckCost")))
-                            newDeckCost = newDeckCost - parseFloat(card.card.prices.usd)
-                            newDeckCost = newDeckCost.toFixed(2)
-                            localStorage.setItem("deckCost", JSON.stringify(newDeckCost))
-                            setDeckCost(JSON.parse(localStorage.getItem("deckCost")))
+                            if (card.prices?.usd) {
+                                let newDeckCost = parseFloat(JSON.parse(localStorage.getItem("deckCost")))
+                                newDeckCost = newDeckCost - parseFloat(card.card.prices.usd)
+                                newDeckCost = newDeckCost.toFixed(2)
+                                localStorage.setItem("deckCost", JSON.stringify(newDeckCost))
+                                setDeckCost(JSON.parse(localStorage.getItem("deckCost")))
+                                }
                             return false
                         }
                     }
@@ -179,6 +181,15 @@ const DeckBuilder = ({
     const handleChange = (e) => {
         setChosenDeckType(e.target.value)
         localStorage.setItem("deckType", e.target.value)
+    }
+
+    const getDeckSum = () => {
+        let sum = 0
+        for (const card of addedCards) {
+            console.log(card.numInDeck)
+            sum += card.numInDeck
+        }
+        return sum
     }
 
     return <>
@@ -260,7 +271,7 @@ const DeckBuilder = ({
                         </div> :
                     <header onDoubleClick={() => setEditable(true)}className={styles.deckName}>{deckName}</header>}
                     <header className={styles.deckCount}>
-                    {addedCards.length}/{chosenDeckType === "commander" ? 99 : 60}
+                    {getDeckSum()}/{chosenDeckType === "commander" ? 99 : 60}
                     </header>
                     {chosenDeckType === "commander" ? <header className={styles.type}>Commander</header> : null}
                         </div>
@@ -290,48 +301,48 @@ const DeckBuilder = ({
                         {cardTypes.map((type) => {
                             let numOfType = addedCards.reduce((sum, card) => {
                                 if (card.card.type_line.indexOf(type) >= 0) {
-                                    sum += 1
+                                    sum += card.numInDeck
                                     return sum
                                 }
                                 return sum
                             }, 0)
-                        return <div key={type} className={styles.typeDiv} style={{
-                           
-                        }}>
+                        return <div className={styles.typeFlex}>
                             <header className={styles.type}>{type} ({numOfType})</header>
-                            {addedCards.map((card) => {
-                                const addedTypes = []
-                                for (const typeToAdd of cardTypes) {
-                                    if (card.card.type_line.indexOf(typeToAdd) >= 0) {
-                                        addedTypes.push(typeToAdd)
+                            <div key={type} className={styles.typeDiv}>
+                                {addedCards.map((card) => {
+                                    const addedTypes = []
+                                    for (const typeToAdd of cardTypes) {
+                                        if (card.card.type_line.indexOf(typeToAdd) >= 0) {
+                                            addedTypes.push(typeToAdd)
+                                        }
                                     }
-                                }
-                                const mana_array = card.card.mana_cost.replace(/[}]/g, "").split("{")
-                                let finalType = null
-                                if (addedTypes.length > 1 & addedTypes[1] === type) {
-                                    finalType = addedTypes[1]
-                                } else {
-                                    finalType = type
-                                }
-                                if (card.card.type_line.indexOf(finalType) >= 0) {
-                                    numOfType += 1
+                                    const mana_array = card.card.mana_cost.replace(/[}]/g, "").split("{")
+                                    let finalType = null
+                                    if (addedTypes.length > 1 & addedTypes[1] === type) {
+                                        finalType = addedTypes[1]
+                                    } else {
+                                        finalType = type
+                                    }
+                                    if (card.card.type_line.indexOf(finalType) >= 0) {
+                                        numOfType += 1
 
-                                    return <>
-                                        <div className={styles.cardInDeckContainer} key={card.card.card_id}>
-                                            <CardInDeck
-                                                fromBuilder={true}
-                                                setAddedCards={setAddedCards}
-                                                addedCards={addedCards}
-                                                mana_array={mana_array}
-                                                card={card}
-                                                deckCost={deckCost}
-                                                setDeckCost={setDeckCost}
-                                            />
-                                        </div>
-                                    </>
-                                }
-                                return null
-                            })}
+                                        return <>
+                                            <div className={styles.cardInDeckContainer} key={card.card.card_id}>
+                                                <CardInDeck
+                                                    fromBuilder={true}
+                                                    setAddedCards={setAddedCards}
+                                                    addedCards={addedCards}
+                                                    mana_array={mana_array}
+                                                    card={card}
+                                                    deckCost={deckCost}
+                                                    setDeckCost={setDeckCost}
+                                                />
+                                            </div>
+                                        </>
+                                    }
+                                    return null
+                                })}
+                            </div>
                         </div>
                     })}
                 </div>

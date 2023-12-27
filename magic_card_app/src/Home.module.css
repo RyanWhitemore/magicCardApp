@@ -84,3 +84,7 @@ body {
   .backButton {
     width: 75px;
   }
+
+  .header {
+    position: sticky;
+  }

@@ -1,0 +1,26 @@
+.graphs {
+    display: flex;
+    flex-direction: column;
+}
+
+.colorlessPip {
+    font-weight: bold;
+    background-color: rgb(202, 197, 192);
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    font-size: small;
+    border-radius: 10px;
+    box-shadow: 0px 1.5px;
+    color: black;
+}
+
+.customToolTip {
+    background-color: rgb(37, 45, 63, 0.8);
+    border-radius: 5px;
+}
+
+.graph {
+    height: 250px;
+    overflow: visible;
+}

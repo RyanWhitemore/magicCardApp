@@ -193,7 +193,7 @@ const Home = ({
   
 
     return <>
-    <div>
+    <div className={styles.header}>
     <Header 
         setLoginClicked={setLoginClicked}  
         loginClicked={loginClicked} 

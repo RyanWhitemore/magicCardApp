@@ -75,9 +75,9 @@ const Card = ({
         }
 
         // function to check if an array contains given object
-        const checkArrayForObj = (obj, array) => {
+        const checkCardArrayForObj = (obj, array) => {
             for (let i =0; i < array.length; i++) {
-                if (array[i] === obj) {
+                if (array[i].card.id === obj.id) {
                     return true
                 }
             }
@@ -137,8 +137,12 @@ const Card = ({
         // function for adding a card to the deck in deckbuilder
         const addCard = (e) => {
             // check if the card is already in the deck and if so do nothing
-            if (checkArrayForObj(card, addedCards)) {
-                return
+            if (checkCardArrayForObj(card, addedCards)) {
+                if (chosenDeckType !== "commander") {
+                    return
+                } else {
+                    return
+                }
             }
             if (card === commander) {
                 return
@@ -147,7 +151,6 @@ const Card = ({
             if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
                 const currentDeck = [...addedCards]
                 currentDeck.push({card: card, numInDeck: 1})
-                console.log(currentDeck)
                 
                 localStorage.setItem("deck", JSON.stringify(currentDeck))
 

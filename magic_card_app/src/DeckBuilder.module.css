@@ -6,7 +6,7 @@
 .addedCards {
     width: 50vw;
     margin-top: 0px;
-    height: 55%;
+    height: 70%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     grid-template-rows: repeat(auto-fill, minmax(100px, (max-content + 10px)));
@@ -101,6 +101,7 @@ body {
     flex-direction: column;
     border-left: white solid 4px;
     row-gap: 0;
+    width: 50vw;
     height: 100vh;
     overflow-y: auto;
     -ms-overflow-style: none;
@@ -197,10 +198,14 @@ input.deckInput[type=text] {
 
 .graph {
     display: flex;
-    align-items: center;
     grid-area: graph;
 }
 
 .subheader {
     grid-area: title;
+}
+
+.typeFlex {
+    display: flex;
+    flex-direction: column;
 }

@@ -26,3 +26,11 @@
     grid-auto-flow: row;
 }
 
+.pageButton {
+    width: 100px;
+}
+
+.buttonDiv {
+    display: flex;
+}
+

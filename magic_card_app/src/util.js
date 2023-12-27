@@ -28,7 +28,7 @@ const paginateCards = (cardArray) => {
             const end = start + 75
             paginatedPages.push(cardArray.slice(start, end))
         }
-        
+    console.log(paginatedPages)
     return paginatedPages 
 }
 
