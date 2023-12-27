@@ -209,3 +209,11 @@ input.deckInput[type=text] {
     display: flex;
     flex-direction: column;
 }
+
+.sample {
+   margin-left: 8px; 
+}
+
+.hand {
+    display: flex;
+}

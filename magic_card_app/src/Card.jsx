@@ -95,7 +95,6 @@ const Card = ({
         const addCommander = () => {
             // initialize array with all possible colors
             const colors = ["G", "B", "U", "R", "W"]
-            console.log(card.id)
             if (card.id === JSON.parse(localStorage.getItem("commander")).id) {
                 return
             }

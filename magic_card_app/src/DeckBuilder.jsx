@@ -7,6 +7,7 @@ import axios from "axios"
 import CardInDeck from "./CardInDeck"
 import { useOutsideAlerter } from "./util"
 import Graph from "./Graph"
+import Popup from "reactjs-popup"
 
 const DeckBuilder = ({
             login,
@@ -41,15 +42,25 @@ const DeckBuilder = ({
     
     const [ editable, setEditable] = useState(false)
 
+    const [ handPopup, setHandPopup ] = useState(false)
+
+    const [ sampleHand, setSampleHand ] = useState([])
+
+    const [ cardToAdd, setCardToAdd ] = useState({})
+
     const user = localStorage.getItem("userID")
 
     const localCommander = localStorage.getItem("commander")
 
     const localIsCommander = localStorage.getItem("isCommander")
 
+    const handRef = useRef(null)
+
     const nameRef = useRef(null)
 
     useOutsideAlerter(nameRef, setEditable)
+
+    useOutsideAlerter(handRef, setHandPopup)
 
     const cardTypes = ["Artifact", "Instant", "Creature", 
         "Enchantment", "Sorcery", "Land", "Basic Land", "Planeswalker",
@@ -186,14 +197,51 @@ const DeckBuilder = ({
     const getDeckSum = () => {
         let sum = 0
         for (const card of addedCards) {
-            console.log(card.numInDeck)
             sum += card.numInDeck
         }
         return sum
     }
 
+    
+    const drawSampleHand = () => {
+        const newSampleHand = []
+        const cardNames = []
+
+        for (const card of addedCards) {
+            for (let i = 0; i < card.numInDeck; i++) {
+                let tempObj = {}
+                tempObj.card = card
+                cardNames.push(tempObj)
+            }
+        }
+
+        for (let i = 0; i < 7; i++) {
+            let index = Math.ceil(Math.random() * cardNames.length)
+            let newCardToAdd = cardNames[index].card
+            if (newSampleHand.indexOf(newCardToAdd) < 0) {
+                newSampleHand.push(newCardToAdd)
+            } else {
+                let index = Math.ceil(Math.random() * cardNames.length)
+                let newCardToAdd = cardNames[index].card
+                newSampleHand.push(newCardToAdd)
+            }
+        }
+
+        setSampleHand(newSampleHand)
+        setHandPopup(true)
+       
+}
+
     return <>
         <div className={styles.flexcontainer}>
+            <Popup open={handPopup}
+            modal><div ref={handRef} className={styles.hand}>
+                {sampleHand.map(card => {
+                    return <Card card={card.card}
+                    withoutButton={true}/>
+                })}
+            </div>
+            </Popup>
             <div className={styles.homediv}>
                 <Home 
                 fromDeckBuilder={true}
@@ -258,6 +306,7 @@ const DeckBuilder = ({
                         <label htmlFor="white">White</label>
                     </div>
                     <button className={styles.save} onClick={saveDeck}>Save deck</button>  
+                    <button className={styles.sample} onClick={drawSampleHand}>Sample Hand</button>
                 </header>
                 <div className={styles.body}>
                     <div className={styles.subheader}>
@@ -349,7 +398,6 @@ const DeckBuilder = ({
             </div>
             </div>
         </div>
-        
     </>
 }
 
