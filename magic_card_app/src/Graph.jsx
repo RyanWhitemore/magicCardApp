@@ -1,5 +1,5 @@
 import styles from "./Graph.module.css"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Label } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Label } from "recharts"
 
 
 
@@ -177,8 +177,9 @@ return <div className={styles.graphs}>
                 <Label value="Mana Pips" offset={-10} position="bottom" stroke="white"/>
             </XAxis>
             <YAxis  tickCount={numManaTicks} stroke="white">
-                <Label value="Number of Pips" angle={-90} stroke="white"/>    
-            </YAxis> 
+                <Label value="Number of Pips" offset={20} position="insideBottomLeft" angle={-90} stroke="white"/>    
+            </YAxis>
+            <Tooltip contentStyle={{ borderRadius: "5px", backgroundColor: "rgb(37, 45, 63, 0.9)"}}/> 
         </BarChart>
     </div>
     <div className={styles.graph}>
@@ -187,7 +188,7 @@ return <div className={styles.graphs}>
                 <Label value="CMC" position="bottom" offset={-7} stroke="white"/>
             </XAxis>
             <YAxis stroke="white" tickCount={numCmcTicks +1 }>
-                <Label value="Number of Cards" stroke="white" angle={-90}/>
+                <Label value="Number of Cards" position="insideBottomLeft" offset={20} stroke="white" angle={-90}/>
             </YAxis>
             <Tooltip content={CustomToolTip} />
             <Bar dataKey="W" stackId="a" fill="rgb(220, 213, 197)"/>

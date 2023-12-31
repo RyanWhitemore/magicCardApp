@@ -43,6 +43,7 @@ const DeckPage = ({
 
     const editdeck = () => {
         const colors = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
+        console.log(localStorage.getItem("deckColorIdentity"))
         const colorIdentity = JSON.parse(localStorage.getItem("deckColorIdentity"))
         const notChosenColors = ["W", "U", "B", "R", "G"]
         for (const color of colorIdentity) {
@@ -55,15 +56,17 @@ const DeckPage = ({
         navigate("/deckbuilder")
     }
 
-    let deckTotalPrice = 0.00
 
+
+    let deckTotalPrice = 0.00
+    let commanderCounted = false
     for (const card of deck) {
-        if (commander) {
-            console.log("called")
+        if (commander & !commanderCounted) {
             deckTotalPrice = parseFloat(deckTotalPrice) + parseFloat(commander.prices.usd)
+            commanderCounted = true
         }
         if (card.card.prices?.usd) {
-            deckTotalPrice = parseFloat(deckTotalPrice) + parseFloat(card.card.prices.usd)
+            deckTotalPrice = parseFloat(deckTotalPrice) + parseFloat(card.card.prices.usd * parseFloat(card.numInDeck))
             console.log(typeof deckTotalPrice)
             deckTotalPrice = deckTotalPrice.toFixed(2)
         }
@@ -141,7 +144,7 @@ const DeckPage = ({
                             <div id="colors" className={styles.colorsMenu}>
                                 {colors.map((color, index) => {
                                     return <>
-                                        <div className={styles.color}>
+                                        <div key={color} className={styles.color}>
                                             <input id={color}
                                             value={color} 
                                             onChange={filterDeckColor}
@@ -157,7 +160,7 @@ const DeckPage = ({
                             <div id="cmc" className={styles.cmcMenu}>
                                 {cmcArray.map(num => {
                                         return <>
-                                            <div className={styles.num}>
+                                            <div key={num} className={styles.num}>
                                                 <input id={num} value={num} onChange={filterDeckCmc} type="checkbox"/>
                                                 <label htmlFor={num}>{num}</label>
                                             </div>
@@ -169,7 +172,7 @@ const DeckPage = ({
                         <div id="type" className={styles.typeMenu}>
                             {cardTypes.map(type => {
                                     return <>
-                                    <div className={styles.type}>
+                                    <div key={type} className={styles.type}>
                                         <input value={type} 
                                         id={type} 
                                         onChange={filterDeckType} type="checkbox"/>
@@ -196,7 +199,7 @@ const DeckPage = ({
             <div className={styles.graph}><Graph/></div>
         </div>
         <div className={styles.cardDiv}>
-            {cardTypes.map(type => {
+            {cardTypes.map((type, index) => {
                 if (typeArray.length > 0) {
                     if (typeArray.indexOf(type) < 0) {
                         return null
@@ -209,7 +212,7 @@ const DeckPage = ({
                     }
                     return sum
                 }, 0)
-                return <div className={styles.typeDiv}>
+                return <div key={index + type} className={styles.typeDiv}>
                             <header>{type} ({numOfType})</header>
                             {deck.map(card => {
                                 if (cmc.indexOf(card.card.cmc.toString()) < 0 && cmc.length > 0) {
@@ -232,15 +235,17 @@ const DeckPage = ({
                                 }
                                 const mana_array = card.card.mana_cost.replace(/[}]/g, "").split("{")
                                 if (card.card.type_line.indexOf(type) >= 0) {
-                                    return <CardInDeck
-                                        fromBuilder={false}
-                                        mana_array={mana_array}
-                                        card={card}
-                                        addedCards={addedCards}
-                                        setAddedCards={setAddedCards}
-                                        deckCost={deckCost}
-                                        setDeckCost={setDeckCost}
-                                    />
+                                    return <div key={card.card.id}>
+                                            <CardInDeck
+                                            fromBuilder={false}
+                                            mana_array={mana_array}
+                                            card={card}
+                                            addedCards={addedCards}
+                                            setAddedCards={setAddedCards}
+                                            deckCost={deckCost}
+                                            setDeckCost={setDeckCost}
+                                            />
+                                        </div>
                                 } else {
                                     return null
                                 }

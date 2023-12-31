@@ -42,9 +42,6 @@ const Header = ({
     const searchByName = async (e) => {
         try {
             setDefaultCards(null)
-            if (fromMyCards) {
-                const results = await axios.get("https://")
-            }
             const results = await axios.get("https://api.scryfall.com/cards/search?q=" + search )
             const collectionResults = await axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getcards/` + user)
             for (const result of results.data.data) {
@@ -171,9 +168,9 @@ const Header = ({
                 <span className={styles.divider}></span>
                 <div className={styles.section4}>
                     <select id={"sort options"}onChange={sort}>
-                        <option value={"name"} defaultValue>Name</option>
-                        <option value={"color"}>Color</option>
-                        <option value={"value"}>Value</option>
+                        <option key="name" value={"name"} defaultValue>Name</option>
+                        <option key="color" value={"color"}>Color</option>
+                        <option key="vlue" value={"value"}>Value</option>
                     </select>
                 </div>
                 {collectionTotalPrice > 0 ? <div className={styles.section5}>

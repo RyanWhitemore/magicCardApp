@@ -39,7 +39,8 @@ const Card = ({
             setNotChosenColors,
             setChosenColors,
             commander,
-            numberOfType
+            numberOfType,
+            inHand
         }) => {
         
         // initialize variables for various buttons
@@ -353,8 +354,8 @@ const Card = ({
                             ref={wrapperRef}
                         />
                     </Popup>
-                    {card.prices?.usd ? <p className="price"
-                    >${card.prices.usd}</p> : <p>Price Unavailable</p>}
+                    { card.prices?.usd ? !inHand && <p className="price"
+                    >${card.prices.usd}</p> : !inHand && <p>Price Unavailable</p>}
                     {fromMyCards && <>
                         <div className="addAndRemove">
                             <button 

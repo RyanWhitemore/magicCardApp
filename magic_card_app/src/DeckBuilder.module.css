@@ -6,7 +6,7 @@
 .addedCards {
     width: 50vw;
     margin-top: 0px;
-    height: 70%;
+    height: 90%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     grid-template-rows: repeat(auto-fill, minmax(100px, (max-content + 10px)));
@@ -216,4 +216,78 @@ input.deckInput[type=text] {
 
 .hand {
     display: flex;
+    
+    align-items: center;
+    border-radius: 5px;
+    justify-content: center;
+    grid-area: hand;
+}
+
+.listInput {
+    height: 10vh;
+    width: 18vw;
+}
+
+.listPopup {
+    display: flex;
+    flex-direction: column;
+    width: 20vw;
+    align-items: center;
+    background-color: rgb(37, 45, 63, 0.9);
+    border-radius: 5px;
+    border: solid 1px white
+}
+
+.fishBowl {
+    display: grid;
+    grid-template-areas: 
+        "in-play ."
+        "lands graveyard"
+        "hand deck"
+    ;
+    grid-template-columns: 75% 25%;
+    grid-template-rows: 33% 33% 33%;
+    background-color: rgb(37, 45, 63);
+    width: 100vw;
+    height: 90vh;
+    border: 1px solid white;
+}
+
+.inPlay {
+    grid-area: in-play;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.graveyard {
+    grid-area: graveyard;
+}
+
+.cardBack {
+    width: 180px
+}
+
+.deck {
+    display: flex;
+    grid-area: deck;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.drawButton {
+    width: 180px;
+}
+
+.lands {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-area: lands;
 }

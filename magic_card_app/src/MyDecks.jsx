@@ -49,33 +49,51 @@ const MyDecks = ({
 
     const navigate = useNavigate()
 
-    const openDeck = async (deck) => {
+    const getDeck = async (deck) => {
         const deckToOpen = []
         for (const card of deck.cards) {
-            let cardToAdd = axios.get(`https://api.scryfall.com/cards/${card.card}`) 
+            let cardToAdd = axios.get(`https://api.scryfall.com/cards/${card.card}`)
             cardToAdd = await cardToAdd
             deckToOpen.push({card: cardToAdd.data, numInDeck: card.numInDeck})
         }
+        return deckToOpen
+    }
+
+    const getCommander = async (commander) => {
+        const commanderToAdd = await axios.get(`https://api.scryfall.com/cards/${commander}`)
+        return commanderToAdd
+    }
+
+    const setUpDeck = (deck, deckToOpen, commander) => {
+        try {
+            localStorage.setItem("deck", JSON.stringify(deckToOpen))
+            if(commander) {
+                localStorage.setItem("commander", JSON.stringify(commander.data))
+            } else {
+                localStorage.setItem("commander", JSON.stringify(false))
+            }
+            localStorage.setItem("deckID", deck.deckID)
+            localStorage.setItem("deckNAme", deck.deckName)
+            localStorage.setItem("deckType", deck.deckType)
+            localStorage.setItem('deckColorIdentity', JSON.stringify(deck.colorIdentity))
+            return true
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    const openDeck = async (deck) => {
+        const deckToOpen = await getDeck(deck)
 
         let commander = false
 
         if (deck.commander) {
-            commander = await axios.get(`https://api.scryfall.com/cards/${deck.commander}`)
+            commander = await getCommander(deck.commander)
         }
 
-
-        localStorage.setItem("deck", JSON.stringify(deckToOpen))
-        if (commander) {
-            console.log(commander)
-            localStorage.setItem("commander", JSON.stringify(commander.data))
-        } else {
-            localStorage.setItem("commander", JSON.stringify(false))
+        if (setUpDeck(deck, deckToOpen, commander)) {
+            return navigate("/deckpage")
         }
-        localStorage.setItem("deckID", deck.deckID)
-        localStorage.setItem("deckName", deck.deckName)
-        localStorage.setItem("deckType", deck.deckType)
-        localStorage.setItem("deckColorIdentity",  JSON.stringify(deck.colorIdentity))
-        navigate("/deckpage")
     }
 
     const createDeckID = () => {

@@ -50,6 +50,10 @@ const CardInDeck = ({
             if (card.card.type_line.includes("Basic Land")) {
                 setNumInDeck(numInDeck + 1)
                 card.numInDeck = numInDeck + 1
+                if (card.card.prices) {
+                    let newDeckCost = parseFloat(deckCost) + parseFloat(card.card.prices.usd)
+                    setDeckCost(newDeckCost.toFixed(2))
+                }
             }
             return 
         }
@@ -58,13 +62,20 @@ const CardInDeck = ({
         }
         setNumInDeck(numInDeck + 1)
         card.numInDeck = numInDeck + 1
+        if (card.card.prices) {
+            let newDeckCost = parseFloat(deckCost) + parseFloat(card.card.prices.usd)
+            setDeckCost(newDeckCost.toFixed(2))
+        }
     }
 
     const removeCardInDeck = () => {
-        console.log(numInDeck)
         if (numInDeck > 1) {
             setNumInDeck(numInDeck -1)
             card.numInDeck = numInDeck -1
+            if (card.card.prices) {
+                let newDeckCost = parseFloat(deckCost) - parseFloat(card.card.prices.usd)
+                setDeckCost(newDeckCost.toFixed(2))
+            }
         } else {
             const newDeck = addedCards.filter((cardInDeck) => {
                 if (card.card.name === cardInDeck.card.name) {
@@ -72,6 +83,7 @@ const CardInDeck = ({
                 }
                 return true
             })
+            console.log(card.card.prices.usd)
             setAddedCards(newDeck)
             localStorage.setItem("deck", JSON.stringify(newDeck))
             if (card.card.prices) {
@@ -117,27 +129,27 @@ const CardInDeck = ({
 
                 style={{fontSize: fontSize}}>{card?.card.name} </p> 
             <div className={styles.manaSection}>
-            {mana_array.map((pip) => {
+            {mana_array.map((pip, index) => {
                 if (pip === "") {
                     return null
                 }
                     if (pip >= 0) {
-                        return <p className={styles.manaPip}>{pip}</p>
+                        return <p key={"colorless" + card.card.id + index} className={styles.manaPip}>{pip}</p>
                     }
                     if (pip === "U") {
-                        return <img className={styles.pipImage} alt="blue pip" src={"/bluePip.png"} width="15px" height="15px"/>
+                        return <img key={"blue" + card.card.id + index} className={styles.pipImage} alt="blue pip" src={"/bluePip.png"} width="15px" height="15px"/>
                     }
                     if (pip === "G") {
-                        return <img className={styles.pipImage} alt="green pip" src={"/greenPip.png"} width="15px" height="15px"/>
+                        return <img key={"green" + card.card.id + index} className={styles.pipImage} alt="green pip" src={"/greenPip.png"} width="15px" height="15px"/>
                     }
                     if (pip === "B") {
-                        return <img className={styles.pipImage} alt="Black pip" src="/blackPip.png" width={"15px"} height="15px"/>
+                        return <img key={"black" + card.card.id + index} className={styles.pipImage} alt="Black pip" src="/blackPip.png" width={"15px"} height="15px"/>
                     }
                     if (pip === "W") {
-                        return <img className={styles.pipImage} alt="white pip" src="/whitePip.png" width={"15px"} height="15px"/>
+                        return <img key={"white" + card.card.id + index} className={styles.pipImage} alt="white pip" src="/whitePip.png" width={"15px"} height="15px"/>
                     }
                     if (pip === "R") {
-                        return <img className={styles.pipImage} alt="Red pip" src="/redPip.png" width={"15px"} height="15px"/>
+                        return <img key={"red" + card.card.id + index} className={styles.pipImage} alt="Red pip" src="/redPip.png" width={"15px"} height="15px"/>
                     }
                     return null
                 })}

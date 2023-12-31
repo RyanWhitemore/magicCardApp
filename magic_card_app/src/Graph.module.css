@@ -18,6 +18,7 @@
 .customToolTip {
     background-color: rgb(37, 45, 63, 0.8);
     border-radius: 5px;
+    border: solid 1px white;
 }
 
 .graph {
