@@ -40,7 +40,9 @@ const Card = ({
             setChosenColors,
             commander,
             numberOfType,
-            inHand
+            inHand,
+            inPlay,
+            setMana,
         }) => {
         
         // initialize variables for various buttons
@@ -63,6 +65,8 @@ const Card = ({
         const [ showAdded, setShowAdded ] = useState(false)
 
         const [ message, setMessage ] = useState('')
+
+        const [ tapped, setTapped ] = useState(false)
 
         const isLoggedIn = userID === "guest" ? false : true 
 
@@ -319,6 +323,7 @@ const Card = ({
                         width="180px"
                         src={card.image_uris.border_crop} 
                         alt={card.name}
+                        style={{transform: tapped ? 'rotate(90deg)' : 'none'}}
                     ></img>
                     {addButton} 
                     {commanderButton}
@@ -375,6 +380,17 @@ const Card = ({
                             }}>-</button>
                         </div>
                     </>}
+                    {inPlay ? <button onClick={() => {
+                        if (card.oracle_text.includes("{T}: Add") & !tapped) {
+                            if (card.oracle_text.includes("Add one mana of any color in your commander's color identity")) {
+                                console.log("Choose Mana color")
+                            }
+                            if (card.oracle_text.includes("Add once mana of any color")) {
+                                console.log("Choose Mana Color")
+                            }
+                        }
+                        setTapped(!tapped)
+                }}>Tap</button> : null}
                 </div>
         </>
 

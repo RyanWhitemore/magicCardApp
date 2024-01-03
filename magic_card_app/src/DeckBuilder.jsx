@@ -8,6 +8,7 @@ import CardInDeck from "./CardInDeck"
 import { useOutsideAlerter } from "./util"
 import Graph from "./Graph"
 import Popup from "reactjs-popup"
+import { useNavigate } from "react-router-dom"
 
 const DeckBuilder = ({
             login,
@@ -42,31 +43,17 @@ const DeckBuilder = ({
     
     const [ editable, setEditable] = useState(false)
 
-    const [ handPopup, setHandPopup ] = useState(false)
-
-    const [ sampleHand, setSampleHand ] = useState([])
-
     const [ listPopup, setListPopup ] = useState(false)
-
-    const [ cardsInPlay, setCardsInPlay ] = useState([])
 
     const [ listInput, setListInput ] = useState("")
 
-    const [ landsInPlay, setLandsInPlay ] = useState([])
-
-    const [ cardNames, setCardNames ] = useState([])
-
-    const [ discardPile, setDiscardPile ] = useState([])
-    
-    const [ deckShuffled, setDeckShuffled ] = useState([])
+    const navigate = useNavigate()
 
     const user = localStorage.getItem("userID")
 
     const localCommander = localStorage.getItem("commander")
 
     const localIsCommander = localStorage.getItem("isCommander")
-
-    const fishbowlRef = useRef(null)
 
     const nameRef = useRef(null)
 
@@ -75,8 +62,6 @@ const DeckBuilder = ({
     useOutsideAlerter(listRef, setListPopup)
 
     useOutsideAlerter(nameRef, setEditable)
-
-    useOutsideAlerter(fishbowlRef, setHandPopup)
 
     const cardTypes = ["Artifact", "Instant", "Creature", 
         "Enchantment", "Sorcery", "Land", "Basic Land", "Planeswalker",
@@ -237,52 +222,6 @@ const DeckBuilder = ({
         return sum
     }
 
-    useEffect(() => {
-        if (handPopup === false) {
-            for (const card of addedCards) {
-                let tempObj = {}
-                tempObj.card = card
-                setCardNames(oldArray => [...oldArray, tempObj])
-        }
-    }}, [addedCards, handPopup])
-    
-    const drawSampleHand = async () => {
-        const shuffleDeck = (deck) => {
-            const deckToShuffle = deck.slice(0)
-            for (const card of deck) {
-                if (card.numInDeck > 1) {
-                    for (let i = 0; i < card.numInDeck - 1; i++) {
-                        deckToShuffle.push(card)
-                    }
-                }
-            }
-            
-            for (let i = deckToShuffle.length - 1; i > 0; i--) {
-                const index = Math.floor(Math.random() * (i + 1));
-                const temp = deckToShuffle[i]
-                deckToShuffle[i] = deckToShuffle[index]
-                deckToShuffle[index] = temp
-            }
-
-            return deckToShuffle
-        }
-
-        setDeckShuffled(shuffleDeck(addedCards))
-
-        const newSampleHand = []       
-        if (deckShuffled.length > 0) {
-            let updatedShuffledDeck = deckShuffled.slice(0)
-            for (let i = 0; i < 7; i++) {
-                const newCardToAdd = updatedShuffledDeck[0]
-                updatedShuffledDeck = updatedShuffledDeck.slice(1)
-                newSampleHand.push(newCardToAdd)
-            }
-            setDeckShuffled(updatedShuffledDeck)
-            setSampleHand(newSampleHand)
-            setHandPopup(true)
-        }
-    }
-
     const massEntry = async (input) => {
         const cardList = input.split(/r?(?<=[a-z A-Z])\n(?=[a-z A-Z])/)
         console.log(cardList)
@@ -301,75 +240,6 @@ const DeckBuilder = ({
 
     return <>
         <div className={styles.flexcontainer}>
-            <Popup open={handPopup}
-            modal>
-                <div ref={fishbowlRef} className={styles.fishBowl}>
-                    <div className={styles.inPlay}>
-                        {cardsInPlay.map((card, index) => {
-                            return <div className={styles.card}>
-                                <Card card={card.card}
-                                    withoutButton={true}
-                                    inHand={true}/>
-                                <button onClick={() => {
-                                    setDiscardPile(oldArray => [card, ...oldArray])
-                                    setCardsInPlay(oldArray => oldArray.splice(index, 1))
-                                }}>Send To Graveyard</button>
-                                <button>Send To Exile</button>
-                            </div>
-                        })}
-                    </div>
-                    <div className={styles.lands}>
-                        {landsInPlay.map((card, index) => {
-                            return <div className={styles.card}>
-                                    <Card card={card.card}
-                                    withoutButton={true}
-                                    inHand={true}/>
-                                <button onClick={() => {
-                                        setDiscardPile(oldArray => [card, ...oldArray])
-                                        setLandsInPlay(oldArray => oldArray.splice(index, 1))
-                                }}>Send To Graveyard</button>
-                                <button>Send To Exile</button>
-                            </div>
-                        })}
-                    </div>
-                    <div className={styles.graveyard}>
-                        {discardPile.length > 0 ? <Card
-                            card={discardPile[0].card}
-                            withoutButton={true}
-                            inHand={true}
-                        /> : null}
-                    </div>
-                    <div className={styles.deck}>
-                        <img className={styles.cardBack} alt="cardBack" src="/cardBack.png" />
-                        <button className={styles.drawButton} onClick={() => {
-                            let updatedShuffledDeck = deckShuffled.slice(0)
-                            const newCardToAdd = updatedShuffledDeck[0]
-                            updatedShuffledDeck = updatedShuffledDeck.slice(1)
-
-                            setDeckShuffled(updatedShuffledDeck)
-                            setSampleHand(oldArray => [...oldArray, newCardToAdd])
-                        }}>Draw Card</button>
-                    </div>
-                    <div className={styles.hand}>
-                    {sampleHand.map((card, index) => {
-                        return <div className={styles.card}>
-                            <Card card={card.card}
-                        withoutButton={true}
-                        inHand={true}/>
-                        <button onClick={() => {
-                            sampleHand.splice(index, 1)
-                            if (card.card.type_line.includes("Land")) {
-                                console.log("called")
-                                setLandsInPlay(oldArray => [...oldArray, card])
-                            } else {
-                                setCardsInPlay(oldArray => [...oldArray, card])
-                            }
-                        }}>Play Card</button>
-                        </div>
-                    })}
-                    </div>
-                </div>
-            </Popup>
             <Popup open={listPopup}>
                 <div ref={listRef} className={styles.listPopup}>
                     <p>List Card Names Pressing Enter After Each</p>
@@ -441,7 +311,7 @@ const DeckBuilder = ({
                         <label htmlFor="white">White</label>
                     </div>
                     <button className={styles.save} onClick={saveDeck}>Save deck</button>  
-                    <button className={styles.sample} onClick={drawSampleHand}>Sample Hand</button>
+                    <button className={styles.sample} onClick={() => navigate("/fishbowl")}>FishBowl</button>
                     <button className={styles.listAdd} onClick={() => setListPopup(true)}>Add Multiple Cards</button>
                 </header>
                 <div className={styles.body}>

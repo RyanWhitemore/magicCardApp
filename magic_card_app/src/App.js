@@ -8,6 +8,7 @@ import { Register } from './Register';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import MyDecks from './MyDecks';
 import DeckPage from "./DeckPage.jsx"
+import FishBowl from './Fishbowl.jsx';
 
 function App() {
 
@@ -101,7 +102,32 @@ function App() {
             password={password}
             setPassword={setPassword}
             setUsername={setUsername}/>}/>
-            <Route exact path="DeckPage" element={<DeckPage/>}/>
+            <Route exact path="DeckPage" element={<DeckPage/>}
+            login={login}
+            defaultCards={defaultCards}
+            setDefaultCards={setDefaultCards}
+            setIsCards={setIsCards}
+            isCards={isCards}
+            loginClicked={loginClicked}
+            setLoginClicked={setLoginClicked}
+            username={username}
+            password={password}
+            setPassword={setPassword}
+            setUsername={setUsername}
+            />
+            <Route exact path="fishbowl" element={<FishBowl/>}
+            login={login}
+            defaultCards={defaultCards}
+            setDefaultCards={setDefaultCards}
+            setIsCards={setIsCards}
+            isCards={isCards}
+            loginClicked={loginClicked}
+            setLoginClicked={setLoginClicked}
+            username={username}
+            password={password}
+            setPassword={setPassword}
+            setUsername={setUsername}
+            />
           </Routes> 
         </BrowserRouter>
       </QueryClientProvider>
