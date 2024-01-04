@@ -46,12 +46,14 @@ const FishBowl = () => {
 
     useOutsideAlerter(exileRef, setExilePopup)
 
-    const shuffleDeck = (deck) => {
+    const shuffleDeck = (deck, totalShuffle) => {
         const deckToShuffle = deck.slice(0)
-        for (const card of deck) {
-            if (card.numInDeck > 1) {
-                for (let i = 0; i < card.numInDeck - 1; i++) {
-                    deckToShuffle.push(card)
+        if (totalShuffle) {
+            for (const card of deck) {
+                if (card.numInDeck > 1) {
+                    for (let i = 0; i < card.numInDeck - 1; i++) {
+                        deckToShuffle.push(card)
+                    }
                 }
             }
         }
@@ -157,7 +159,7 @@ const FishBowl = () => {
     }
 
     const playCommander = () => {
-        setCardsInPlay(oldArray => [...oldArray, {card: commander}])
+        setCardsInPlay(oldArray => [...oldArray, {card: commander, commander: true}])
         setCommander(false)
         setCommanderInPlay(false)
         
@@ -171,7 +173,7 @@ const FishBowl = () => {
     <Popup open={graveyardPopup}
     modal>
         <div ref={graveyardRef} className={styles.graveyardPopup}>
-            {discardPile.map(card => {
+            {discardPile.map((card, index) => {
                 return <div className={styles.card}>
                     <Card
                         card={card.card}
@@ -185,8 +187,7 @@ const FishBowl = () => {
                         discardPileToSet.splice(indexToRemove, 1)
                     
                         setDiscardPile(discardPileToSet)
-                        setCardsInPlay(oldArray => [...oldArray, card]
-                            )
+                        playCard(card, index)
                     }}>
                         Cast From Graveyard
                     </button>
@@ -200,6 +201,15 @@ const FishBowl = () => {
                         setDiscardPile(discardPileToSet)
                         setExile(oldArray => [...oldArray, card])
                     }}>Exile From Graveyard</button>
+                    <button className={styles.drawButton} onClick={() => {
+                        const newDiscardPile = discardPile.slice(0)
+                        newDiscardPile.splice(index, 1)
+                        
+                        setDiscardPile(newDiscardPile)
+                        setSampleHand(oldArray => [...oldArray, card])
+                    }}>
+                        Put In Hand
+                    </button>
                 </div>
             })}
         </div>
@@ -229,6 +239,12 @@ const FishBowl = () => {
     </Popup>
     <Popup open={libraryPopup}>
             <div ref={libraryRef} className={styles.libraryPopup}>
+                <button className={styles.drawButton} onClick={() => {
+                    setLibraryPopup(false)
+                    shuffleDeck(deckShuffled)
+                }}>
+                    Suffle Deck
+                </button>
                 {deckShuffled.map((card, index) => {
                     return <div className={styles.cardWithButtons}>
                         <Card
@@ -281,6 +297,15 @@ const FishBowl = () => {
                 }}>
                     Send To Exile
                 </button>
+                {card.commander ? <button className={styles.drawButton} onClick={() => {
+                    const newCardsInPlay =  cardsInPlay.slice(0)
+                    newCardsInPlay.splice(index, 1)
+
+                    setCardsInPlay(newCardsInPlay)
+                    setCommander(card.card)
+                }}>
+                    Send To Command Zone
+                </button> : null}
             </div>
         })}
     </div>
@@ -300,29 +325,43 @@ const FishBowl = () => {
                     withoutButton={true}
                     inHand={true}
                     inPlay={true}/>
-                <button onClick={() => {
-                        setDiscardPile(oldArray => [card, ...oldArray])
-                        setLandsInPlay(oldArray => oldArray.splice(index, 1))
+                <button className={styles.drawButton} onClick={() => {
+                    const newLandsInPlay = landsInPlay.slice(0)
+                    newLandsInPlay.splice(index, 1)
+                    
+                    sendCardToGraveyard(card, index)
+                    setLandsInPlay(newLandsInPlay)
                 }}>Send To Graveyard</button>
-                <button onClick={() => {
+                <button className={styles.drawButton} onClick={() => {
                     sendCardToExile(card, index)
                 }}>Send To Exile</button>
             </div>
         })}
     </div>
-    <div className={styles.exile}>
-        { exile.length > 0 ? <Card
-            card={exile[0].card}
-            withoutButton={true}
-            inHand={true}
-        /> : null}
-        <button className={styles.drawButton} onClick={() => {
-            setExilePopup(true)
-        }}>
-            View Exile
-        </button>
+    <div className={styles.graveyardExile}>
+        <div className={styles.exile}>
+            { exile.length > 0 ? <Card
+                card={exile[0].card}
+                withoutButton={true}
+                inHand={true}
+            /> : null}
+            <button className={styles.drawButton} onClick={() => {
+                setExilePopup(true)
+            }}>
+                View Exile
+            </button>
+        </div>
+        <div className={styles.graveyard}>
+            {discardPile.length > 0 ? <Card
+                card={discardPile[0].card}
+                withoutButton={true}
+                inHand={true}
+            /> : null}
+            <button onClick={() => setGraveyardPopup(true)}
+            className={styles.drawButton}>View Graveyard</button>
+        </div>
     </div>
-    <div className={styles.artifactsEnchanments}>
+    <div className={styles.artifactsEnchantments}>
         {artifactsEnchanments.map((card, index) => {
             return <div className={styles.card}>
                 <Card
@@ -340,15 +379,6 @@ const FishBowl = () => {
             </div>
         })}
     </div>
-    <div className={styles.graveyard}>
-        {discardPile.length > 0 ? <Card
-            card={discardPile[0].card}
-            withoutButton={true}
-            inHand={true}
-        /> : null}
-        <button onClick={() => setGraveyardPopup(true)}
-        className={styles.drawButton}>View Graveyard</button>
-    </div>
     <div className={styles.deck}>
         <img className={styles.cardBack} alt="cardBack" src="/cardBack.png" />
         <button className={styles.drawButton} onClick={() => {
@@ -361,7 +391,7 @@ const FishBowl = () => {
         }}>Draw Card</button>
         <button className={styles.drawButton} onClick={drawHand}>Draw Hand</button>
         <button className={styles.drawButton} onClick={() => {
-            shuffleDeck(deck); 
+            shuffleDeck(deck, true); 
             setSampleHand([])
             setArtifactsEnchantments([])
             setCardsInPlay([])
@@ -381,18 +411,26 @@ const FishBowl = () => {
         inHand={true}/>
         <button onClick={() => {
             sampleHand.splice(index, 1)
-            if (card.card.type_line.includes("Land")) {
-                setLandsInPlay(oldArray => [...oldArray, card])
-            } else if ((card.card.type_line.includes("Artifact") & !card.card.type_line.includes("Creature")) | 
-            (card.card.type_line.includes("Enchantment") & !card.card.type_line.includes("creature"))) {
-                setArtifactsEnchantments(oldArray => [...oldArray, card])
-            } else if (card.card.type_line.includes("Sorcery") | 
-            card.card.type_line.includes("Instant")) {
-                setDiscardPile(oldArray => [card, ...oldArray])
-            } else {
-                setCardsInPlay(oldArray => [...oldArray, card])
-            }
+            playCard(card, index)
         }}>Play Card</button>
+        <button className={styles.drawButton} onClick={() => {
+            const newSampleHand = sampleHand.slice(0)
+            newSampleHand.splice(index, 1) 
+
+            setSampleHand(newSampleHand)
+            sendCardToGraveyard(card, index)
+        }}>
+            Discard Card
+        </button>
+        <button className={styles.drawButton} onClick={() => {
+            const newSampleHand = sampleHand.slice(0)
+            newSampleHand.splice(index, 1)
+
+            setSampleHand(newSampleHand)
+            sendCardToExile(card, index)
+        }}>
+            Exile Card
+        </button>
         </div>
     })}
     </div>
