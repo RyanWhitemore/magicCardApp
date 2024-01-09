@@ -9,6 +9,28 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import MyDecks from './MyDecks';
 import DeckPage from "./DeckPage.jsx"
 import FishBowl from './Fishbowl.jsx';
+import { createTheme, ThemeProvider } from '@mui/material';
+import AddCards from './AddCards';
+
+export const ThemeOptions = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#4a148c',
+    },
+    warning: {
+      main: '#ed6c02',
+    },
+    background: {
+      default: 'rgb(37, 45, 63)',
+    },
+  },
+});
+
+
 
 function App() {
 
@@ -46,7 +68,7 @@ function App() {
 }
 
   return (
-    <>
+    <ThemeProvider theme={ThemeOptions}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Routes>
@@ -128,10 +150,12 @@ function App() {
             setPassword={setPassword}
             setUsername={setUsername}
             />
+            <Route exact path="addcards" element={<AddCards/>}
+            />
           </Routes> 
         </BrowserRouter>
       </QueryClientProvider>
-    </>
+    </ThemeProvider>
   );
 }
 

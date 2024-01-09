@@ -1,9 +1,0 @@
-
-#main {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 1rf);
-  grid-template-rows: repeat(auto-fill, auto);
-  font-family: sans-serif;
-}
-
-

@@ -1,8 +1,29 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import styles from "./header.module.css"
 import axios from "axios"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Popup from "reactjs-popup"
+import { useTheme } from "@emotion/react"
+import Toolbar from "@mui/material/Toolbar"
+import AppBar from "@mui/material/AppBar"
+import IconButton from "@mui/material/IconButton"
+import List from "@mui/material/List"
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Button from "@mui/material/Button"
+import Box from "@mui/material/Box"
+import Drawer from "@mui/material/Drawer"
+import { useOutsideAlerter } from "./util"
+import FormControl from "@mui/material/FormControl"
+import InputLabel from "@mui/material/InputLabel"
+import Select from "@mui/material/Select"
+import MenuItem from "@mui/material/MenuItem"
+import InputBase from "@mui/material/InputBase"
+import SearchIcon from "@mui/icons-material/Search"
+import Paper from "@mui/material/Paper"
+import { Autocomplete, Divider, TextField, useMediaQuery } from "@mui/material"
+import MenuIcon from "@mui/icons-material/Menu"
 
 const Header = ({
         fromHome, 
@@ -14,11 +35,18 @@ const Header = ({
         setIsSearched,
         fromMyCards,
         setSortValue,
+        sortValue, 
         username,
         password,
         setUsername,
         setPassword,
-        login
+        login,
+        fromDeckBuilder,
+        fromMyDecks,
+        fromLandingPage,
+        fromAddCards,
+        searchedCards,
+        setSearchedCards
     }) => {
 
     const user = localStorage.getItem("userID")
@@ -26,6 +54,8 @@ const Header = ({
     const [ suggestions, setSuggestions ] = useState([])
 
     const [ search, setSearch ] = useState("")
+
+    const [ phoneDrawer, setPhoneDrawer] = useState(false)
 
     const changePassword = (e) => {
         e.preventDefault()
@@ -39,9 +69,24 @@ const Header = ({
         setUsername(e.target.value)
     }
 
+    const navigate = useNavigate()
+
+    const theme = useTheme()
+
+    const [ drawer, setDrawer ] = useState(false)
+
+    const loginRef = useRef(null)
+
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"))
+    const isMediumScreen = useMediaQuery(theme.breakpoints.between("md", "lg"))
+
+    useOutsideAlerter(loginRef, setLoginClicked)
+
     const searchByName = async (e) => {
         try {
-            setDefaultCards(null)
+            if (!fromAddCards) {
+                setDefaultCards(null)
+            }
             const results = await axios.get("https://api.scryfall.com/cards/search?q=" + search )
             const collectionResults = await axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getcards/` + user)
             for (const result of results.data.data) {
@@ -51,8 +96,14 @@ const Header = ({
                     }
                 }
             }
-            setIsSearched(true)
-            setCards(results.data.data)
+            console.log("reached")
+            if (fromAddCards) {
+                console.log(results.data.data)
+                setSearchedCards(results.data.data)
+            } else {
+                setIsSearched(true)
+                setCards(results.data.data)
+            }
         } catch (err) {
             return <>
                 <form onSubmit={(e) => {e.preventDefault(); searchByName(e)}}>
@@ -107,98 +158,260 @@ const Header = ({
         setSortValue(e.target.value)
     }
 
+    const menuList = [
+        "Home", "My Cards", "My Decks", "Add To Collection"
+    ]
 
-    return <>
-        <header className={styles.header}>
-        <Popup 
-            open={loginClicked} 
-            modal
-            nested    
-        >   
-            {close => (
-                <div className="modal">
-                    <div className={"header"}>Login</div>
-                    <button className={"close"} onClick={() => {close(); setLoginClicked(!loginClicked)}}>
-                        &times;
-                    </button>
-                    <div className={"content"}>
-                        <form onSubmit={login}>
-                            <div className={"username"}>
-                                <input 
-                                    type="text" 
-                                    onChange={changeUsername} 
-                                    placeholder="username">
-                                </input>
-                            </div>
-                            <div className={"password"}>
-                                <input 
-                                    type="text" 
-                                    onChange={changePassword} 
-                                    placeholder="password">
-                                </input>
-                            </div>
-                            <button className={"loginbutton"} type="submit">Login</button>
-                        </form>
-                    </div>
+    const handleSearch = (e) => {
+        if (fromAddCards | fromHome) {
+            searchByName(e)
+            setSearch("")
+        } else if (fromMyCards) {
+            searchMyCards(e)
+            setSearch("")
+        }
+    }
 
-                </div>    
-            )}
-        
-        </Popup>
-            <div className={styles.container}>
-                <div className={styles.section}>
-                    <Link className={styles.home} to="/" >Home</Link>
-                </div>
-                <span className={styles.divider}></span>
-                <div className={styles.section2}>
-                    <Link className={styles.mycards} to="/mycards">My Cards</Link>
-                </div>
-                <span className={styles.divider}></span>
-                <div className={styles.section3}>
-                    <Link className={styles.link} to="/mydecks">My Decks</Link>
-                </div>
-                <span className={styles.divider}></span>
-                {localStorage.getItem("userID") === "guest" && <div className={styles.login}>
-                    <button className={styles.loginbutton} onClick={() => {setLoginClicked(!loginClicked);}}>Login</button>
-                    <Link className={styles.register} to="/register">Register</Link>
-                </div>}
-                {localStorage.getItem("userID") !== "guest" && <div className={styles.logout}>
-                    <button className={styles.logoutbutton}onClick={logout}>Logout</button>
-                </div>}
-                <span className={styles.divider}></span>
-                <div className={styles.section4}>
-                    <select id={"sort options"}onChange={sort}>
-                        <option key="name" value={"name"} defaultValue>Name</option>
-                        <option key="color" value={"color"}>Color</option>
-                        <option key="vlue" value={"value"}>Value</option>
-                    </select>
-                </div>
-                {collectionTotalPrice > 0 ? <div className={styles.section5}>
-                    Total Value: ${collectionTotalPrice}
-                </div> : null}
-            </div>
-            {fromHome && <form onSubmit={(e) => {e.preventDefault(); searchByName(e)}}>
-                <input id={"search bar"}className={styles.search} list="suggestions" type="text" placeholder="Search" 
-                value={search}
-                onChange={handleChange}/>
-                    <datalist id="suggestions">
-                        {suggestions.map((item) => {
-                            return <option>{item}</option>
+
+    return <div>
+        <AppBar  position="fixed" align="center" style={{
+            paddingTop: "10px",
+            boxShadow: "inset 0 0 0 10px rgb(37, 45, 63)",
+            }}
+            >
+            <Toolbar>
+                <Box sx={{
+                    marginBottom: "10px"
+                }} display="flex" alignItems="center">
+                    <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        sx={{borderRadius: 2, marginRight: "10px"}}
+                        onClick={() => setDrawer(true)}
+                    >
+                        Menu
+                    </IconButton>
+                </Box>
+                <Drawer
+                    anchor={"left"}
+                    open={drawer}
+                    onClose={() => setDrawer(false)}
+                >
+                    <List>
+                        {menuList.map((text) => {
+                            return (
+                                <ListItem key={text} disablePadding>
+                                    <ListItemButton key={text + "button"} onClick={() => {
+                                        if (text === "Home") {
+                                            navigate("/")
+                                        }
+                                        if (text === "Add To Collection") {
+                                            navigate("/addcards")
+                                        }
+                                        if (text === "My Cards") {
+                                            navigate("/mycards")
+                                        }
+                                        if (text === "My Decks") {
+                                            navigate("/mydecks")
+                                        }
+                                    }} >
+                                        <ListItemText primary={text}/>
+                                    </ListItemButton>
+                                </ListItem>
+                            )
                         })}
-                    </datalist>
-            </form>}
-            {fromMyCards && <form onSubmit={(e) => {e.preventDefault(); searchMyCards(e)}}>
-                <input className={styles.search} list="suggestions" type="text" placeholder="Search" 
-                value={search}
-                onChange={handleChange}/>
-                    <datalist id="suggestions">
-                        {suggestions.map((item) => {
-                            return <option>{item}</option>
-                        })}
-                    </datalist>
-            </form>}
-        </header>
-    </>
+                    </List>
+                </Drawer>
+                    <Popup 
+                        open={loginClicked} 
+                        modal
+                        nested    
+                    >   
+                        {close => (
+                            <div className="modal" ref={loginRef}>
+                                <div className={"header"}>Login</div>
+                                <button className={"close"} onClick={() => {close(); setLoginClicked(!loginClicked)}}>
+                                    &times;
+                                </button>
+                                <div className={"content"}>
+                                    <form onSubmit={login}>
+                                        <div className={"username"}>
+                                            <input 
+                                                type="text" 
+                                                onChange={changeUsername} 
+                                                placeholder="username">
+                                            </input>
+                                        </div>
+                                        <div className={"password"}>
+                                            <input 
+                                                type="text" 
+                                                onChange={changePassword} 
+                                                placeholder="password">
+                                            </input>
+                                        </div>
+                                        <button className={"loginbutton"} type="submit">Login</button>
+                                    </form>
+                                </div>
+
+                            </div>    
+                        )}
+
+                    </Popup>
+                    {!fromLandingPage ? <Autocomplete
+                        id="search-bar"
+                        freeSolo
+                        clearOnEscape
+                        options={suggestions}
+                        onInputChange={handleChange}
+                        onChange={handleSearch}
+                        sx={{
+                            marginBottom: "10px",
+                            width: "300px",
+                        }}
+                        renderInput={(params) => <>
+                             <TextField {...params} label="Search"/>
+                        </>}
+                           
+                    /> : null}
+                    <Box sx={{ flexGrow: 1, }}/>
+                    { !isSmallScreen ? <div style={{display: "flex", alignItems: "center"}}>
+                            { (fromHome & fromDeckBuilder) | (fromMyCards) ? <FormControl size="small"
+                                style={{
+                                    marginRight: "20px",
+                                    marginBottom: "10px"
+                            }}
+                            >
+                                <InputLabel id="sort-input">Sort</InputLabel>
+                                <Select
+                                    labelId="sort-input"
+                                    id="sort"
+                                    value={sortValue} 
+                                    label="Sort"
+                                    onChange={sort}  
+                                >
+                                    <MenuItem value={"name"}>Name</MenuItem>
+                                    <MenuItem value="color">Color</MenuItem>
+                                    <MenuItem value="value">Value</MenuItem>
+                                </Select>
+                            </FormControl> : null}
+                        
+                    <Button 
+                    sx={{
+                        marginBottom: "10px",
+                        marginRight: "10px"
+                    }}
+                    variant={"contained"} size={"small"}
+                    onClick={() => {
+                        if (localStorage.getItem("userID") === "guest") {
+                            setLoginClicked(!loginClicked)
+                        } else {
+                            logout() 
+                        }
+                    }} 
+                    >
+                        {localStorage.getItem("userID") === "guest" ? "Login" : "Logout"}
+                    </Button> 
+                    
+                        {localStorage.getItem("userID") === "guest" && <Button 
+                            variant={"contained"}
+                            size="small"
+                            sx={{
+                                marginBottom: "10px"
+                            }}
+                            onClick={() => {
+                                navigate("/register")
+                            }}
+                        >
+                            Register
+                        </Button>}
+                        </div> : <div>
+                        <IconButton
+                            size="large"
+                            edge="end"
+                            color="inherit"
+                            aria-label="login-sort-menu"
+                            sx={{
+                                borderRadius: 2,
+                                marginBottom: "10px"
+                            }}
+                            onClick={() => setPhoneDrawer(true)}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Drawer 
+                            anchor="right"
+                            open={phoneDrawer}
+                            onClose = {() => {
+                                setPhoneDrawer(false)
+                            }}
+                            PaperProps={{
+                                sx: {width: "100px"}
+                            }}
+                        >
+                                <div style={{display: "flex", 
+                                alignItems: "center",
+                                justifyContent: 'center',
+                                flexDirection: "column"}}>
+                                <Button 
+                                    variant={"contained"} size={"small"}
+                                    style={{
+                                        marginTop: isSmallScreen ? "10px" : null,
+                                    }}
+                                    onClick={() => {
+                                        if (localStorage.getItem("userID") === "guest") {
+                                            setPhoneDrawer(false)
+                                            setLoginClicked(!loginClicked)
+                                        } else {
+                                            setPhoneDrawer(false)                                    
+                                            logout() 
+                                        }
+                                    }} 
+                                >
+                                    {localStorage.getItem("userID") === "guest" ? "Login" : "Logout"}
+                                </Button> 
+                                {localStorage.getItem("userID") === "guest" && <div style={{
+                                    marginTop : isSmallScreen ? "10px" : null
+                                }}>
+                                    <Button size="small"
+                                        variant="contained"
+                                        onClick={() => {
+                                            navigate("/register")
+                                        }}
+                                    >Register</Button>
+                                </div>}
+                                {fromMyCards | fromHome ? <FormControl
+                                    size="small" 
+                                    style={{
+                                        marginTop: "15px",
+                                        width: "100px"
+                                    }}
+                                >
+                                    <InputLabel id="sort-input">Sort</InputLabel>
+                                    <Select
+                                        labelId="sort-input"
+                                        id="sort"
+                                        value={sortValue} 
+                                        label="Sort"
+                                        onChange={sort}
+                                        sx={{
+                                            borderColor: theme.palette.primary.main,
+                                        }}
+                                    >
+                                        <MenuItem value="name">Name</MenuItem>
+                                        <MenuItem value="color">Color</MenuItem>
+                                        <MenuItem value="value">Value</MenuItem>
+                                    </Select>
+                                </FormControl> : null}
+                            </div>
+                        </Drawer>
+                    </div>}
+            </Toolbar>
+        </AppBar>
+        <Toolbar />
+        <Toolbar />
+    </div>
 }
 
 export default Header

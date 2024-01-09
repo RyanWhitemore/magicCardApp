@@ -5,6 +5,9 @@ import "./MyCards.css"
 import { useQuery } from "react-query"
 import { useState } from "react"
 import { paginateCards } from "./util"
+import Grid from "@mui/material/Grid"
+import { useTheme } from "@emotion/react"
+import { useMediaQuery } from "@mui/material"
 
 
 const MyCards = ({
@@ -27,19 +30,22 @@ const MyCards = ({
 
     const [ pageNumber, setPageNumber ] = useState(0)
 
-    let { data, isFetching } = useQuery({queryKey: ["myCardData"], refetchOnWindowFocus: false, queryFn: () => {
+    const theme = useTheme()
+
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"))
+    const isMediumScreen = useMediaQuery(theme.breakpoints.between("md", "lg"))
+
+    let { data, isFetching } = useQuery({queryKey: ["myCardData", [sortValue]], refetchOnWindowFocus: false, queryFn: () => {
         if (userID !== "guest") {
-            return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + userID).then((res) => {
+            return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/${userID}`).then((res) => {
             res = sortResults(res)
-            console.log(res)
             const paginatedCards = paginateCards(res)
             setCards(paginatedCards)
-            console.log(paginatedCards)
             return paginatedCards
             })
         }
         
-    }, enabled: userID !== "guest"}, [sortValue])
+    }, enabled: userID !== "guest"}, [sortValue, pageNumber])
 
 
 
@@ -110,31 +116,38 @@ const MyCards = ({
             cards={cards}
             setIsSearched={setIsSearched}
             setSortValue={setSortValue}
+            sortValue={sortValue}
             loginClicked={loginClicked}
             setLoginClicked={setLoginClicked}
             setUsername={setUsername}
             setPassword={setPassword}
             login={login}
         />
-        <div id="main">
+        <div>
             {userID !== "guest" && !isFetching && !isSearched ? 
-                <div className="cards">{data.map((page, index) => {
+                <Grid 
+                    container
+                    spacing={isSmallScreen ? 1 : 3}
+                    alignItems="center"
+                    justifyContent="center">{data.map((page, index) => {
                     return page.map((card) => {
                         if (index === pageNumber) {
-                            return <Card 
-                            key={card.id}
-                            withoutButton={true} 
-                            card={card}
-                            withDeleteButton={true}
-                            fromMyCards={true}
-                            userID={userID}
-                            search={search}
-                            setSearch={setSearch}
-                            cards={cards}/>
+                            return <Grid item>
+                                        <Card 
+                                        key={card.id}
+                                        withoutButton={true} 
+                                        card={card}
+                                        withDeleteButton={true}
+                                        fromMyCards={true}
+                                        userID={userID}
+                                        search={search}
+                                        setSearch={setSearch}
+                                        cards={cards}/>
+                                </Grid>
                         }
                         return null
                     })
-            })}</div> : null}
+            })}</Grid> : null}
             {userID !== "guest" & !isFetching & isSearched ? 
                 <div className="cards">{cards.data.map(card => {
                     return <Card 

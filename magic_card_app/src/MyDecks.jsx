@@ -73,7 +73,7 @@ const MyDecks = ({
                 localStorage.setItem("commander", JSON.stringify(false))
             }
             localStorage.setItem("deckID", deck.deckID)
-            localStorage.setItem("deckNAme", deck.deckName)
+            localStorage.setItem("deckName", deck.deckName)
             localStorage.setItem("deckType", deck.deckType)
             localStorage.setItem('deckColorIdentity', JSON.stringify(deck.colorIdentity))
             return true

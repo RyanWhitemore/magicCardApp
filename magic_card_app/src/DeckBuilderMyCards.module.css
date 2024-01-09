@@ -1,0 +1,91 @@
+#main {
+    background-color: rgb(37, 45, 63);
+    width: 100%;
+    margin: 0;
+}
+
+
+.cards {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    column-gap: 0px;
+    grid-auto-flow: row;
+}
+
+.search {
+    width: 45vw;
+    margin: 0 auto;
+    display: block;
+    height: 2vh;
+    background: white;
+    border-radius: 25px;
+    margin: 0 auto;
+    display: block;
+}
+
+
+.pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body {
+    background-color: rgb(37, 45, 63);
+    margin: 0;
+}
+
+.popup-content {
+    display: grid;
+    grid-template-columns: repeat(1, auto);
+    background-color: rgb(37, 45, 63) 
+}
+
+.modal {
+    font-size: 12px;
+  }
+  .modal > .header {
+    color: white;
+    width: 94%;
+    border-bottom: 1px solid gray;
+    font-size: 18px;
+    text-align: center;
+    padding: 5px;
+  }
+  .modal > .content {
+    width: 100%;
+    padding: 10px 5px;
+  }
+  .modal > .actions {
+    width: 100%;
+    padding: 10px 5px;
+    margin: auto;
+    text-align: center;
+  }
+  .modal > .close {
+    cursor: pointer;
+    position: absolute;
+    display: block;
+    padding: 2px 5px;
+    line-height: 20px;
+    right: -10px;
+    top: -10px;
+    font-size: 24px;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #cfcece;
+  }
+
+  .pageNum {
+    cursor: pointer;
+    width: 100px
+  }
+
+  .backButton {
+    width: 75px;
+  }
+
+  .header {
+    position: sticky;
+  }

@@ -1,4 +1,4 @@
-import Home from "./Home"
+import Home from "./DeckBuilderMyCards"
 import styles from "./DeckBuilder.module.css"
 import { useEffect, useState, useRef } from "react"
 import Card from "./Card"
@@ -58,6 +58,8 @@ const DeckBuilder = ({
     const nameRef = useRef(null)
 
     const listRef = useRef(null)
+
+    const divRef = useRef(null)
 
     useOutsideAlerter(listRef, setListPopup)
 
@@ -247,8 +249,9 @@ const DeckBuilder = ({
                     <button onClick={e => massEntry(listInput)}>Add</button>
                 </div>
             </Popup>
-            <div className={styles.homediv}>
+            <div ref={divRef} className={styles.homediv}>
                 <Home 
+                divRef={divRef}
                 fromDeckBuilder={true}
                 addedCards={addedCards}
                 setAddedCards={setAddedCards}

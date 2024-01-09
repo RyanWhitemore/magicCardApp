@@ -18,7 +18,7 @@
 .image {
     display: flex;
     flex-direction: column;
-    width: 180px;
+    width: 150px;
     text-align: center;
     cursor: pointer;
     max-height: 350px;
