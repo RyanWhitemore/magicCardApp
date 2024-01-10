@@ -262,12 +262,6 @@ const Card = ({
             
         }
 
-        if (!withoutButton && !isLoggedIn) {
-            button = <>
-                <button onClick={buyCard}>Buy Card</button>
-            </>
-        }
-
         // if the card component comes from the mycards component 
         // a quantity is given value as well as a button to delete
         // the card from the collection
@@ -299,8 +293,8 @@ const Card = ({
                         }
                         alt={card.name}
                         onClick={() => setPopup(true)}
-                        ontouchstart={() => setPopup(true)}
-                        ontouchend={() => setPopup(false)}
+                        onTouchStart={() => setPopup(true)}
+                        onTouchEnd={() => setPopup(false)}
                     />
                     { isSmallScreen && card.card_faces ? <IconButton
                         size="large"
@@ -319,7 +313,7 @@ const Card = ({
                         display: "flex",
                         justifyContent: "space-between"
                     }}>
-                        { fromAddCards ? <><IconButton
+                        { fromAddCards | fromMyCards ? <><IconButton
                                 onClick={handleDelete}
                                 variant="contained"
                             >
@@ -387,25 +381,6 @@ const Card = ({
                                 /> 
                             </DisplayCard>}
                     </Popup>
-                    {fromMyCards && <>
-                        <div className="addAndRemove">
-                            <button 
-                            className="addAndRemoveButton"
-                            onClick={(e) => {
-                                e.preventDefault()
-                                handleSubmit(e)
-                                setNumInColl(numInColl + 1)
-                            }}>+</button>
-                            {quantity}
-                            <button 
-                            className="addAndRemoveButton"
-                            onClick={(e) => {
-                                e.preventDefault()
-                                handleDelete(e)
-                                setNumInColl(numInColl - 1)
-                            }}>-</button>
-                        </div>
-                    </>}
                     {fromDeckBuilder ? <Box>
                         <Button onClick={addCard}>Add Card</Button>
                         { card.type_line.includes("Legendary Creature")

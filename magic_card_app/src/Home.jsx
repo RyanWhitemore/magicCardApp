@@ -24,7 +24,17 @@ const Home = () => {
             <Typography variant="h2">Site Name</Typography>
             <Button onClick={() => {
                 navigate("/mydecks")
-            }} size="large">Build Decks</Button>
+            }} size="large"
+            >
+                Build Decks
+            </Button>
+            <Button onClick={() => {
+                navigate("/addcards")
+            }}
+            
+            >
+                Collect Cards
+            </Button>
         </Box>
     </>
 }

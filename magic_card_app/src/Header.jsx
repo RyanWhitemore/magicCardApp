@@ -24,6 +24,8 @@ import SearchIcon from "@mui/icons-material/Search"
 import Paper from "@mui/material/Paper"
 import { Autocomplete, Divider, TextField, useMediaQuery } from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu"
+import { sortResults } from "./util"
+import { paginateCards } from "./util"
 
 const Header = ({
         fromHome, 
@@ -46,7 +48,8 @@ const Header = ({
         fromLandingPage,
         fromAddCards,
         searchedCards,
-        setSearchedCards
+        setSearchedCards,
+        cards,
     }) => {
 
     const user = localStorage.getItem("userID")
@@ -87,7 +90,7 @@ const Header = ({
             if (!fromAddCards) {
                 setDefaultCards(null)
             }
-            const results = await axios.get("https://api.scryfall.com/cards/search?q=" + search )
+            const results = await axios.get(`https://api.scryfall.com/cards/search?q=${search}${fromAddCards ? "&unique=prints" : ""}` )
             const collectionResults = await axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getcards/` + user)
             for (const result of results.data.data) {
                 for (let i = 0; i < collectionResults.data.length; i++) {
@@ -96,9 +99,7 @@ const Header = ({
                     }
                 }
             }
-            console.log("reached")
             if (fromAddCards) {
-                console.log(results.data.data)
                 setSearchedCards(results.data.data)
             } else {
                 setIsSearched(true)
@@ -156,6 +157,12 @@ const Header = ({
 
     const sort = (e) => {
         setSortValue(e.target.value)
+        let newArray = cards.flat()
+
+        newArray = sortResults(newArray, e.target.value)
+        newArray = paginateCards(newArray)
+
+        setCards(newArray)
     }
 
     const menuList = [

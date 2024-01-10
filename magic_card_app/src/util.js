@@ -31,5 +31,43 @@ const paginateCards = (cardArray) => {
     return paginatedPages 
 }
 
+const sortResults = (results, sortValue) => {
+    if (sortValue === "name") {
+        if (results) {
+            results = results.sort((a, b) => {
+                return a.name.localeCompare(b.name)
+            })
+        }
+    }
 
-export {useOutsideAlerter, paginateCards}
+    if (sortValue === "value") {
+        if (results) {
+            results = results.sort((a, b) => {
+                if (a.prices.usd === null) {
+                    return 1
+                }
+                if (b.prices.usd === null) {
+                    return -1
+                }
+                return b.prices.usd - a.prices.usd
+            })
+        }
+    }
+
+    if (sortValue === "color") {
+        if (results) {
+            results = results.sort((a, b) => {
+
+                a = a.color_identity.join()
+                b = b.color_identity.join()
+            
+                return b.localeCompare(a)
+            
+            })
+        }
+    }
+    return results
+}
+
+
+export {useOutsideAlerter, paginateCards, sortResults}

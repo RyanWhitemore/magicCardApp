@@ -17,16 +17,17 @@ import { createFilterOptions } from "@mui/material/Autocomplete"
 import { useMediaQuery } from "@mui/material"
 import { useTheme } from "@emotion/react"
 import Button from "@mui/material/Button"
+import { useLocation } from "react-router-dom"
 
 const AddCards = () => {
 
-    const [ reachedBottom, setReachedBottom ] = useState(false)
+    const location = useLocation()
 
     const userID = localStorage.getItem("userID")
 
     const [ sets, setSets ] = useState([])
 
-    const [ setSearchParams, setSetSearchParams ] = useState("https://api.scryfall.com/cards/search?include_extras=true&include_variations=true&order=set&q=e%3Alci&unique=prints")
+    const [ setSearchParams, setSetSearchParams ] = useState(location.state ? location.state.setParam : "https://api.scryfall.com/cards/search?include_extras=true&include_variations=true&order=set&q=e%3Alci&unique=prints")
 
     const [ searchedCards, setSearchedCards ] = useState(false)
 
@@ -34,7 +35,6 @@ const AddCards = () => {
 
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"))
     const isMediumScreen = useMediaQuery(theme.breakpoints.between("sm", "lg"))
-
 
     const OPTIONS_LIMIT = 20;
     const defaultFilterOptions = createFilterOptions();
@@ -52,7 +52,7 @@ const AddCards = () => {
         return results
     }})
 
-    const setData = useQuery({queryKey: ["set-data", [setSearchParams]], refetchOnWindowFocus: false, queryFn: async () => {
+    useQuery({queryKey: ["set-data", [setSearchParams]], refetchOnWindowFocus: false, queryFn: async () => {
         setSets([])
         let results = await axios.get("https://api.scryfall.com/sets")
         results = results.data.data.sort((a, b) => {
@@ -81,19 +81,13 @@ const AddCards = () => {
     useEffect(() => {
 
         const handleScroll = () => {
-            if (document.documentElement.offsetHeight - (window.innerHeight + document.documentElement.scrollTop) <= 10) {
-                setReachedBottom(true)
+            if (document.documentElement.offsetHeight - (window.innerHeight + document.documentElement.scrollTop) <= 50) {
+                fetchNextPage()
             }
         }
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
-        }, [])
-        useEffect(() => {
-         if (reachedBottom) {
-            setReachedBottom(false)
-             fetchNextPage()
-         }
-        }, [reachedBottom, fetchNextPage])  
+        }, [fetchNextPage])
 
         return <div style={{
             display: "flex",
@@ -186,7 +180,7 @@ const AddCards = () => {
                             return null
                         }
                     })
-                }) : <CircularProgress />}  
+                }) : null}  
             </Grid> : <>
                 <Grid
                     container
