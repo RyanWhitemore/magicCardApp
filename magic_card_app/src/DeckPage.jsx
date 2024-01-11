@@ -188,7 +188,7 @@ const DeckPage = ({
             <button className={styles.editButton}onClick={editdeck}>Edit Deck</button>                  
             
         
-        <div className={styles.commander}>
+        {commander ? <div className={styles.commander}>
             <div className={styles.image}>
                 <Card
                     card={commander}
@@ -197,7 +197,7 @@ const DeckPage = ({
                 />
             </div>
             <div className={styles.graph}><Graph/></div>
-        </div>
+        </div> : null}
         <div className={styles.cardDiv}>
             {cardTypes.map((type, index) => {
                 if (typeArray.length > 0) {

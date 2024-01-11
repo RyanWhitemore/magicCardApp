@@ -19,10 +19,7 @@ import FormControl from "@mui/material/FormControl"
 import InputLabel from "@mui/material/InputLabel"
 import Select from "@mui/material/Select"
 import MenuItem from "@mui/material/MenuItem"
-import InputBase from "@mui/material/InputBase"
-import SearchIcon from "@mui/icons-material/Search"
-import Paper from "@mui/material/Paper"
-import { Autocomplete, Divider, TextField, useMediaQuery } from "@mui/material"
+import { Autocomplete, TextField, useMediaQuery } from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu"
 import { sortResults } from "./util"
 import { paginateCards } from "./util"
@@ -49,7 +46,8 @@ const Header = ({
         fromAddCards,
         searchedCards,
         setSearchedCards,
-        cards,
+        cards, 
+        setNumInColl
     }) => {
 
     const user = localStorage.getItem("userID")
@@ -96,6 +94,10 @@ const Header = ({
                 for (let i = 0; i < collectionResults.data.length; i++) {
                     if (collectionResults.data[i].id === result.id) {
                         result.inCollection = true
+                        result.quantity = collectionResults.data[i].quantity
+                        break}
+                     else {
+                        result.quantity = 0
                     }
                 }
             }

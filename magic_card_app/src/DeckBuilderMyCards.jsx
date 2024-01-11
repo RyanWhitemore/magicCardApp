@@ -1,9 +1,9 @@
-import {React, useEffect, useRef, useState} from "react";
+import {React, useState} from "react";
 import axios from "axios";
 import Card from "./Card";
 import Header from "./Header";
 import styles from "./DeckBuilderMyCards.module.css"
-import { useQuery, useInfiniteQuery } from "react-query";
+import { useQuery } from "react-query";
 import { paginateCards } from "./util";
 import Grid from "@mui/material/Grid"
 import { useTheme } from "@emotion/react";
@@ -62,8 +62,6 @@ const DeckBuilderMyCards = ({
     const isMediumScreen = useMediaQuery(theme.breakpoints.between("sm", "lg"))
 
     let data = useQuery({queryKey: ["defaultCards", [User, sortValue, notChosenColors]], refetchOnWindowFocus: false, queryFn: async () => {
-        setDefaultCards(false)
-        if (fromDeckBuilder & !isSearched) {
             if (User !=="guest") {
                 setIsCards(true)
                 let results = axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/getCards/` + User)
@@ -73,11 +71,6 @@ const DeckBuilderMyCards = ({
                 setPaginatedCards(paginateCards(results))
                 return results 
             }
-        } else {
-            setDefaultCards(true)
-            return axios.get("https://api.scryfall.com/sets/LCI")
-        }
-        
     }})
     
 
@@ -247,34 +240,6 @@ const DeckBuilderMyCards = ({
             })}
         </Grid> : null}
 
-        {isSearched && !fromDeckBuilder ? <Grid 
-            className={styles.cards}
-            container
-            justifyContent="center"
-            spacing={isSmallScreen ? 1 : 3}
-        >
-            {cards.map(card => {
-                if (!chosenDeckType | card.legalities[chosenDeckType] === "legal") {
-                    return <Grid key={card.id}>
-                        <Card
-                        cards={isCards}
-                        withButton={false} 
-                        card={card}
-                        fromDeckBuilder={fromDeckBuilder}
-                        addedCards={addedCards}
-                        setAddedCards={setAddedCards}
-                        deckCost={deckCost}
-                        setDeckCost={setDeckCost}
-                        chosenDeckType={chosenDeckType}
-                        setChosenDeckType={setChosenDeckType}
-                        />
-                    </Grid>
-                } else {
-                    return null
-                }
-                
-            })}
-            </Grid> : null}
         { fromDeckBuilder ? <div className={styles.pages}>
             <Stack spacing={2}>
                 <Pagination

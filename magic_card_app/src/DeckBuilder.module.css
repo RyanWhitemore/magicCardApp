@@ -106,6 +106,7 @@ body {
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    margin-top: 100px;
 }
 
 .container::-webkit-scrollbar {
@@ -214,15 +215,6 @@ input.deckInput[type=text] {
    margin-left: 8px; 
 }
 
-.hand {
-    display: flex;
-    
-    align-items: center;
-    border-radius: 5px;
-    justify-content: center;
-    grid-area: hand;
-}
-
 .listInput {
     height: 10vh;
     width: 18vw;
@@ -238,56 +230,3 @@ input.deckInput[type=text] {
     border: solid 1px white
 }
 
-.fishBowl {
-    display: grid;
-    grid-template-areas: 
-        "in-play ."
-        "lands graveyard"
-        "hand deck"
-    ;
-    grid-template-columns: 75% 25%;
-    grid-template-rows: 33% 33% 33%;
-    background-color: rgb(37, 45, 63);
-    width: 100vw;
-    height: 90vh;
-    border: 1px solid white;
-}
-
-.inPlay {
-    grid-area: in-play;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.graveyard {
-    grid-area: graveyard;
-}
-
-.cardBack {
-    width: 180px
-}
-
-.deck {
-    display: flex;
-    grid-area: deck;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.drawButton {
-    width: 180px;
-}
-
-.lands {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    grid-area: lands;
-}

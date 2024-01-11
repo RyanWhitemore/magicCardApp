@@ -124,17 +124,49 @@ const DeckBuilder = ({
         const deck = []
         const colorIdentity = []
         const addedColors = []
+        let deckImg = ""
         const colors = {
             W: "white", U: "blue", B: "black",
             R: "red", G: "green"
         }
+        
+        let totalManaPips = {W: 0, U: 0, B: 0, R: 0, G: 0, total: 0}
+        for (const card of addedCards) {
+            
+            for (const pip of card.card.mana_cost) {
+                if (pip === "{" | pip === "}") {
+                } else if (parseInt(pip) >= 0) {
+                } else {
+                    console.log(totalManaPips)
+                    totalManaPips[pip] += 1
+                    totalManaPips.total += 1
+                }
+
+            }
+        }
+
         if (chosenDeckType === "commander") {
             if (commander) {
+                if (commander.image_uris) {
+                    if (commander.image_uris.art_crop) {
+                        deckImg = commander.image_uris.art_crop
+                    }
+                }
                 for (const color of commander.color_identity) {
                     if (addedColors.indexOf(color) < 0) {
                         addedColors.push(color)
                         colorIdentity.push(colors[color])
                     }
+                }
+            } 
+        } else {
+            const highestValueCard = addedCards.reduce((max, obj) => {
+                return obj.card.prices.usd > max.card.prices.usd ? obj : max
+            })
+
+            if (highestValueCard.card.image_uris) {
+                if (highestValueCard.card.image_uris.art_crop) {
+                    deckImg = highestValueCard.card.image_uris.art_crop
                 }
             }
         }
@@ -159,7 +191,9 @@ const DeckBuilder = ({
             userID: user,
             deckID: localStorage.getItem("deckID"),
             cards: deck,
-            colorIdentity: colorIdentity
+            colorIdentity: colorIdentity,
+            deckImg: deckImg,
+            totalManaPips: totalManaPips
         })
     }
 

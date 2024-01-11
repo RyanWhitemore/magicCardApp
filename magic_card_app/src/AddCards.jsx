@@ -4,7 +4,6 @@ import { useInfiniteQuery, useQuery } from "react-query"
 import Card from "./Card"
 import Grid from "@mui/material/Grid"
 import Header from "./Header"
-import CircularProgress from "@mui/material/CircularProgress"
 import Accordion from "@mui/material/Accordion"
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from "@mui/material/AccordionDetails"
@@ -148,7 +147,6 @@ const AddCards = () => {
                     </AccordionDetails>
                 </Accordion>
             </Box>
-            {result.isLoading ? <CircularProgress /> : null}
             { !searchedCards ? <Grid sx={{
                     justifyContent: "center"
                 }} 
@@ -190,14 +188,11 @@ const AddCards = () => {
                     }}
                 >
                     {searchedCards.map((card) => {
-                        const inCollection = searchedCards.filter(obj => {
-                            return obj.id === card.id
-                        })
-                        const numInColl = inCollection.length > 0 ? inCollection[0].quantity : 0   
+                        const inCollection = card.inCollection
                         return <Grid item>
                             <Card 
-                                inCollection={inCollection.length > 0 ? true : false}
-                                numCollected={numInColl}
+                                inCollection={inCollection}
+                                numCollected={card.quantity}
                                 fromAddCards={true}
                                 card={card}
                             />
@@ -211,12 +206,14 @@ const AddCards = () => {
                     <Button 
                     variant="contained" size="small"
                     onClick={() => setSearchedCards(false)}
+                    sx={{
+                        marginTop: "10px"
+                    }}
                     >
                         Back
                     </Button>
                 </Box>
-            </>}
-            {isFetchingNextPage ? <CircularProgress /> : null}  
+            </>} 
         </div>
 
 }

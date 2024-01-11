@@ -11,10 +11,11 @@ import CardMedia from "@mui/material/CardMedia"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import { useTheme } from "@emotion/react"
-import {  useMediaQuery } from "@mui/material"
+import { useMediaQuery } from "@mui/material"
 import Tooltip from "@mui/material/Tooltip"
 import Badge from "@mui/material/Badge"
 import SwapVerticalCircleIcon from "@mui/icons-material/SwapVerticalCircle"
+import Skeleton from "@mui/material/Skeleton"
 
 
 // hook to detect a click outside of an element
@@ -84,6 +85,8 @@ const Card = ({
 
         const [ cardBack, setCardBack ] = useState(false)
 
+        const [ loading, setLoading ] = useState(true)
+ 
         const isLoggedIn = userID === "guest" ? false : true 
 
         const wrapperRef = useRef(null)
@@ -268,6 +271,7 @@ const Card = ({
         if (fromMyCards === true) {
             quantity = <p className="quantity">Quantity owned: {numInColl}</p>
         }
+
             return <>
                 <DisplayCard sx={{
                         position: "relative",
@@ -278,24 +282,54 @@ const Card = ({
                     key={card.name}
                     onMouseOver={() => isSmallScreen ? null : setHovered(true)}
                     onMouseOut={() => isSmallScreen ? null : setHovered(false)}
-                >   
-                    <CardMedia 
-                        component="img"
-                        loading="lazy"
-                        sx={{
-                            opacity: (!collected && fromAddCards) ? 0.7 : 1
-                        }}
-                        image={card.image_uris ? card.image_uris.border_crop : 
-                            isSmallScreen ? cardBack ? card.card_faces[1].image_uris.border_crop :
-                            card.card_faces[0].image_uris.border_crop : 
-                            hovered ? card.card_faces[1].image_uris.border_crop :
-                            card.card_faces[0].image_uris.border_crop
-                        }
-                        alt={card.name}
-                        onClick={() => setPopup(true)}
-                        onTouchStart={() => setPopup(true)}
-                        onTouchEnd={() => setPopup(false)}
-                    />
+                >
+                    {!loading ? <Tooltip 
+                        title={card.prices?.usd ? `$ ${card.prices.usd}`: "Price Unavailable"}
+                        placement="top"
+                    > 
+                        <CardMedia 
+                            onLoad={() => setLoading(false)}
+                            component="img"
+                            loading="lazy"
+                            sx={{
+                                opacity: (!collected && fromAddCards) ? 0.7 : 1
+                            }}
+                            image={card.image_uris ? card.image_uris.border_crop : 
+                                isSmallScreen ? cardBack ? card.card_faces[1].image_uris.border_crop :
+                                card.card_faces[0].image_uris.border_crop : 
+                                hovered ? card.card_faces[1].image_uris.border_crop :
+                                card.card_faces[0].image_uris.border_crop
+                            }
+                            alt={card.name}
+                            onClick={() => setPopup(true)}
+                            onTouchStart={() => setPopup(true)}
+                            onTouchEnd={() => setPopup(false)}
+                        />
+                    </Tooltip> : <Skeleton>
+                            <Tooltip 
+                        title={card.prices?.usd ? `$ ${card.prices.usd}`: "Price Unavailable"}
+                        placement="top"
+                    > 
+                        <CardMedia 
+                            onLoad={() => setLoading(false)}
+                            component="img"
+                            loading="lazy"
+                            sx={{
+                                opacity: (!collected && fromAddCards) ? 0.7 : 1
+                            }}
+                            image={card.image_uris ? card.image_uris.border_crop : 
+                                isSmallScreen ? cardBack ? card.card_faces[1].image_uris.border_crop :
+                                card.card_faces[0].image_uris.border_crop : 
+                                hovered ? card.card_faces[1].image_uris.border_crop :
+                                card.card_faces[0].image_uris.border_crop
+                            }
+                            alt={card.name}
+                            onClick={() => setPopup(true)}
+                            onTouchStart={() => setPopup(true)}
+                            onTouchEnd={() => setPopup(false)}
+                        />
+                    </Tooltip>
+                        </Skeleton>}  
                     { isSmallScreen && card.card_faces ? <IconButton
                         size="large"
                         sx={{
@@ -339,7 +373,8 @@ const Card = ({
                                 <AddCircleIcon
                                     color="primary"
                                 />
-                        </IconButton> </>: null}
+                        </IconButton> 
+                        </>: null}
                     </Box>
                     {showAdded && <span className="addedAlert">{message}</span>}
                     <Popup

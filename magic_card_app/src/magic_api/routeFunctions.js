@@ -230,10 +230,14 @@ const saveDeck = async (req, res) => {
     const deckName = req.body.deckName
     const deckType = req.body.deckType
     const colorIdentity = req.body.colorIdentity
+    const deckImg = req.body.deckImg
+    const totalManaPips = req.body.totalManaPips
+
+    console.log(totalManaPips)
 
     let queryObj = {deckID: deckID, deckName: deckName,
         commander: commanderID, cards: cardsArray,
-        deckType, colorIdentity} 
+        deckType, colorIdentity, deckImg, totalManaPips} 
 
     const database = client.db("magicCards")
 
@@ -246,7 +250,6 @@ const saveDeck = async (req, res) => {
 
 
     if (deckList[0]?.decks) {
-        console.log(deckList[0].decks)
         filteredDeckList = deckList[0].decks.filter(deck => {
             if (deck.deckID === deckID) {
                 return false

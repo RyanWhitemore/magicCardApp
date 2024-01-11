@@ -4,15 +4,16 @@ import Header from "./Header"
 import "./MyCards.css"
 import { useQuery } from "react-query"
 import { useState } from "react"
-import { paginateCards } from "./util"
+import { paginateCards, sortResults } from "./util"
 import Grid from "@mui/material/Grid"
 import { useTheme } from "@emotion/react"
-import { Accordion, AccordionDetails, AccordionSummary, Autocomplete, Button, Checkbox, ListItem, ListItemButton, ListItemIcon, ListItemText, Pagination, TextField, Typography, useMediaQuery } from "@mui/material"
+import Button from "@mui/material/Button"
+import Pagination from "@mui/material/Pagination"
+import Typography from "@mui/material/Typography"
+import useMediaQuery from "@mui/material/useMediaQuery"
 import Box from "@mui/material/Box"
-import Drawer from "@mui/material/Drawer"
-import { sortResults } from "./util"
 import { useNavigate } from "react-router-dom"
-import List from "@mui/material/List"
+import Filter from "./Filter"
 
 
 const MyCards = ({
@@ -34,8 +35,6 @@ const MyCards = ({
     
     const [ cards, setCards ] = useState([])
     
-    const [ checked, setChecked ] = useState([])
-    
     const [ isSearched, setIsSearched ] = useState(false)
     
     const [ pageNumber, setPageNumber ] = useState(1)
@@ -44,16 +43,6 @@ const MyCards = ({
     
     const [ filterSetParams, setFilterSetParams ] = useState(false)
 
-    const [ colorsNotChecked, setColorsNotChecked ] = useState(["White", "Blue", "Black", "Red", "Green", "Colorless"])
-
-    const [ typeChecked, setTypeChecked ] = useState([])
-    
-    const filterOptions = ["Set", "CMC", "Colors", "Type"]
-
-    const colorFilterOptions = ["White", "Blue", "Black", "Red", "Green", "Colorless"]
-
-    const colorObj = {"White": "W", "Blue": "U", "Black": "B", "Red": "R", "Green": "G", "Colorless": true}
-    
     const theme = useTheme()
     
     const navigate = useNavigate()
@@ -96,124 +85,29 @@ const MyCards = ({
             allSetCards = [...allSetCards, fetchedSetCards.data.data]
         }
         allSetCards = allSetCards.flat()
-        result.data = allSetCards
-    
-        let allCards = filterCards(null, null, true)
-        allCards = allCards.flat()
+        result.data = data.flat()
+        let filteredSetData = cards.flat()
 
-        result = allCards.filter((obj1) => {
+        filteredSetData = filteredSetData.filter((obj1) => {
+            return allSetCards.some((obj2) => {
+                return obj1.id === obj2.id
+            })
+        })
+
+        result = allSetCards.filter((obj1) => {
             return result.data.some((obj2) => {
                 return obj1.id === obj2.id
             })
         }) 
     
-        result = sortResults(result, sortValue)
-        result = paginateCards(result)
+        filteredSetData = sortResults(filteredSetData, sortValue)
+        filteredSetData = paginateCards(filteredSetData)
 
         setTotalSetColInfo(result)
-        setCards(result)
-    
+        setCards(filteredSetData)
+
     }, enabled: filterSetParams !== false})
 
-    const handleToggle = (value) => () => {
-        const currentIndex = checked.indexOf(value)
-        const newChecked = [...checked]
-        
-        if (currentIndex === -1) {
-            newChecked.push(value)
-        } else {
-            newChecked.splice(currentIndex, 1)
-        }
-        setChecked(newChecked)
-    } 
-
-    const filterCards = (e, val, fromSetFilter = false) => {
-        let newCards
-        if (filterSetParams && !fromSetFilter) {
-            newCards = totalSetColInfo.flat()
-        } else {
-            newCards = data.flat()
-        }
-
-
-        newCards = filterCmc(newCards, val)
-
-        newCards = filterColors(newCards, val)
-
-        if (typeChecked.length > 0) {
-            newCards = newCards.slice()
-        }
-
-        newCards = sortResults(newCards, sortValue)
-        newCards = paginateCards(newCards)
-
-        setCards(newCards)
-        console.log(newCards)
-        return newCards
-    }
-   
-
-    const filterCmc = (cards, val) => {
-        let cardsToReturn = cards.slice()
-        const currentIndex = checked.indexOf(val)
-        
-        let newChecked = checked.slice()
-        if (typeof val === "number") {
-            if (currentIndex >= 0) {
-                newChecked.splice(currentIndex, 1)
-            } else {
-                newChecked.push(val)
-            }
-            setChecked(newChecked)
-        }
-
-        if (newChecked.length === 0) {
-            return cardsToReturn
-        }
- 
-        cardsToReturn = cardsToReturn.filter((card) => {
-            if (newChecked.indexOf(card.cmc) >= 0) {
-                return true
-            } else {
-                return false
-            }
-        })
-
-        return cardsToReturn
-    }
-
-    const filterColors = (newCards, val) => {
-        let cardsToReturn = newCards.slice()
-        const currentIndex = colorsNotChecked.indexOf(val)
-
-        let newNotColors = colorsNotChecked.slice()
-        if (colorFilterOptions.indexOf(val) >= 0) {
-            if (currentIndex >= 0) {
-                newNotColors.splice(currentIndex, 1)
-            } else {
-                newNotColors.push(val)
-            }
-            setColorsNotChecked(newNotColors)
-        }
-
-        if (newNotColors.length === 6) {
-            return cardsToReturn
-        }
-
-        cardsToReturn = cardsToReturn.filter((card) => {
-            if (card.color_identity.length === 0 && newNotColors.indexOf("Colorless") >= 0) {
-                return false
-            }
-            for (const color of newNotColors) {
-                if (card.color_identity.indexOf(colorObj[color]) >= 0) {
-                    return false
-                }
-            }
-            return true
-        })
-        
-        return cardsToReturn
-    }
 
     const getCollectionTotalPrice = () => {
         let totalCollectionPrice = 0.00
@@ -263,141 +157,20 @@ const MyCards = ({
             >
                 Filter
             </Button>
-            
+            <Filter 
+                setCards={setCards}
+                data={data}
+                sets={sets}
+                totalSetColInfo={totalSetColInfo}
+                sortValue={sortValue}
+                filter={filter}
+                setFilter={setFilter}
+                filterClicked={filterClicked}
+                setFilterClicked={setFilterClicked}
+                filterSetParams={filterSetParams}
+                setFilterSetParams={setFilterSetParams}
+            />
         </Box>
-        <Drawer
-            open={filterClicked}
-            onClose={() => {setFilterClicked(false)}}
-            anchor="right"
-            PaperProps={{sx: {
-                width: "300px"
-            }}}
-        >
-            {filterOptions.map((text) => {
-                return <Accordion
-                    onChange={(e, expanded) => {
-                        if (expanded) {
-                            setFilter(oldArray => [...oldArray, text])
-                        } else {
-                            const newArray = [...filter]
-                            const indexToRemove = newArray.indexOf(text)
-                            if (indexToRemove === -1) {
-                                return
-                            } else {
-                                newArray.splice(indexToRemove, 1)
-                                setFilter(newArray)
-                            }
-                        }
-                    }}
-                >
-                    <AccordionSummary>{text}</AccordionSummary>
-                        <AccordionDetails>
-                            {text === "Set" ? <Autocomplete
-                                onChange={(e, val) => {
-                                    if (val) {
-                                        if (!val.value) {
-                                            let newArray = data.flat()
-                                            newArray = sortResults(newArray, sortValue)
-                                            newArray = paginateCards(newArray)
-                                        
-                                            setCards(newArray)
-                                        }
-                                        setFilterSetParams(val.value)
-                                    }
-                                }} 
-                                options={sets}
-                                freeSolo
-                                id="set-search"
-                                clearOnEscape
-                                renderInput={(params) => <>
-                                    <TextField {...params}
-                                        inputProps={{
-                                            ...params.inputProps,
-                                            onKeyDown: (e) => {
-                                                if (e.key === "Enter") {
-                                                    e.stopPropagation()
-                                                }
-                                            }
-                                        }}
-                                        label="Search Sets"  
-                                    />
-                                </> }
-                            /> : text === "CMC" ? <List>
-                                <Box sx={{
-                                    display: "flex"
-                                }}>
-                                    <List>
-                                        {Array(8).fill(0).map((_, num) => {
-                                            const labelId = `checkbox-cmc-label${num + 1}`
-                                            return <ListItem
-                                                key={`CMC${num + 1}`}
-                                                disablePadding
-                                            >
-                                                <ListItemButton onClick={handleToggle(num + 1)}>
-                                                    <ListItemIcon>
-                                                        <Checkbox 
-                                                            onClick={(e) => filterCards(e, num + 1)}
-                                                            edge="start"
-                                                            checked={checked.indexOf(num + 1) >= 0}
-                                                            tabIndex={-1}
-                                                            disableRipple
-                                                            inputProps={{"aria-labeledby": labelId}}
-                                                        />
-                                                    </ListItemIcon>
-                                                    <ListItemText id={labelId} primary={`${num + 1}`}/>
-                                                </ListItemButton>
-                                            </ListItem>
-                                        })}
-                                    </List>
-                                    <List sx={{
-                                        paddingLeft: "70px"
-                                    }}>
-                                        {Array(8).fill(0).map((_, num) => {
-                                            const labelId = `checkbox-cmc-label${num + 9}`
-                                            return <ListItem
-                                            key={`CMC${num + 9}`}
-                                            disablePadding
-                                        >
-                                            <ListItemButton onClick={handleToggle(num + 9)}>
-                                                <ListItemIcon>
-                                                    <Checkbox 
-                                                        onClick={(e) => filterCards(e, num + 9)}
-                                                        edge="start"
-                                                        checked={checked.indexOf(num + 9) >= 0}
-                                                        tabIndex={-1}
-                                                        disableRipple
-                                                        inputProps={{"aria-labeledby": labelId}}
-                                                    />
-                                                </ListItemIcon>
-                                                <ListItemText id={labelId} primary={`${num + 9}${(num + 9 === 16 ? "+" : "")}`}/>
-                                            </ListItemButton>
-                                        </ListItem>
-                                        })} 
-                                    </List>
-                                </Box>
-                            </List> : text === "Colors" ? <List>
-                                {colorFilterOptions.map((color) => {
-                                    const labelId = `checkbox-color-label-${color}`
-                                    return <ListItem>
-                                        <ListItemButton onClick={(e) => {filterCards(e, color)}}>
-                                            <ListItemIcon>
-                                                <Checkbox
-                                                    edge="start"
-                                                    checked={colorsNotChecked.indexOf(color) === -1}
-                                                    tabIndex={-1}
-                                                    disableRipple
-                                                    inputProps={{"aria-labeledby": labelId}} 
-                                                />
-                                            </ListItemIcon>
-                                            <ListItemText id={labelId} primary={color} />
-                                        </ListItemButton>
-                                    </ListItem>
-                                })}
-                            </List> : text}
-                        </AccordionDetails>
-                </Accordion>
-            })}
-        </Drawer>
         <div>
             {userID !== "guest" && !isFetching && !isSearched ? 
                 <Grid 
@@ -464,7 +237,10 @@ const MyCards = ({
                 </Box> 
             :null}
         </div>
-        {isSearched && <div><button onClick={() => setIsSearched(false)}>Back</button></div>}
+        {isSearched && <div><button onClick={() => {
+            setIsSearched(false);
+            setCards(data)
+        }}>Back</button></div>}
     </>
 }
 

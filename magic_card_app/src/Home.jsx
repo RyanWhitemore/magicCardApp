@@ -3,7 +3,12 @@ import Header from "./Header"
 import { useTheme } from "@emotion/react"
 import { useNavigate } from "react-router-dom"
 
-const Home = () => {
+const Home = ({
+    login, loginClicked,
+    setLoginClicked, username,
+    password, setPassword,
+    setUsername
+}) => {
 
     const navigate = useNavigate()
 
@@ -11,7 +16,14 @@ const Home = () => {
 
     return <>
         <Header
-            fromLandingPage={true} 
+            fromLandingPage={true}
+            login={login}
+            loginClicked={loginClicked}
+            setLoginClicked={setLoginClicked}
+            username={username}
+            password={password}
+            setPassword={setPassword}
+            setUsername={setUsername}
         />
         <Box sx={{
             background: "radial-gradient(circle, rgba(50,100,149,0.5) 0%, rgba(37,45,63,1) 40%)",

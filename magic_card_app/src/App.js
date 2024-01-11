@@ -73,84 +73,91 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route exact path="/" element={<Home 
-            className="body"
-            search={search}
-            setSearch={setSearch}
-            loginClicked={loginClicked}
-            setLoginClicked={setLoginClicked}
-            username={username}
-            password={password}
-            setPassword={setPassword}
-            setUsername={setUsername}
-            login={login}
-            defaultCards={defaultCards}
-            setDefaultCards={setDefaultCards}
-            setIsCards={setIsCards}
-            isCards={isCards}/>}/>
+              className="body"
+              search={search}
+              setSearch={setSearch}
+              loginClicked={loginClicked}
+              setLoginClicked={setLoginClicked}
+              username={username}
+              password={password}
+              setPassword={setPassword}
+              setUsername={setUsername}
+              login={login}
+              defaultCards={defaultCards}
+              setDefaultCards={setDefaultCards}
+              setIsCards={setIsCards}
+              isCards={isCards}/>}/>
             <Route exact path="/mycards" element={<MyCards
-            login={login}
-            defaultCards={defaultCards}
-            setDefaultCards={setDefaultCards}
-            setIsCards={setIsCards}
-            isCards={isCards}
-            loginClicked={loginClicked}
-            setLoginClicked={setLoginClicked}
-            username={username}
-            password={password}
-            setPassword={setPassword}
-            setUsername={setUsername}/>}/>
+              login={login}
+              defaultCards={defaultCards}
+              setDefaultCards={setDefaultCards}
+              setIsCards={setIsCards}
+              isCards={isCards}
+              loginClicked={loginClicked}
+              setLoginClicked={setLoginClicked}
+              username={username}
+              password={password}
+              setPassword={setPassword}
+              setUsername={setUsername}/>}/>
             <Route exact path="/register" element={<Register/>}/>
             <Route exact path="/deckBuilder" element={<DeckBuiler
-            login={login}
-            defaultCards={defaultCards}
-            setDefaultCards={setDefaultCards}
-            setIsCards={setIsCards}
-            isCards={isCards}
-            loginClicked={loginClicked}
-            setLoginClicked={setLoginClicked}
-            username={username}
-            password={password}
-            setPassword={setPassword}
-            setUsername={setUsername}/>}/>
+              login={login}
+              defaultCards={defaultCards}
+              setDefaultCards={setDefaultCards}
+              setIsCards={setIsCards}
+              isCards={isCards}
+              loginClicked={loginClicked}
+              setLoginClicked={setLoginClicked}
+              username={username}
+              password={password}
+              setPassword={setPassword}
+              setUsername={setUsername}/>}/>
             <Route exact path='/mydecks' element={<MyDecks
-            login={login}
-            defaultCards={defaultCards}
-            setDefaultCards={setDefaultCards}
-            setIsCards={setIsCards}
-            isCards={isCards}
-            loginClicked={loginClicked}
-            setLoginClicked={setLoginClicked}
-            username={username}
-            password={password}
-            setPassword={setPassword}
-            setUsername={setUsername}/>}/>
+              login={login}
+              defaultCards={defaultCards}
+              setDefaultCards={setDefaultCards}
+              setIsCards={setIsCards}
+              isCards={isCards}
+              loginClicked={loginClicked}
+              setLoginClicked={setLoginClicked}
+              username={username}
+              password={password}
+              setPassword={setPassword}
+              setUsername={setUsername}/>}/>
             <Route exact path="DeckPage" element={<DeckPage/>}
-            login={login}
-            defaultCards={defaultCards}
-            setDefaultCards={setDefaultCards}
-            setIsCards={setIsCards}
-            isCards={isCards}
-            loginClicked={loginClicked}
-            setLoginClicked={setLoginClicked}
-            username={username}
-            password={password}
-            setPassword={setPassword}
-            setUsername={setUsername}
+              login={login}
+              defaultCards={defaultCards}
+              setDefaultCards={setDefaultCards}
+              setIsCards={setIsCards}
+              isCards={isCards}
+              loginClicked={loginClicked}
+              setLoginClicked={setLoginClicked}
+              username={username}
+              password={password}
+              setPassword={setPassword}
+              setUsername={setUsername}
             />
             <Route exact path="fishbowl" element={<FishBowl/>}
-            login={login}
-            defaultCards={defaultCards}
-            setDefaultCards={setDefaultCards}
-            setIsCards={setIsCards}
-            isCards={isCards}
-            loginClicked={loginClicked}
-            setLoginClicked={setLoginClicked}
-            username={username}
-            password={password}
-            setPassword={setPassword}
-            setUsername={setUsername}
+              login={login}
+              defaultCards={defaultCards}
+              setDefaultCards={setDefaultCards}
+              setIsCards={setIsCards}
+              isCards={isCards}
+              loginClicked={loginClicked}
+              setLoginClicked={setLoginClicked}
+              username={username}
+              password={password}
+              setPassword={setPassword}
+              setUsername={setUsername}
             />
             <Route exact path="addcards" element={<AddCards/>}
+              login={login}
+              loginClicked={loginClicked}
+              setLoginClicked={setLoginClicked}
+              username={username}
+              password={password}
+              setPassword={setPassword}
+              setUsername={setUsername}
             />
           </Routes> 
         </BrowserRouter>

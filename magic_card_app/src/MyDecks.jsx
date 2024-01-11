@@ -4,7 +4,17 @@ import Header from "./Header"
 import styles from "./MyDecks.module.css"
 import { useNavigate } from "react-router-dom"
 import Popup from "reactjs-popup"
-import { useState } from "react"
+import { useRef, useState } from "react"
+import Grid from "@mui/material/Grid"
+import Typography from "@mui/material/Typography"
+import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
+import { useOutsideAlerter } from "./util"
+import CircularProgress from "@mui/material/CircularProgress"
+import Card from "@mui/material/Card"
+import CardMedia from "@mui/material/CardMedia"
+import CardContent from "@mui/material/CardContent"
+import Chip from "@mui/material/Chip"
 
 
 const MyDecks = ({
@@ -24,6 +34,9 @@ const MyDecks = ({
     const user = localStorage.getItem("userID")
     const [ deckName, setDeckName ] = useState(false)
     const [ notChosenColors, setNotChosenColors ] = useState(["W", "U", "B", "R", "G"])
+    const [ popup, setPopup ] = useState(false)
+
+    const createDeckRef = useRef()
 
     const typesOfDecks = ["commander",
         "modern","pauper","standard","future",
@@ -33,8 +46,19 @@ const MyDecks = ({
         "duel","oldschool","premodern","predh"]
 
     const colors = ["White", "Blue", "Black", "Red", "Green"]
+    const colorObj = {White: "W", Blue: "U", Black: "B", Red: "R", Green: "G"}
+
+    const chipColors = {
+        "White": "rgb(255, 251, 213)", 
+        "Blue": "rgb(187, 216, 230)", 
+        "Black": "rgb(203, 194, 191)",
+        "Red": "rgb(249, 170, 143)",
+        "Green": "rgb(155, 211, 174)"
+    }
 
     const colorsObj = {"White": "W", "Blue": "U", "Black": "B", "Red": "R", "Green": "G"}
+
+    useOutsideAlerter(createDeckRef, setPopup)
 
     const deckList = useQuery({queryKey: "deckList" + user, refetchOnWindowFocus: false, queryFn: () => {
         return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/deck/` + user)
@@ -165,10 +189,10 @@ const MyDecks = ({
         setUsername={setUsername}
         setPassword={setPassword}
         />
-    <div className={styles.main}>
-        <Popup trigger={<div className={styles.create}>
-            <button>Create Deck</button>
-            </div>} modal>
+    <div >
+        <Popup open={popup}
+            modal
+        >
             <div className={styles.creationMenu}>
                 <input onChange={(e) => setDeckName(e.target.value)} 
                     className={styles.deckName}
@@ -200,23 +224,85 @@ const MyDecks = ({
                 <button className={styles.createButton} onClick={createDeck}>Create Deck</button>
             </div>
         </Popup>
-        <header className={styles.header}>Decks</header>
-        <div className={styles.decksDiv}>
-            {deckList.isFetched && deckList.data.data ? deckList.data.data.map(deck => {
-                    return <><div className={styles.deckDiv} onClick={() => {
-                        openDeck(deck)
-                    }}>
-                                    {deck.deckName}{deck?.colorIdentity?.map(color => {
-                                return <img alt={color}
-                                    src={`${color}Pip.png`}
-                                    height={"13px"}
-                                    width={"13px"}
-                                    className={styles.pips}
-                                ></img>
-                            })}
-                        </div></>
-                }) : null}
-        </div>
+        <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%"
+        }}>
+            <Typography
+                variant="h2"
+            >My Decks</Typography>
+            <Button
+                sx={{
+                    marginTop: "10px"
+                }}
+                ref={createDeckRef}
+                variant="contained"
+                onClick={() => setPopup(true)}
+            >
+                Create Deck
+            </Button>
+        </Box>
+        <Grid container
+            spacing="10"
+            sx={{
+                justifyContent: "center",
+                marginTop: "10px",
+            }}
+        >
+            {!deckList.isLoading ? deckList.data.data.map((deck) => {
+                return <Grid item>
+                        <Card
+                            onClick={() => {
+                                openDeck(deck)
+                            }}
+                            elevation={24}
+                            sx={{
+                                cursor: "pointer",
+                                borderRadius: "20px"
+                            }}
+                        >
+                            <CardMedia 
+                                component={"img"}
+                                image={deck.deckImg}
+                                alt={deck.deck_name}
+                                height="200"
+                            />
+                            <CardContent>
+                                <div className={styles.manaChip}
+                                    style={{
+                                        bagroundColor: deck.totalManaPips.total === 0 ? "gra" : null
+                                    }}
+                                >
+                                    {colors.map((color) => {
+                                        const width = (deck.totalManaPips[colorObj[color]] / deck.totalManaPips.total) * 100
+                                        return <>
+                                            {color !== "White" && width > 0 ? <div style={{
+                                                width: "5px",
+                                                height: "25px",
+                                            }}></div> : null}
+                                            { width > 0 ? <div style={{
+                                            width: `${width}%`,
+                                            height: "25px",
+                                            paddingLeft: "0px",
+                                            marginLeft: "0px",
+                                            borderRadius: "5px",
+                                            backgroundColor: chipColors[color]
+                                            }}>
+
+                                            </div> : null}
+                                        </> 
+                                    })}
+                                </div>
+                                <Typography>
+                                    {deck.deckName}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+            }) : <CircularProgress />}
+       </Grid>
     </div>
     </> 
 }
