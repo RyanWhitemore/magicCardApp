@@ -5,6 +5,7 @@ import Graph from "./Graph"
 import { useState } from "react"
 import Card from "./Card"
 import { useNavigate } from "react-router-dom"
+import Filter from "./Filter"
 
 const DeckPage = ({
         login,
@@ -19,7 +20,7 @@ const DeckPage = ({
         setPassword,
         setUsername
 }) => {
-    const deck = JSON.parse(localStorage.getItem("deck"))
+    const [ deck, setDeck ] = useState(JSON.parse(localStorage.getItem("deck")))
     const commander = localStorage.getItem("commander") ? JSON.parse(localStorage.getItem("commander")) : null
     const cardTypes = ["Artifact", "Instant", "Creature", 
         "Enchantment", "Sorcery", "Land", "Basic Land", "Planeswalker",
@@ -35,7 +36,8 @@ const DeckPage = ({
     const [ filterColors, setFilterColors ] = useState([])
     const [ cmc, setCmc ] = useState([])
     const [typeArray, setTypeArray] = useState([])
-    
+    const [ filterClicked, setFilterClicked ] = useState(true)
+    const [ filter, setFilter ] = useState([])
 
     let maxCmc = 0;
     const cmcArray = []
@@ -43,7 +45,6 @@ const DeckPage = ({
 
     const editdeck = () => {
         const colors = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
-        console.log(localStorage.getItem("deckColorIdentity"))
         const colorIdentity = JSON.parse(localStorage.getItem("deckColorIdentity"))
         const notChosenColors = ["W", "U", "B", "R", "G"]
         for (const color of colorIdentity) {
@@ -135,6 +136,14 @@ const DeckPage = ({
         login={login}
         setUsername={setUsername}
         setPassword={setPassword}
+        />
+        <Filter 
+            filterClicked={filterClicked}
+            setFilterClicked={setFilterClicked}
+            filter={filter}
+            setFilter={setFilter}
+            setCards={setDeck}
+            data={deck}
         />
         <div className={styles.title}>
             <div className={styles.filter}>

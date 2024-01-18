@@ -14,7 +14,15 @@ import CircularProgress from "@mui/material/CircularProgress"
 import Card from "@mui/material/Card"
 import CardMedia from "@mui/material/CardMedia"
 import CardContent from "@mui/material/CardContent"
-import Chip from "@mui/material/Chip"
+import Dialog from "@mui/material/Dialog"
+import TextField from "@mui/material/TextField"
+import DialogActions from "@mui/material/DialogActions"
+import DialogContent from "@mui/material/DialogContent"
+import DialogContentText from "@mui/material/DialogContentText"
+import DialogTitle from "@mui/material/DialogTitle"
+import Select from "@mui/material/Select"
+import MenuItem from "@mui/material/MenuItem"
+import { Checkbox, FormControlLabel, FormGroup } from "@mui/material"
 
 
 const MyDecks = ({
@@ -46,6 +54,7 @@ const MyDecks = ({
         "duel","oldschool","premodern","predh"]
 
     const colors = ["White", "Blue", "Black", "Red", "Green"]
+    const filterColors = [...colors, "Colorless"]
     const colorObj = {White: "W", Blue: "U", Black: "B", Red: "R", Green: "G"}
 
     const chipColors = {
@@ -58,38 +67,53 @@ const MyDecks = ({
 
     const colorsObj = {"White": "W", "Blue": "U", "Black": "B", "Red": "R", "Green": "G"}
 
-    useOutsideAlerter(createDeckRef, setPopup)
-
     const deckList = useQuery({queryKey: "deckList" + user, refetchOnWindowFocus: false, queryFn: () => {
         return axios.get(`http://localhost:${process.env.REACT_APP_SERVPORT}/deck/` + user)
     }})
 
-    const defaultDeckName = "New Deck(" + (deckList.isFetched  && deckList.data.data? deckList.data.data.filter((deck) => {
+    const defaultDeckName = "New Deck(" + (deckList.isFetched  && deckList.data.data ? deckList.data.data.filter((deck) => {
         if (deck.deckName?.match(/[Deck Name]/)) {
             return true
         }
         return false
-    }).length + ")": null)
+    }).length + 1 + ")": null)
 
     const navigate = useNavigate()
 
     const getDeck = async (deck) => {
-        const deckToOpen = []
-        for (const card of deck.cards) {
-            let cardToAdd = axios.get(`https://api.scryfall.com/cards/${card.card}`)
-            cardToAdd = await cardToAdd
-            deckToOpen.push({card: cardToAdd.data, numInDeck: card.numInDeck})
+        console.time("get deck")
+        let deckToOpen = []
+        const returnArray = []
+        
+        const { chunks, quantities } = breakIntoChunks(deck)
+        console.time("post request")
+        for (const chunk of chunks) {
+            const result = await axios.post("https://api.scryfall.com/cards/collection", chunk, {
+                "Content Type": "application/json"
+            })
+            deckToOpen = deckToOpen.concat(result.data.data)
         }
-        return deckToOpen
+        console.timeEnd("post request")
+        
+        for (const card of deckToOpen) {
+            returnArray.push({card, quantity: quantities[card.id]})
+        }
+
+        console.timeEnd("get deck")
+        return returnArray
     }
 
     const getCommander = async (commander) => {
+
+        console.time('commander')
         const commanderToAdd = await axios.get(`https://api.scryfall.com/cards/${commander}`)
+        console.timeEnd("commander")
         return commanderToAdd
     }
 
     const setUpDeck = (deck, deckToOpen, commander) => {
         try {
+            console.time("setUpDeck")
             localStorage.setItem("deck", JSON.stringify(deckToOpen))
             if(commander) {
                 localStorage.setItem("commander", JSON.stringify(commander.data))
@@ -100,13 +124,45 @@ const MyDecks = ({
             localStorage.setItem("deckName", deck.deckName)
             localStorage.setItem("deckType", deck.deckType)
             localStorage.setItem('deckColorIdentity', JSON.stringify(deck.colorIdentity))
+            console.timeEnd("setUpDeck")
             return true
         } catch (err) {
             console.log(err)
         }
     }
 
+    const breakIntoChunks = (deck) => {
+        console.time("chunks")
+        const returnValue = {}
+        const chunks = []
+        const quantityObj = {}
+        let tempObj = {identifiers: []}
+        let finalChunkObj = {identifiers: []}
+
+        for (let card of deck.cards) {
+            tempObj.identifiers.push({id: card.card})
+            if (tempObj.identifiers.length > 75){
+                chunks.push(finalChunkObj)
+                finalChunkObj = {identifiers: []}
+                tempObj={identifiers : []}
+            }
+            quantityObj[card.card] = card.quantity
+            finalChunkObj.identifiers.push({id: card.card})
+        }
+
+        if (finalChunkObj.identifiers.length > 0) {
+            chunks.push(finalChunkObj)
+        }
+
+        returnValue.chunks = chunks
+        returnValue.quantities = quantityObj
+        console.timeEnd("chunks")
+
+       return returnValue
+    }
+
     const openDeck = async (deck) => {
+        console.time("openDeck")
         const deckToOpen = await getDeck(deck)
 
         let commander = false
@@ -116,6 +172,7 @@ const MyDecks = ({
         }
 
         if (setUpDeck(deck, deckToOpen, commander)) {
+            console.timeEnd("openDeck")
             return navigate("/deckpage")
         }
     }
@@ -190,6 +247,63 @@ const MyDecks = ({
         setPassword={setPassword}
         />
     <div >
+        <Dialog
+            open={popup}
+            onClose={() => setPopup(false)}
+            PaperProps={{
+                component: "form",
+                onSubmit: (e) => {
+                    e.preventDefault();
+                    createDeck()
+                    setPopup(false)
+                },
+
+            }}
+        >
+            <DialogTitle>Create Deck</DialogTitle>
+            <DialogContent>
+                <Grid spacing={5} container>
+                    <Grid item>
+                        <TextField 
+                            autoFocus
+                            margin="dense"
+                            id="deck name"
+                            name="name"
+                            defaultValue={defaultDeckName}
+                            fullWidth
+                            onChange={(e) => setDeckName(e.target.value)}
+                            variant="standard"
+                        />
+                    </Grid>
+                    <Grid item>
+                        <Select
+                            labelId="deck-type-selector"
+                            id="deck-type"
+                            onChange={(e) => localStorage.setItem("deckType", e.target.value)}
+                            defaultValue={"commander"}
+                        >
+                            {typesOfDecks.map((type) => {
+                                return <MenuItem value={type}>{type}</MenuItem>
+                            })}
+                        </Select>
+                    </Grid>
+                </Grid>
+                <Grid container sx={{
+                    alignItems: "flex-end"
+                }}>
+                    <Grid item xs={7.8}>
+                        <FormGroup>
+                                {colors.map((color) => {
+                                    return <FormControlLabel control={<Checkbox />} label={color} />
+                                })}
+                        </FormGroup>
+                    </Grid>
+                    <Grid item>
+                        <Button onClick={createDeck}>Create Deck</Button>
+                    </Grid>
+                </Grid>
+            </DialogContent>
+        </Dialog>
         <Popup open={popup}
             modal
         >
@@ -272,19 +386,16 @@ const MyDecks = ({
                             <CardContent>
                                 <div className={styles.manaChip}
                                     style={{
-                                        bagroundColor: deck.totalManaPips.total === 0 ? "gra" : null
+                                        backgroundColor: deck.totalManaPips.total === 0 ? "gray" : null
                                     }}
                                 >
                                     {colors.map((color) => {
                                         const width = (deck.totalManaPips[colorObj[color]] / deck.totalManaPips.total) * 100
                                         return <>
-                                            {color !== "White" && width > 0 ? <div style={{
-                                                width: "5px",
-                                                height: "25px",
-                                            }}></div> : null}
+                                            
                                             { width > 0 ? <div style={{
                                             width: `${width}%`,
-                                            height: "25px",
+                                            height: "20px",
                                             paddingLeft: "0px",
                                             marginLeft: "0px",
                                             borderRadius: "5px",

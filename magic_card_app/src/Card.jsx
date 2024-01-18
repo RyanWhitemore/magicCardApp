@@ -288,9 +288,8 @@ const Card = ({
                         placement="top"
                     > 
                         <CardMedia 
-                            onLoad={() => setLoading(false)}
+                            onLoad={() => {setLoading(false)}}
                             component="img"
-                            loading="lazy"
                             sx={{
                                 opacity: (!collected && fromAddCards) ? 0.7 : 1
                             }}
@@ -313,7 +312,6 @@ const Card = ({
                         <CardMedia 
                             onLoad={() => setLoading(false)}
                             component="img"
-                            loading="lazy"
                             sx={{
                                 opacity: (!collected && fromAddCards) ? 0.7 : 1
                             }}

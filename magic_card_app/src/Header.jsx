@@ -95,7 +95,8 @@ const Header = ({
                     if (collectionResults.data[i].id === result.id) {
                         result.inCollection = true
                         result.quantity = collectionResults.data[i].quantity
-                        break}
+                        break
+                    }
                      else {
                         result.quantity = 0
                     }
